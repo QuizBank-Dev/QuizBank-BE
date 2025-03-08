@@ -1,0 +1,49 @@
+name: Deploy to cloudtype
+on:
+    push:
+        branches:
+            - develop
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+            - name: Connect deploy key
+              uses: cloudtype-github-actions/connect@v1
+              with:
+                  token: ${{ secrets.CLOUDTYPE_TOKEN }}
+                  ghtoken: ${{ secrets.GHP_TOKEN }}
+            - name: Deploy
+              uses: cloudtype-github-actions/deploy@v1
+              with:
+                  token: ${{ secrets.CLOUDTYPE_TOKEN }}
+                  project: kkoor521/quizbank
+                  stage: main
+                  yaml: |
+                      name: quizbank-be
+                      app: node@16
+                      options:
+                        env:
+                          - name: ENV
+                            secret: ENV
+                          - name: PORT
+                            secret: PORT
+                          - name: DB_DEFAULT_URI
+                            secret: DB_DEFAULT_URI
+                          - name: DB_SUB_URI
+                            secret: DB_SUB_URI
+                          - name: ACCESS_TOKEN_SECRET
+                            secret: ACCESS_TOKEN_SECRET
+                          - name: REFRESH_TOKEN_SECRET
+                            secret: REFRESH_TOKEN_SECRET
+                        ports: 3000
+                        build: pnpm build
+                        start: pnpm start:prod
+                        install: pnpm i
+                        buildenv: []
+                      context:
+                        git:
+                          url: git@github.com:${{ github.repository }}.git
+                          ref: ${{ github.ref }}
+                        preset: nest.js
