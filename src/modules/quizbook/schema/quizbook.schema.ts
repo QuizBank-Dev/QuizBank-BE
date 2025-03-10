@@ -12,7 +12,7 @@ export enum CategoryType {
 }
 
 @Schema({ timestamps: true })
-export class Quizbook extends Document<Quizbook> {
+export class Quizbook extends Document {
 	@Prop({ required: true })
 	title: string;
 
