@@ -17,12 +17,18 @@ jobs:
 
         steps:
             - name: Checkout Repository
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
+
+            - uses: pnpm/action-setup@v4
+              name: Install pnpm
+              with:
+                  version: 10
+                  run_install: false
 
             - name: Setup Node.js
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@v4
               with:
-                  node-version: 18 # ✅ Node.js 버전 지정
+                  node-version: 20 # ✅ Node.js 버전 지정
                   cache: 'pnpm' # ✅ pnpm 캐싱 활성화
 
             - name: Install pnpm
@@ -32,7 +38,7 @@ jobs:
               run: pnpm --version # ✅ pnpm이 정상적으로 설치되었는지 확인
 
             - name: Install Dependencies
-              run: pnpm install --frozen-lockfile # ✅ lockfile 기반 설치 (더 빠르고 안전함)
+              run: pnpm install # ✅ lockfile 기반 설치 (더 빠르고 안전함)
 
             - name: Run Build
-              run: pnpm run build
+              run: pnpm build
