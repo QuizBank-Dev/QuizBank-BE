@@ -26,7 +26,10 @@ jobs:
                   cache: 'pnpm' # ✅ pnpm 캐싱 활성화
 
             - name: Install pnpm
-              run: corepack enable && corepack prepare pnpm@latest --activate # ✅ pnpm 최신 버전 설치
+              run: npm install -g pnpm # ✅ pnpm을 명확하게 설치
+
+            - name: Verify pnpm Installation
+              run: pnpm --version # ✅ pnpm이 정상적으로 설치되었는지 확인
 
             - name: Install Dependencies
               run: pnpm install --frozen-lockfile # ✅ lockfile 기반 설치 (더 빠르고 안전함)
