@@ -9,7 +9,7 @@ export enum QuizType {
 }
 
 @Schema({ timestamps: true })
-export class Quiz extends Document<Quiz> {
+export class Quiz extends Document {
 	@Prop({ required: true, enum: QuizType })
 	type: QuizType;
 
