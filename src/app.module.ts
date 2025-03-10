@@ -5,9 +5,10 @@ import { LoggerModule } from './common/logger/logger.module';
 import { DatabaseModule } from './database/database.module';
 import { QuizModule } from './modules/quiz/quiz.module';
 import { QuizbookModule } from './modules/quizbook/quizbook.module';
+import { CommentModule } from './modules/comment/comment.module';
 
 @Module({
-	imports: [ConfigModule, LoggerModule, DatabaseModule, QuizModule, QuizbookModule],
+	imports: [ConfigModule, LoggerModule, DatabaseModule, QuizModule, QuizbookModule, CommentModule],
 	providers: [],
 })
 export class AppModule implements NestModule {
