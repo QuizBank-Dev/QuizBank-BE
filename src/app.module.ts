@@ -4,9 +4,10 @@ import { HttpLoggerMiddleware } from './common/logger/http-logger.middleware';
 import { LoggerModule } from './common/logger/logger.module';
 import { DatabaseModule } from './database/database.module';
 import { QuizModule } from './modules/quiz/quiz.module';
+import { QuizbookModule } from './modules/quizbook/quizbook.module';
 
 @Module({
-	imports: [ConfigModule, LoggerModule, DatabaseModule, QuizModule],
+	imports: [ConfigModule, LoggerModule, DatabaseModule, QuizModule, QuizbookModule],
 	providers: [],
 })
 export class AppModule implements NestModule {
