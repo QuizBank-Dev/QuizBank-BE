@@ -1,4 +1,4 @@
-import { Prop, Schema } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { Quiz } from './quiz.schema';
 
@@ -18,3 +18,5 @@ export class QuizAgain extends Document {
 	// })
 	// user: Types.ObjectId | User;
 }
+
+export const QuizAgainSchema = SchemaFactory.createForClass(QuizAgain);
