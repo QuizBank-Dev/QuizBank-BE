@@ -2,10 +2,11 @@ import { ConfigService } from '@nestjs/config';
 import mongoose from 'mongoose';
 import { envKeys } from 'src/config/env.const';
 import { Logger } from 'winston';
+import { DB_CONNECTIONS } from './database.const';
 
 export const databaseProviders = [
 	{
-		provide: envKeys.DB.DEFAULT_URI,
+		provide: DB_CONNECTIONS.DEFAULT,
 		useFactory: (configService: ConfigService, logger: Logger) => {
 			const uri = configService.get<string>(envKeys.DB.DEFAULT_URI)!;
 			const connection = mongoose.createConnection(uri);
@@ -30,7 +31,7 @@ export const databaseProviders = [
 		inject: [ConfigService, 'winston'],
 	},
 	{
-		provide: envKeys.DB.SUB_URI,
+		provide: DB_CONNECTIONS.SUB,
 		useFactory: (configService: ConfigService, logger: Logger) => {
 			const uri = configService.get<string>(envKeys.DB.SUB_URI)!;
 			const connection = mongoose.createConnection(uri);
