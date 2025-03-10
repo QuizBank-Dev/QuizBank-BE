@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Quiz } from '../quiz/quiz.schema';
+import { Quiz } from '../../quiz/quiz.schema';
 
 export enum CategoryType {
 	DATA_STRUCTURE = '자료구조',
