@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Quiz } from '../quiz/quiz.schema';
+import { Quiz } from '../../quiz/schema/quiz.schema';
 
 @Schema({ timestamps: true })
 export class Comment extends Document {
