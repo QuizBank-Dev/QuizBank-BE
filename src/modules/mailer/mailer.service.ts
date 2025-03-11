@@ -6,14 +6,19 @@ import { MAILER_TRANSPORT } from './mailer.providers';
 @Injectable()
 export class MailerService {
 	private transporter: Transporter;
+	private readonly senderAddress: string;
 
 	constructor(@Inject(MAILER_TRANSPORT) private readonly transport: Options) {
+		this.senderAddress = this.transport.auth!.user!;
 		this.transporter = createTransport(this.transport);
 	}
 
 	async sendMail(to: string, subject: string, content: string) {
 		const options = {
-			from: 'Quizbank',
+			from: {
+				name: 'Quizbank',
+				address: this.senderAddress,
+			},
 			to,
 			subject,
 			html: content,
