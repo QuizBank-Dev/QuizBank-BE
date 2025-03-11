@@ -9,4 +9,8 @@ export const envValidationSchema = Joi.object({
 	REFRESH_TOKEN_SECRET: Joi.string().required(),
 	CLIENT_LOCAL_URL: Joi.string().default('http://localhost:3000'),
 	CLIENT_PROD_URL: Joi.string(),
+	MAILER_HOST: Joi.string(),
+	MAILER_PORT: Joi.number(),
+	MAILER_USER: Joi.string(),
+	MAILER_PASS: Joi.string(),
 });
