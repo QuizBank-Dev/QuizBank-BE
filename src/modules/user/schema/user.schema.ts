@@ -2,6 +2,7 @@
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { CategoryType, Quizbook } from '../../quizbook/schema/quizbook.schema';
 
 export enum ProviderType {
 	GOOGLE = 'Google',
@@ -31,9 +32,9 @@ export class User extends Document {
 	oAuth: ProviderType;
 
 	@Prop({
-		// type: [{ enum: CategoryType }],
+		type: [{ enum: CategoryType }],
 	})
-	category: string[]; // CategoryType[]
+	category: CategoryType[];
 
 	@Prop({
 		default: 0,
@@ -42,9 +43,9 @@ export class User extends Document {
 
 	@Prop({
 		type: Types.ObjectId,
-		ref: 'Workbook',
+		ref: 'Quizbook',
 	})
-	recentWorkbook: Types.ObjectId; // Workbook
+	recentWorkbook: Types.ObjectId | Quizbook;
 
 	@Prop()
 	profileImg: string;
