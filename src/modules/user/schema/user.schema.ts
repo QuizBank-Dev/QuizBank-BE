@@ -1,5 +1,3 @@
-// TODO PR #6([Feat] 기본 리소스 생성 및 DB 스키마 정의) merge 후 주석부분 수정
-
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { CategoryType, Quizbook } from '../../quizbook/schema/quizbook.schema';
