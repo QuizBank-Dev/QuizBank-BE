@@ -17,7 +17,7 @@ export const MailerProviders: Provider[] = [
 				pass: configService.get<string>(envKeys.MAILER.PASS)!,
 			},
 			tls: {
-				rejectUnauthorized: false,
+				rejectUnauthorized: true,
 			},
 		}),
 		inject: [ConfigService],
