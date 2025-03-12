@@ -7,9 +7,19 @@ import { QuizModule } from './modules/quiz/quiz.module';
 import { QuizbookModule } from './modules/quizbook/quizbook.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { ReviewModule } from './modules/review/review.module';
+import { MailerModule } from './modules/mailer/mailer.module';
 
 @Module({
-	imports: [ConfigModule, LoggerModule, DatabaseModule, QuizModule, QuizbookModule, CommentModule, ReviewModule],
+	imports: [
+		ConfigModule,
+		LoggerModule,
+		DatabaseModule,
+		QuizModule,
+		QuizbookModule,
+		CommentModule,
+		ReviewModule,
+		MailerModule,
+	],
 	providers: [],
 })
 export class AppModule implements NestModule {

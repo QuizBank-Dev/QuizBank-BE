@@ -14,4 +14,10 @@ export const envKeys = {
 		LOCAL: 'CLIENT_LOCAL_URL',
 		PROD: 'CLIENT_PROD_URL',
 	},
+	MAILER: {
+		HOST: 'MAILER_HOST',
+		PORT: 'MAILER_PORT',
+		USER: 'MAILER_USER',
+		PASS: 'MAILER_PASS',
+	},
 };
