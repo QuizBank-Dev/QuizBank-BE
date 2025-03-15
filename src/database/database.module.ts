@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { envKeys } from 'src/config/env.const';
 import { LoggerModule } from 'src/common/logger/logger.module';
 import { Connection } from 'mongoose';
-import { Logger } from 'winston';
+import { createLogger, Logger } from 'winston';
 import { DB_TYPE } from './database.const';
 
 @Module({
@@ -14,12 +14,12 @@ import { DB_TYPE } from './database.const';
 		// Default DB 연결
 		MongooseModule.forRootAsync({
 			imports: [ConfigModule],
+			connectionName: DB_TYPE.DEFAULT,
 			useFactory: async (
 				configService: ConfigService,
 				logger: Logger,
 			) => ({
 				uri: configService.get<string>(envKeys.DB.DEFAULT_URI),
-				dbName: DB_TYPE.DEFAULT,
 				onConnectionCreate: (connection: Connection) => {
 					connection.on('connected', () =>
 						logger.info('✅ Default DB Connected.'),
@@ -39,12 +39,12 @@ import { DB_TYPE } from './database.const';
 		// Sub DB 연결
 		MongooseModule.forRootAsync({
 			imports: [ConfigModule],
+			connectionName: DB_TYPE.SUB,
 			useFactory: async (
 				configService: ConfigService,
 				logger: Logger,
 			) => ({
 				uri: configService.get<string>(envKeys.DB.SUB_URI),
-				dbName: DB_TYPE.SUB,
 				onConnectionCreate: (connection: Connection) => {
 					connection.on('connected', () =>
 						logger.info('✅ Sub DB Connected.'),
