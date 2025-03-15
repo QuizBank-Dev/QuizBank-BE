@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
+import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { envKeys } from 'src/config/env.const';
 import { LoggerModule } from 'src/common/logger/logger.module';
 import { Connection } from 'mongoose';
-import { createLogger, Logger } from 'winston';
+import { Logger } from 'winston';
 import { DB_TYPE } from './database.const';
 
 @Module({
