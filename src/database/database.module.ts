@@ -14,12 +14,12 @@ import { DB_TYPE } from './database.const';
 		// Default DB 연결
 		MongooseModule.forRootAsync({
 			imports: [ConfigModule],
+			connectionName: DB_TYPE.DEFAULT,
 			useFactory: async (
 				configService: ConfigService,
 				logger: Logger,
 			) => ({
 				uri: configService.get<string>(envKeys.DB.DEFAULT_URI),
-				dbName: DB_TYPE.DEFAULT,
 				onConnectionCreate: (connection: Connection) => {
 					connection.on('connected', () =>
 						logger.info('✅ Default DB Connected.'),
@@ -39,12 +39,12 @@ import { DB_TYPE } from './database.const';
 		// Sub DB 연결
 		MongooseModule.forRootAsync({
 			imports: [ConfigModule],
+			connectionName: DB_TYPE.SUB,
 			useFactory: async (
 				configService: ConfigService,
 				logger: Logger,
 			) => ({
 				uri: configService.get<string>(envKeys.DB.SUB_URI),
-				dbName: DB_TYPE.SUB,
 				onConnectionCreate: (connection: Connection) => {
 					connection.on('connected', () =>
 						logger.info('✅ Sub DB Connected.'),
