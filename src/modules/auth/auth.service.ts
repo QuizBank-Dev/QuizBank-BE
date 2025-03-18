@@ -1,3 +1,4 @@
+import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { UserService } from '../user/user.service';
@@ -19,6 +20,13 @@ export class AuthService {
 	async register(createUserDto: CreateUserDto) {
 		const user = await this.userService.create(createUserDto);
 		return this.generateToken({ userId: user._id });
+	}
+
+	async validateUser(email: string, password: string) {
+		const user = await this.userService.findOne({ email }, { password: 1 });
+		return !!user && (await bcrypt.compare(password, user.password))
+			? user
+			: null;
 	}
 
 	generateToken(payload: AuthTokenPayloadDto) {

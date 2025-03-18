@@ -1,6 +1,15 @@
-import { Response } from 'express';
-import { Body, Controller, Get, Post, Res } from '@nestjs/common';
+import { Response, Request } from 'express';
+import {
+	Body,
+	Controller,
+	Get,
+	Post,
+	Req,
+	Res,
+	UseGuards,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 import { Public } from './decorator/public.decorator';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { AuthService } from './auth.service';
@@ -22,16 +31,45 @@ export class AuthController {
 		@Res({ passthrough: true }) response: Response,
 		@Body() signupDto: CreateUserDto,
 	) {
-		const result = await this.authService.register(signupDto);
+		const { accessToken, refreshToken } =
+			await this.authService.register(signupDto);
 
 		response.cookie(
 			AUTH_COOKIE_KEY.ACCESS,
-			result.accessToken,
+			accessToken,
 			AUTH_COOKIE_OPTIONS.ACCESS,
 		);
 		response.cookie(
 			AUTH_COOKIE_KEY.REFRESH,
-			result.refreshToken,
+			refreshToken,
+			AUTH_COOKIE_OPTIONS.REFRESH,
+		);
+	}
+
+	@Public()
+	@Post('login')
+	@UseGuards(AuthGuard('local'))
+	@ApiOperation({
+		summary: '로그인',
+		description: '로그인을 진행합니다.',
+	})
+	login(
+		@Req() request: Request,
+		@Res({ passthrough: true }) response: Response,
+	) {
+		const { accessToken, refreshToken } = request.user! as unknown as {
+			accessToken: string;
+			refreshToken: string;
+		};
+
+		response.cookie(
+			AUTH_COOKIE_KEY.ACCESS,
+			accessToken,
+			AUTH_COOKIE_OPTIONS.ACCESS,
+		);
+		response.cookie(
+			AUTH_COOKIE_KEY.REFRESH,
+			refreshToken,
 			AUTH_COOKIE_OPTIONS.REFRESH,
 		);
 	}

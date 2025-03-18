@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcrypt';
-import { Model, RootFilterQuery } from 'mongoose';
+import { Model, ProjectionType, RootFilterQuery } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
@@ -34,8 +34,11 @@ export class UserService {
 		return this.userModel.findById(id);
 	}
 
-	async findOne(filters: RootFilterQuery<User>) {
-		return this.userModel.findOne(filters);
+	async findOne(
+		filters: RootFilterQuery<User>,
+		projections?: ProjectionType<User>,
+	) {
+		return this.userModel.findOne(filters, projections);
 	}
 
 	async update(id: string, updateUserDto: UpdateUserDto) {
