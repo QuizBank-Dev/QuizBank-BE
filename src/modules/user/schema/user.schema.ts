@@ -25,12 +25,13 @@ export class User extends Document {
 	nickname: string;
 
 	@Prop({
+		type: String,
 		enum: ProviderType,
 	})
 	oAuth: ProviderType;
 
 	@Prop({
-		type: [{ enum: CategoryType }],
+		type: [{ type: String, enum: CategoryType }],
 	})
 	category: CategoryType[];
 
