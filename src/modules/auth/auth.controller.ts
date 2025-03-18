@@ -2,6 +2,7 @@ import { Response, Request } from 'express';
 import {
 	Body,
 	Controller,
+	Delete,
 	Get,
 	Post,
 	Req,
@@ -14,6 +15,7 @@ import { Public } from './decorator/public.decorator';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { AUTH_COOKIE_KEY, AUTH_COOKIE_OPTIONS } from './auth.const';
+import { UserId } from '../../common/decorators/user-id.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -80,6 +82,21 @@ export class AuthController {
 		description: '로그아웃입니다.',
 	})
 	logout(@Res({ passthrough: true }) response: Response) {
+		response.clearCookie(AUTH_COOKIE_KEY.ACCESS);
+		response.clearCookie(AUTH_COOKIE_KEY.REFRESH);
+	}
+
+	@Delete('withdraw')
+	@ApiOperation({
+		summary: '회원탈퇴',
+	})
+	async withdraw(
+		@UserId() userId: string,
+		@Res({ passthrough: true }) response: Response,
+	) {
+		await this.authService.withdraw(userId);
+		// TODO 회원 탈퇴 시 함께 제거되어야 할 데이터 어떻게할지 논의
+		// TODO 토큰 만료 방식 논의
 		response.clearCookie(AUTH_COOKIE_KEY.ACCESS);
 		response.clearCookie(AUTH_COOKIE_KEY.REFRESH);
 	}

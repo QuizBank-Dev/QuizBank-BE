@@ -29,6 +29,10 @@ export class AuthService {
 			: null;
 	}
 
+	async withdraw(id: string) {
+		await this.userService.delete(id);
+	}
+
 	generateToken(payload: AuthTokenPayloadDto) {
 		return {
 			accessToken:
