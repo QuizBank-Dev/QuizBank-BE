@@ -3,7 +3,6 @@ import {
 	Body,
 	Controller,
 	Delete,
-	Get,
 	Post,
 	Req,
 	Res,
@@ -73,10 +72,5 @@ export class AuthController {
 		// TODO 회원 탈퇴 시 함께 제거되어야 할 데이터 어떻게할지 논의
 		// TODO 토큰 만료 방식 논의
 		this.authService.clearAuthCookies(response);
-	}
-
-	@Get()
-	test() {
-		return 'test';
 	}
 }
