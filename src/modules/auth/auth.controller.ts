@@ -14,8 +14,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { Public } from './decorator/public.decorator';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { AuthService } from './auth.service';
-import { AUTH_COOKIE_KEY, AUTH_COOKIE_OPTIONS } from './auth.const';
 import { UserId } from '../../common/decorators/user-id.decorator';
+import { AuthToken } from './auth.types';
 
 @Controller('auth')
 export class AuthController {
@@ -33,19 +33,8 @@ export class AuthController {
 		@Res({ passthrough: true }) response: Response,
 		@Body() signupDto: CreateUserDto,
 	) {
-		const { accessToken, refreshToken } =
-			await this.authService.register(signupDto);
-
-		response.cookie(
-			AUTH_COOKIE_KEY.ACCESS,
-			accessToken,
-			AUTH_COOKIE_OPTIONS.ACCESS,
-		);
-		response.cookie(
-			AUTH_COOKIE_KEY.REFRESH,
-			refreshToken,
-			AUTH_COOKIE_OPTIONS.REFRESH,
-		);
+		const result = await this.authService.register(signupDto);
+		this.authService.setAuthCookies(result, response);
 	}
 
 	@Public()
@@ -59,21 +48,8 @@ export class AuthController {
 		@Req() request: Request,
 		@Res({ passthrough: true }) response: Response,
 	) {
-		const { accessToken, refreshToken } = request.user! as unknown as {
-			accessToken: string;
-			refreshToken: string;
-		};
-
-		response.cookie(
-			AUTH_COOKIE_KEY.ACCESS,
-			accessToken,
-			AUTH_COOKIE_OPTIONS.ACCESS,
-		);
-		response.cookie(
-			AUTH_COOKIE_KEY.REFRESH,
-			refreshToken,
-			AUTH_COOKIE_OPTIONS.REFRESH,
-		);
+		const result = request.user! as unknown as AuthToken;
+		this.authService.setAuthCookies(result, response);
 	}
 
 	@Post('logout')
@@ -82,8 +58,7 @@ export class AuthController {
 		description: '로그아웃입니다.',
 	})
 	logout(@Res({ passthrough: true }) response: Response) {
-		response.clearCookie(AUTH_COOKIE_KEY.ACCESS);
-		response.clearCookie(AUTH_COOKIE_KEY.REFRESH);
+		this.authService.clearAuthCookies(response);
 	}
 
 	@Delete('withdraw')
@@ -97,8 +72,7 @@ export class AuthController {
 		await this.authService.withdraw(userId);
 		// TODO 회원 탈퇴 시 함께 제거되어야 할 데이터 어떻게할지 논의
 		// TODO 토큰 만료 방식 논의
-		response.clearCookie(AUTH_COOKIE_KEY.ACCESS);
-		response.clearCookie(AUTH_COOKIE_KEY.REFRESH);
+		this.authService.clearAuthCookies(response);
 	}
 
 	@Get()
