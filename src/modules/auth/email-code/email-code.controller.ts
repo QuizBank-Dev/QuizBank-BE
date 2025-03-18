@@ -3,11 +3,13 @@ import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { GenerateEmailVerificationCodeDto } from './dto/generate-email-verification-code.dto';
 import { EmailVerificationDto } from './dto/email-verification.dto';
 import { EmailCodeService } from './email-code.service';
+import { Public } from '../decorator/public.decorator';
 
 @Controller('auth/verification')
 export class EmailCodeController {
 	constructor(private readonly emailCodeService: EmailCodeService) {}
 
+	@Public()
 	@Post()
 	@HttpCode(200)
 	@ApiOperation({
@@ -22,6 +24,7 @@ export class EmailCodeController {
 		return;
 	}
 
+	@Public()
 	@Post('code')
 	@HttpCode(200)
 	@ApiOperation({
