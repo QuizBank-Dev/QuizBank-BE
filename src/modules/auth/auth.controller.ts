@@ -75,6 +75,10 @@ export class AuthController {
 	}
 
 	@Post('logout')
+	@ApiOperation({
+		summary: '로그아웃',
+		description: '로그아웃입니다.',
+	})
 	logout(@Res({ passthrough: true }) response: Response) {
 		response.clearCookie(AUTH_COOKIE_KEY.ACCESS);
 		response.clearCookie(AUTH_COOKIE_KEY.REFRESH);
