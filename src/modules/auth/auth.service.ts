@@ -1,20 +1,38 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { UserService } from '../user/user.service';
+import { AuthTokenService } from './auth-token/auth-token.service';
+import { TokenType } from './auth-token/auth-token.types';
+import { AuthTokenPayloadDto } from './auth-token/dto/auth-token-payload.dto';
 
 @Injectable()
 export class AuthService {
-	constructor(private readonly userService: UserService) {}
+	constructor(
+		private readonly userService: UserService,
+		private readonly authTokenService: AuthTokenService,
+	) {}
 
 	/**
 	 * 회원가입
 	 * @param createUserDto 이메일, 비밀번호, 닉네임
 	 */
 	async register(createUserDto: CreateUserDto) {
-		try {
-			return await this.userService.create(createUserDto);
-		} catch (error) {
-			throw new BadRequestException('회원가입을 실패했습니다.');
-		}
+		const user = await this.userService.create(createUserDto);
+		return this.generateToken({ userId: user._id });
+	}
+
+	generateToken(payload: AuthTokenPayloadDto) {
+		return {
+			accessToken:
+				this.authTokenService.generateToken<AuthTokenPayloadDto>(
+					TokenType.ACCESS,
+					payload,
+				),
+			refreshToken:
+				this.authTokenService.generateToken<AuthTokenPayloadDto>(
+					TokenType.REFRESH,
+					payload,
+				),
+		};
 	}
 }
