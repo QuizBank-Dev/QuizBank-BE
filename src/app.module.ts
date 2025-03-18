@@ -8,6 +8,8 @@ import { QuizbookModule } from './modules/quizbook/quizbook.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { ReviewModule } from './modules/review/review.module';
 import { MailerModule } from './modules/mailer/mailer.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
 	imports: [
@@ -19,6 +21,8 @@ import { MailerModule } from './modules/mailer/mailer.module';
 		CommentModule,
 		ReviewModule,
 		MailerModule,
+		AuthModule,
+		UserModule,
 	],
 	providers: [],
 })

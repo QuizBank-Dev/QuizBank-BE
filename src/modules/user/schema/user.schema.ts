@@ -13,10 +13,13 @@ export enum ProviderType {
 export class User extends Document {
 	@Prop({
 		required: true,
+		unique: true,
 	})
 	email: string;
 
-	@Prop()
+	@Prop({
+		select: false,
+	})
 	password: string;
 
 	@Prop({
