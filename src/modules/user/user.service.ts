@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcrypt';
-import { Model } from 'mongoose';
+import { Model, RootFilterQuery } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
@@ -7,6 +7,7 @@ import { envKeys } from '../../config/env.const';
 import { DB_TYPE } from '../../database/database.const';
 import { User } from './schema/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -27,5 +28,21 @@ export class UserService {
 			password: hashedPassword,
 			nickname,
 		});
+	}
+
+	async findById(id: string) {
+		return this.userModel.findById(id);
+	}
+
+	async findOne(filters: RootFilterQuery<User>) {
+		return this.userModel.findOne(filters);
+	}
+
+	async update(id: string, updateUserDto: UpdateUserDto) {
+		return this.userModel.findByIdAndUpdate(id, updateUserDto);
+	}
+
+	async delete(id: string) {
+		return this.userModel.findByIdAndDelete(id);
 	}
 }
