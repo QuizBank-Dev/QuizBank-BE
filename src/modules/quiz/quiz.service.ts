@@ -1,26 +1,23 @@
-import { Injectable } from '@nestjs/common';
-import { CreateQuizDto } from './dto/create-quiz.dto';
-import { UpdateQuizDto } from './dto/update-quiz.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Quiz } from './schema/quiz.schema';
+import { DB_TYPE } from 'src/database/database.const';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class QuizService {
-	create(createQuizDto: CreateQuizDto) {
-		return 'This action adds a new quiz';
-	}
+	constructor(
+		@InjectModel(Quiz.name, DB_TYPE.DEFAULT)
+		private readonly quizModel: Model<Quiz>,
+	) {}
 
-	findAll() {
-		return `This action returns all quiz`;
-	}
+	// 특정 Quiz를 가져온다.
+	async findOne(id: string) {
+		const quiz = await this.quizModel.findOne({ _id: id });
 
-	findOne(id: number) {
-		return `This action returns a #${id} quiz`;
-	}
+		if (!quiz)
+			throw new NotFoundException(`${id} 문제를 찾을 수 없습니다.`);
 
-	update(id: number, updateQuizDto: UpdateQuizDto) {
-		return `This action updates a #${id} quiz`;
-	}
-
-	remove(id: number) {
-		return `This action removes a #${id} quiz`;
+		return quiz;
 	}
 }
