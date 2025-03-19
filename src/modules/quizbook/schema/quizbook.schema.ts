@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { Quiz } from '../../quiz/schema/quiz.schema';
-import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 
 export enum CategoryType {
 	DATA_STRUCTURE = '자료구조',
