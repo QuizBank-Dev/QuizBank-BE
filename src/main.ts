@@ -21,6 +21,7 @@ async function bootstrap() {
 		.setTitle('QuizBank')
 		.setDescription('QuizBank API 명세')
 		.setVersion('1.0')
+		.addServer('/v1')
 		.build();
 
 	const document = SwaggerModule.createDocument(app, config);
