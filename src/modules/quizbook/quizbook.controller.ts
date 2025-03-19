@@ -33,7 +33,7 @@ export class QuizbookController {
 		summary: '문제집 생성',
 		description: '문제집을 생성합니다.',
 	})
-	@ApiBaseResponse(QuizbookCreateResponseDto, HttpStatus.CREATED, '성공')
+	@ApiBaseResponse(QuizbookCreateResponseDto, HttpStatus.CREATED, '생성 성공')
 	async create(@Body() createQuizbookDto: CreateQuizbookDto) {
 		return this.quizbookService.create(createQuizbookDto);
 	}
@@ -52,7 +52,7 @@ export class QuizbookController {
 	}
 
 	// GET v1/quizbook/:id
-	// 특정 문제집의 상세정보를 가져온다다.
+	// 특정 문제집의 상세정보를 가져온다.
 	@Get(':id')
 	@Version('1')
 	@ApiOperation({
