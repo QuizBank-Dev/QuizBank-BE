@@ -12,7 +12,6 @@ import { QuizbookService } from './quizbook.service';
 import { CreateQuizbookDto } from './dto/create-quizbook.dto';
 import { ApiExtraModels, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FindAllQuizbookDto } from './dto/find-all-quizbook.dto';
-import { Quizbook } from './schema/quizbook.schema';
 import { ApiBaseResponse } from 'src/common/decorators/base-response.decorator';
 import { Quiz } from '../quiz/schema/quiz.schema';
 import {
