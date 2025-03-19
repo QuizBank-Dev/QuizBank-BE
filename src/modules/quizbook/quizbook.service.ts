@@ -76,7 +76,7 @@ export class QuizbookService {
 		const quizbook = await this.quizbookModel
 			.findOne({ _id: id })
 			.populate({
-				path: 'quizzes',
+				path: 'quizList',
 				model: 'Quiz',
 				select: 'type question',
 			});
