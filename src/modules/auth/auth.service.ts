@@ -1,6 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import { Response } from 'express';
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { UserService } from '../user/user.service';
 import { AuthTokenService } from './auth-token/auth-token.service';
@@ -21,12 +21,21 @@ export class AuthService {
 	 * @param createUserDto 이메일, 비밀번호, 닉네임
 	 */
 	async register(createUserDto: CreateUserDto) {
+		const alreadySignedUp = await this.userService.findOne({
+			email: createUserDto.email,
+		});
+
+		if (alreadySignedUp) {
+			throw new ConflictException('이미 가입된 이메일입니다.');
+		}
+
 		const user = await this.userService.create(createUserDto);
 		return this.generateToken({ userId: user._id });
 	}
 
 	async validateUser(email: string, password: string) {
 		const user = await this.userService.findOne({ email }, { password: 1 });
+
 		return !!user && (await bcrypt.compare(password, user.password))
 			? user
 			: null;
