@@ -6,34 +6,23 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { map, Observable } from 'rxjs';
-
-interface ApiResponse<T> {
-	statusCode: number;
-	message: string;
-	data: T;
-}
+import { BaseResponse } from '../dto/base-response.dto';
 
 @Injectable()
 export class GlobalResponseInterceptor<T>
-	implements NestInterceptor<T, ApiResponse<T>>
+	implements NestInterceptor<T, BaseResponse<T>>
 {
 	intercept(
 		context: ExecutionContext,
 		next: CallHandler<T>,
-	): Observable<ApiResponse<T>> {
+	): Observable<BaseResponse<T>> {
 		const response = context.switchToHttp().getResponse<Response>();
 
 		return next.handle().pipe(
 			map((data: T) => {
-				if (response.statusCode >= 200 && response.statusCode < 300) {
-					return {
-						statusCode: response.statusCode,
-						message: 'ok',
-						data,
-					};
-				}
+				const statusCode = response.statusCode; // 기본값 200 OK
 
-				return data as unknown as ApiResponse<T>; // ✅ 타입 강제 변환으로 오류 방지
+				return new BaseResponse(statusCode, 'ok', data);
 			}),
 		);
 	}
