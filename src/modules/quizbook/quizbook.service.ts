@@ -37,7 +37,7 @@ export class QuizbookService {
 				title: createQuizbookDto.title,
 				category: createQuizbookDto.category,
 				description: createQuizbookDto.description,
-				quizzes: quizDocs.map((quiz) => quiz._id),
+				quizList: quizDocs.map((quiz) => quiz._id),
 			});
 
 			await quizbook.save({ session });
@@ -66,15 +66,15 @@ export class QuizbookService {
 		if (query.category)
 			filters.category = { $regex: query.category, $options: 'i' };
 
-		const quizbooks = await this.quizbookModel.find(filters);
+		const quizbookList = await this.quizbookModel.find(filters);
 
-		return quizbooks;
+		return quizbookList;
 	}
 
 	// 특정 Quizbook을 가져온다.
-	async findOne(id: string) {
+	async findOne(quizbookId: string) {
 		const quizbook = await this.quizbookModel
-			.findOne({ _id: id })
+			.findOne({ _id: quizbookId })
 			.populate({
 				path: 'quizList',
 				model: 'Quiz',
@@ -82,7 +82,9 @@ export class QuizbookService {
 			});
 
 		if (!quizbook)
-			throw new NotFoundException(`${id} 문제집을 찾을 수 없습니다.`);
+			throw new NotFoundException(
+				`${quizbookId} 문제집을 찾을 수 없습니다.`,
+			);
 
 		return quizbook;
 	}

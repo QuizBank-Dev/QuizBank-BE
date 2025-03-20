@@ -51,9 +51,9 @@ export class QuizbookController {
 		return this.quizbookService.findAll(query);
 	}
 
-	// GET v1/quizbook/:id
+	// GET v1/quizbook/:quizbookId
 	// 특정 문제집의 상세정보를 가져온다.
-	@Get(':id')
+	@Get(':quizbookId')
 	@Version('1')
 	@ApiOperation({
 		summary: '문제집 상세 조회',
@@ -61,7 +61,7 @@ export class QuizbookController {
 	})
 	@ApiExtraModels(Quiz)
 	@ApiBaseResponse(QuizbookFindOneResponseDto, HttpStatus.OK, '조회 성공')
-	async findOne(@Param('id') id: string) {
-		return this.quizbookService.findOne(id);
+	async findOne(@Param('quizbookId') quizbookId: string) {
+		return this.quizbookService.findOne(quizbookId);
 	}
 }
