@@ -27,9 +27,12 @@ export class QuizbookService {
 
 		try {
 			// 1. Quiz 생성
-			const quizDocs = await this.quizModel.insertMany(
-				createQuizbookDto.quizList,
-				{ session },
+			const quizDocs = await Promise.all(
+				createQuizbookDto.quizList.map((data) => {
+					const quiz = new this.quizModel(data);
+
+					return quiz.save({ session });
+				}),
 			);
 
 			// 2. Quizbook 생성
