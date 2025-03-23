@@ -99,7 +99,7 @@ export class CreateQuizbookDto {
 		],
 	})
 	@IsNotEmpty({
-		message: "'quizbook' 필드는 배열(Array) 형식이어야 합니다.",
+		message: "'quizList' 필드는 배열(Array) 형식이어야 합니다.",
 	})
 	@ValidateNested({ each: true })
 	@Type(() => QuizItemDto)
