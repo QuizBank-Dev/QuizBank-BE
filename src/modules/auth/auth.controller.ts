@@ -3,18 +3,20 @@ import {
 	Body,
 	Controller,
 	Delete,
+	HttpCode,
 	Post,
 	Req,
 	Res,
 	UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { Public } from './decorator/public.decorator';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { UserId } from '../../common/decorators/user-id.decorator';
 import { AuthToken } from './auth.types';
+import { BaseResponse } from '../../common/dto/base-response.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -26,8 +28,11 @@ export class AuthController {
 		summary: '회원가입',
 		description: '회원가입을 진행합니다.',
 	})
-	@ApiResponse({ status: 201, description: '회원가입이 완료되었습니다.' })
-	@ApiResponse({ status: 400, description: '회원가입을 실패했습니다.' })
+	@ApiResponse({
+		status: 201,
+		description: '회원가입 완료',
+		type: BaseResponse<undefined>,
+	})
 	async signup(
 		@Res({ passthrough: true }) response: Response,
 		@Body() signupDto: CreateUserDto,
@@ -38,10 +43,26 @@ export class AuthController {
 
 	@Public()
 	@Post('login')
+	@HttpCode(200)
 	@UseGuards(AuthGuard('local'))
 	@ApiOperation({
 		summary: '로그인',
 		description: '로그인을 진행합니다.',
+	})
+	@ApiBody({
+		schema: {
+			type: 'object',
+			properties: {
+				email: { type: 'string', example: 'example@example.com' },
+				password: { type: 'string', example: 'password12' },
+			},
+			required: ['email', 'password'],
+		},
+	})
+	@ApiResponse({
+		status: 200,
+		description: '로그인 완료',
+		type: BaseResponse<undefined>,
 	})
 	login(
 		@Req() request: Request,
@@ -52,9 +73,15 @@ export class AuthController {
 	}
 
 	@Post('logout')
+	@HttpCode(200)
 	@ApiOperation({
 		summary: '로그아웃',
 		description: '로그아웃입니다.',
+	})
+	@ApiResponse({
+		status: 200,
+		description: '로그아웃 완료',
+		type: BaseResponse<undefined>,
 	})
 	logout(@Res({ passthrough: true }) response: Response) {
 		this.authService.clearAuthCookies(response);
@@ -63,6 +90,11 @@ export class AuthController {
 	@Delete('withdraw')
 	@ApiOperation({
 		summary: '회원탈퇴',
+	})
+	@ApiResponse({
+		status: 200,
+		description: '탈퇴 완료',
+		type: BaseResponse<undefined>,
 	})
 	async withdraw(
 		@UserId() userId: string,
