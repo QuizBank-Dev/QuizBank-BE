@@ -4,7 +4,6 @@ import {
 	Post,
 	Body,
 	Param,
-	Version,
 	Query,
 	HttpStatus,
 } from '@nestjs/common';
@@ -20,7 +19,10 @@ import {
 	QuizbookFindOneResponseDto,
 } from './dto/response-quizbook.dto';
 
-@Controller('quizbook')
+@Controller({
+	path: 'quizbook',
+	version: '1',
+})
 @ApiTags('Quizbook')
 export class QuizbookController {
 	constructor(private readonly quizbookService: QuizbookService) {}
@@ -28,7 +30,6 @@ export class QuizbookController {
 	// POST v1/quizbook
 	// 문제집을 생성한다.
 	@Post()
-	@Version('1')
 	@ApiOperation({
 		summary: '문제집 생성',
 		description: '문제집을 생성합니다.',
@@ -41,7 +42,6 @@ export class QuizbookController {
 	// GET v1/quizbook
 	// 모든 문제집을 가져온다.
 	@Get()
-	@Version('1')
 	@ApiOperation({
 		summary: '모든 문제집 조회',
 		description: '모든 문제집을 가져옵니다.',
@@ -54,7 +54,6 @@ export class QuizbookController {
 	// GET v1/quizbook/:quizbookId
 	// 특정 문제집의 상세정보를 가져온다.
 	@Get(':quizbookId')
-	@Version('1')
 	@ApiOperation({
 		summary: '문제집 상세 조회',
 		description: '문제집의 상세정보를 가져옵니다.',
