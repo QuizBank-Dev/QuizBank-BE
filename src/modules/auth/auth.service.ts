@@ -33,6 +33,11 @@ export class AuthService {
 		return this.generateToken({ userId: user._id });
 	}
 
+	/**
+	 * 로그인하는 사용자 검증
+	 * @param email 이메일
+	 * @param password 비밀번호
+	 */
 	async validateUser(email: string, password: string) {
 		const user = await this.userService.findOne({ email }, { password: 1 });
 
@@ -41,10 +46,18 @@ export class AuthService {
 			: null;
 	}
 
+	/**
+	 * 회원 탈퇴
+	 * @param id 해당 사용자의 아이디
+	 */
 	async withdraw(id: string) {
 		await this.userService.delete(id);
 	}
 
+	/**
+	 * 인증 토큰(accessToken, refreshToken) 생성
+	 * @param payload \{ userId: User._id \}
+	 */
 	generateToken(payload: AuthTokenPayloadDto) {
 		return {
 			accessToken:
@@ -60,6 +73,11 @@ export class AuthService {
 		};
 	}
 
+	/**
+	 * 인증 토큰을 cookie에 설정
+	 * @param authToken generateToken을 통해 생성된 토큰
+	 * @param response
+	 */
 	setAuthCookies(
 		{ accessToken, refreshToken }: AuthToken,
 		response: Response,
@@ -76,6 +94,10 @@ export class AuthService {
 		);
 	}
 
+	/**
+	 * 인증토큰을 제거
+	 * @param response
+	 */
 	clearAuthCookies(response: Response) {
 		response.clearCookie(AUTH_COOKIE_KEY.ACCESS);
 		response.clearCookie(AUTH_COOKIE_KEY.REFRESH);

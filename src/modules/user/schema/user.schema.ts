@@ -72,6 +72,9 @@ export class User extends Document<string> {
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
+/**
+ * 탈퇴한 유저가 같은 이메일로 가입 시 해당 이메일을 사용할 수 있게 만들기 위한 index
+ */
 UserSchema.index({ email: 1, deletedAt: 1 }, { unique: true });
 
 /**

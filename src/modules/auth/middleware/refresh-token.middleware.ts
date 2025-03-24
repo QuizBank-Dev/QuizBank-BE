@@ -23,11 +23,13 @@ export class RefreshTokenMiddleware implements NestMiddleware {
 			| string
 			| undefined;
 
+		// 토큰이 존재하지 않은 경우 그냥 넘어감
 		if (!accessToken && !refreshToken) {
 			return next();
 		}
 
 		try {
+			// 1. AccessToken 검증
 			const decoded = this.tokenService.verifyToken<AuthTokenPayloadDto>(
 				TokenType.ACCESS,
 				accessToken || '',
@@ -38,6 +40,7 @@ export class RefreshTokenMiddleware implements NestMiddleware {
 			}
 		} catch (error) {
 			try {
+				// 2. RefreshToken 검증
 				const decoded =
 					this.tokenService.verifyToken<AuthTokenPayloadDto>(
 						TokenType.REFRESH,
@@ -45,6 +48,7 @@ export class RefreshTokenMiddleware implements NestMiddleware {
 					);
 
 				if (decoded) {
+					// 3. AccessToken 재발급
 					const newToken =
 						this.tokenService.generateToken<AuthTokenPayloadDto>(
 							TokenType.ACCESS,
