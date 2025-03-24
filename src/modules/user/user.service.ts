@@ -46,6 +46,6 @@ export class UserService {
 	}
 
 	async delete(id: string) {
-		return this.userModel.findByIdAndDelete(id);
+		return this.userModel.findByIdAndUpdate(id, { deletedAt: new Date() });
 	}
 }

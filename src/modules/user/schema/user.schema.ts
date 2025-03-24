@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document, Query, Types } from 'mongoose';
 import { CategoryType, Quizbook } from '../../quizbook/schema/quizbook.schema';
 
 export enum ProviderType {
@@ -13,7 +13,6 @@ export enum ProviderType {
 export class User extends Document<string> {
 	@Prop({
 		required: true,
-		unique: true,
 	})
 	email: string;
 
@@ -66,6 +65,24 @@ export class User extends Document<string> {
 
 	@Prop()
 	introduce: string;
+
+	@Prop({ type: Date, default: null, select: false })
+	deletedAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.index({ email: 1, deletedAt: 1 }, { unique: true });
+
+/**
+ * User 조회 시 삭제된 유저를 제외하고 조회하기 위한 미들웨어
+ */
+UserSchema.pre(/^find/, function (this: Query<any, any>, next) {
+	// populate를 사용해 조회하는 경우 제외
+	if (this.getOptions().populate) {
+		return next();
+	}
+
+	this.setQuery({ ...this.getQuery(), deletedAt: null });
+	next();
+});
