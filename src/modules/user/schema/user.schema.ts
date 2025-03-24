@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document, Query, Types } from 'mongoose';
 import { CategoryType, Quizbook } from '../../quizbook/schema/quizbook.schema';
 
 export enum ProviderType {
@@ -10,13 +10,15 @@ export enum ProviderType {
 }
 
 @Schema({ timestamps: true })
-export class User extends Document {
+export class User extends Document<string> {
 	@Prop({
 		required: true,
 	})
 	email: string;
 
-	@Prop()
+	@Prop({
+		select: false,
+	})
 	password: string;
 
 	@Prop({
@@ -25,12 +27,13 @@ export class User extends Document {
 	nickname: string;
 
 	@Prop({
+		type: String,
 		enum: ProviderType,
 	})
 	oAuth: ProviderType;
 
 	@Prop({
-		type: [{ enum: CategoryType }],
+		type: [{ type: String, enum: CategoryType }],
 	})
 	category: CategoryType[];
 
@@ -62,6 +65,27 @@ export class User extends Document {
 
 	@Prop()
 	introduce: string;
+
+	@Prop({ type: Date, default: null, select: false })
+	deletedAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+/**
+ * 탈퇴한 유저가 같은 이메일로 가입 시 해당 이메일을 사용할 수 있게 만들기 위한 index
+ */
+UserSchema.index({ email: 1, deletedAt: 1 }, { unique: true });
+
+/**
+ * User 조회 시 삭제된 유저를 제외하고 조회하기 위한 미들웨어
+ */
+UserSchema.pre(/^find/, function (this: Query<any, any>, next) {
+	// populate를 사용해 조회하는 경우 제외
+	if (this.getOptions().populate) {
+		return next();
+	}
+
+	this.setQuery({ ...this.getQuery(), deletedAt: null });
+	next();
+});

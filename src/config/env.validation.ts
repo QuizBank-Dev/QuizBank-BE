@@ -13,4 +13,5 @@ export const envValidationSchema = Joi.object({
 	MAILER_PORT: Joi.number(),
 	MAILER_USER: Joi.string(),
 	MAILER_PASS: Joi.string(),
+	HASH_ROUNDS: Joi.number(),
 });

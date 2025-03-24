@@ -1,3 +1,4 @@
+import { APP_GUARD } from '@nestjs/core';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from './config/config.module';
 import { HttpLoggerMiddleware } from './common/logger/http-logger.middleware';
@@ -8,6 +9,10 @@ import { QuizbookModule } from './modules/quizbook/quizbook.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { ReviewModule } from './modules/review/review.module';
 import { MailerModule } from './modules/mailer/mailer.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
+import { AuthGuard } from './modules/auth/guard/auth.guard';
+import { RefreshTokenMiddleware } from './modules/auth/middleware/refresh-token.middleware';
 
 @Module({
 	imports: [
@@ -19,11 +24,19 @@ import { MailerModule } from './modules/mailer/mailer.module';
 		CommentModule,
 		ReviewModule,
 		MailerModule,
+		AuthModule,
+		UserModule,
 	],
-	providers: [],
+	providers: [
+		{
+			provide: APP_GUARD,
+			useClass: AuthGuard,
+		},
+	],
 })
 export class AppModule implements NestModule {
 	configure(consumer: MiddlewareConsumer) {
 		consumer.apply(HttpLoggerMiddleware).forRoutes('*');
+		consumer.apply(RefreshTokenMiddleware).forRoutes('*');
 	}
 }
