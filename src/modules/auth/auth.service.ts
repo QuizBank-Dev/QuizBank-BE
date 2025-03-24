@@ -97,8 +97,21 @@ export class AuthService {
 	/**
 	 * 인증토큰을 제거
 	 * @param response
+	 * @param cookies
 	 */
-	clearAuthCookies(response: Response) {
+	async clearAuthCookies(
+		response: Response,
+		cookies: Record<
+			(typeof AUTH_COOKIE_KEY)[keyof typeof AUTH_COOKIE_KEY],
+			string
+		>,
+	) {
+		const { access_token, refresh_token } = cookies;
+
+		// 토큰 만료
+		await this.authTokenService.expireToken(access_token);
+		await this.authTokenService.expireToken(refresh_token);
+
 		response.clearCookie(AUTH_COOKIE_KEY.ACCESS);
 		response.clearCookie(AUTH_COOKIE_KEY.REFRESH);
 	}

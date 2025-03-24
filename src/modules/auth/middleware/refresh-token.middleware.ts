@@ -15,7 +15,7 @@ import { AUTH_COOKIE_KEY, AUTH_COOKIE_OPTIONS } from '../auth.const';
 export class RefreshTokenMiddleware implements NestMiddleware {
 	constructor(private tokenService: AuthTokenService) {}
 
-	use(request: Request, response: Response, next: NextFunction) {
+	async use(request: Request, response: Response, next: NextFunction) {
 		const accessToken = request.cookies[AUTH_COOKIE_KEY.ACCESS] as
 			| string
 			| undefined;
@@ -26,6 +26,14 @@ export class RefreshTokenMiddleware implements NestMiddleware {
 		// 토큰이 존재하지 않은 경우 그냥 넘어감
 		if (!accessToken && !refreshToken) {
 			return next();
+		}
+
+		// blacklist에 등록된 토큰인 경우 오류 발생
+		if (
+			(await this.tokenService.isExpiredToken(accessToken || '')) ||
+			(await this.tokenService.isExpiredToken(refreshToken || ''))
+		) {
+			throw new UnauthorizedException('인증정보가 올바르지 않습니다.');
 		}
 
 		try {

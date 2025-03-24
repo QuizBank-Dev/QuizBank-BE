@@ -14,7 +14,7 @@ export const AUTH_TOKEN_EXPIRY = {
 export const AUTH_COOKIE_KEY = {
 	ACCESS: 'access_token',
 	REFRESH: 'refresh_token',
-};
+} as const;
 
 /**
  * Cookie Options

@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { TokenOption, TokenType } from './auth-token.types';
 import { TOKEN_OPTIONS } from './auth-token.providers';
 
@@ -9,6 +10,8 @@ export class AuthTokenService {
 		private readonly jwtService: JwtService,
 		@Inject(TOKEN_OPTIONS)
 		private readonly tokenOptions: Record<TokenType, TokenOption>,
+		@Inject(CACHE_MANAGER)
+		private readonly cacheManager: Cache,
 	) {}
 
 	/**
@@ -34,5 +37,26 @@ export class AuthTokenService {
 			secret,
 			expiresIn: expiry,
 		});
+	}
+
+	/**
+	 * 토큰 만료
+	 * @param token 만료할 토큰
+	 */
+	async expireToken(token: string) {
+		const exp = this.jwtService.decode<{ exp: number }>(token).exp;
+		await this.cacheManager.set(
+			`blacklist:${token}`,
+			true,
+			new Date(exp * 1000).getTime() - Date.now(),
+		);
+	}
+
+	/**
+	 * 만료된 토큰인지 확인
+	 * @param token 토큰
+	 */
+	async isExpiredToken(token: string) {
+		return !!(await this.cacheManager.get(`blacklist:${token}`));
 	}
 }

@@ -83,8 +83,11 @@ export class AuthController {
 		description: '로그아웃 완료',
 		type: BaseResponse<undefined>,
 	})
-	logout(@Res({ passthrough: true }) response: Response) {
-		this.authService.clearAuthCookies(response);
+	async logout(
+		@Req() request: Request,
+		@Res({ passthrough: true }) response: Response,
+	) {
+		await this.authService.clearAuthCookies(response, request.cookies);
 	}
 
 	@Delete('withdraw')
@@ -98,9 +101,10 @@ export class AuthController {
 	})
 	async withdraw(
 		@UserId() userId: string,
+		@Req() request: Request,
 		@Res({ passthrough: true }) response: Response,
 	) {
 		await this.authService.withdraw(userId);
-		this.authService.clearAuthCookies(response);
+		await this.authService.clearAuthCookies(response, request.cookies);
 	}
 }
