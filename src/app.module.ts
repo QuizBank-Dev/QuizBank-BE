@@ -6,7 +6,6 @@ import { LoggerModule } from './common/logger/logger.module';
 import { DatabaseModule } from './database/database.module';
 import { QuizModule } from './modules/quiz/quiz.module';
 import { QuizbookModule } from './modules/quizbook/quizbook.module';
-import { CommentModule } from './modules/comment/comment.module';
 import { ReviewModule } from './modules/review/review.module';
 import { MailerModule } from './modules/mailer/mailer.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -21,7 +20,6 @@ import { RefreshTokenMiddleware } from './modules/auth/middleware/refresh-token.
 		DatabaseModule,
 		QuizModule,
 		QuizbookModule,
-		CommentModule,
 		ReviewModule,
 		MailerModule,
 		AuthModule,
