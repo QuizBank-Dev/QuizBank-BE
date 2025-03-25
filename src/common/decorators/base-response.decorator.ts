@@ -1,45 +1,54 @@
 import { applyDecorators, HttpStatus, Type } from '@nestjs/common';
 import { ApiExtraModels, ApiResponse, getSchemaPath } from '@nestjs/swagger';
 import { BaseResponse } from '../dto/base-response.dto';
+import { DefaultResponse } from '../dto/default-response.dto';
 
 /**
  * Swagger의 API 응답을 BaseResponse<T> 형태로 감싸는 커스텀 데코레이터
- * @param model - 실제 응답값에 적용될 데이터 모델
  * @param statusCode - 응답 상태 코드 (기본값 200)
- * @param description - 응답에 대한 설명 (Optional)
+ * @param description - 응답에 대한 설명 (기본값 '성공')
+ * @param exmaple - 실제 응답값에 적용될 데이터 객체 (Optional)
  */
-export const ApiBaseResponse = <TModel extends Type<unknown>>(
-	model: TModel | TModel[],
+export const ApiBaseResponse = (
 	statusCode: number = HttpStatus.OK,
-	description?: string,
+	description: string,
+	example?: Record<string, unknown> | Record<string, unknown>[],
 ) => {
-	const isArrayType = Array.isArray(model);
-	const schemaModel = model instanceof Array ? model[0] : model;
-
-	const apiResponseOptions: Record<string, any> = {
-		status: statusCode,
-		description,
-		schema: {
-			allOf: [
-				{ $ref: getSchemaPath(BaseResponse) },
-				{
-					properties: {
-						statusCode: { type: 'number', example: statusCode },
-						message: { type: 'string', example: 'ok' },
-						data: isArrayType
-							? {
-									type: 'array',
-									items: { $ref: getSchemaPath(schemaModel) },
-								} // ✅ 배열이면 자동으로 감싸기
-							: { $ref: getSchemaPath(schemaModel) },
-					},
-				},
-			],
-		},
+	const baseProperties: Record<string, any> = {
+		statusCode: { type: 'number', example: statusCode },
+		message: { type: 'string', example: 'ok' },
 	};
 
+	if (example) {
+		baseProperties['data'] = { example };
+
+		return applyDecorators(
+			ApiExtraModels(BaseResponse),
+			ApiResponse({
+				status: statusCode,
+				description,
+				schema: {
+					allOf: [
+						{ $ref: getSchemaPath(BaseResponse) },
+						{ properties: baseProperties },
+					],
+				},
+			}),
+		);
+	}
+
+	// example이 없는 경우 (data 없이 공통 응답)
 	return applyDecorators(
-		ApiExtraModels(BaseResponse, schemaModel),
-		ApiResponse(apiResponseOptions),
+		ApiExtraModels(DefaultResponse),
+		ApiResponse({
+			status: statusCode,
+			description,
+			schema: {
+				allOf: [
+					{ $ref: getSchemaPath(DefaultResponse) },
+					{ properties: baseProperties },
+				],
+			},
+		}),
 	);
 };
