@@ -4,6 +4,7 @@ import { QuizController } from './quiz.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Quiz, QuizSchema } from './schema/quiz.schema';
 import { DB_TYPE } from 'src/database/database.const';
+import { QuizRepository } from './quiz.repository';
 
 @Module({
 	imports: [
@@ -13,7 +14,7 @@ import { DB_TYPE } from 'src/database/database.const';
 		),
 	],
 	controllers: [QuizController],
-	providers: [QuizService],
-	exports: [QuizService],
+	providers: [QuizService, QuizRepository],
+	exports: [QuizService, QuizRepository],
 })
 export class QuizModule {}
