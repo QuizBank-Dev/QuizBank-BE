@@ -1,22 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Quiz } from './schema/quiz.schema';
-import { DB_TYPE } from 'src/database/database.const';
-import { Model } from 'mongoose';
+import { QuizRepository } from './quiz.repository';
 
 @Injectable()
 export class QuizService {
-	constructor(
-		@InjectModel(Quiz.name, DB_TYPE.DEFAULT)
-		private readonly quizModel: Model<Quiz>,
-	) {}
+	constructor(private readonly quizRepo: QuizRepository) {}
 
-	// 특정 Quiz를 가져온다.
-	async findOne(id: string) {
-		const quiz = await this.quizModel.findOne({ _id: id });
+	// 특정 Quiz 조회
+	async getQuizDetail(quizId: string) {
+		const quiz = await this.quizRepo.findById(quizId);
 
 		if (!quiz)
-			throw new NotFoundException(`${id} 문제를 찾을 수 없습니다.`);
+			throw new NotFoundException(
+				`해당 ${quizId} Quiz를 찾을 수 없습니다.`,
+			);
 
 		return quiz;
 	}

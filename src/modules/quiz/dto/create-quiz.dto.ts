@@ -10,7 +10,7 @@ import {
 } from 'class-validator';
 import { QuizType } from '../schema/quiz.schema';
 
-export class createQuizDto {
+export class CreateQuizDto {
 	@ApiProperty({
 		example: '퀵 정렬의 시간 복잡도는?',
 		description: '퀴즈 질문',
