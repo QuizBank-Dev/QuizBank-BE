@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Review } from './schema/review.schema';
 import { DB_TYPE } from 'src/database/database.const';
-import { isValidObjectId, Model } from 'mongoose';
+import { ClientSession, isValidObjectId, Model } from 'mongoose';
+import { toObjectId } from 'src/common/utils/database.util';
 
 @Injectable()
 export class ReviewRepository {
@@ -14,8 +15,8 @@ export class ReviewRepository {
 	/**
 	 * Review 생성
 	 */
-	async create(data: Partial<Review>) {
-		return new this.reviewModel(data).save();
+	async create(data: Partial<Review>, session?: ClientSession) {
+		return new this.reviewModel(data).save({ session });
 	}
 
 	/**
@@ -24,7 +25,7 @@ export class ReviewRepository {
 	 */
 	async findAll(quizbookId: string) {
 		return this.reviewModel
-			.find({ quizbook: quizbookId })
+			.find({ quizbook: toObjectId(quizbookId) })
 			.sort({ createdAt: -1 })
 			.populate({
 				path: 'author',
@@ -40,8 +41,8 @@ export class ReviewRepository {
 	async findAllWithoutUser(quizbookId: string, userId: string) {
 		return this.reviewModel
 			.find({
-				quizbook: quizbookId,
-				author: { $ne: userId },
+				quizbook: toObjectId(quizbookId),
+				author: { $ne: toObjectId(userId) },
 			})
 			.sort({ createdAt: -1 })
 			.populate({
@@ -56,7 +57,10 @@ export class ReviewRepository {
 	 */
 	async findByUser(quizbookId: string, userId: string) {
 		return this.reviewModel
-			.findOne({ quizbook: quizbookId, author: userId })
+			.findOne({
+				quizbook: toObjectId(quizbookId),
+				author: toObjectId(userId),
+			})
 			.populate({
 				path: 'author',
 				model: 'User',
@@ -65,27 +69,15 @@ export class ReviewRepository {
 	}
 
 	/**
-	 * Review 수정
-	 */
-	async update(data: Partial<Review>, reviewId: string, userId: string) {
-		return this.reviewModel.findOneAndUpdate(
-			{
-				_id: reviewId,
-				author: userId,
-			},
-			data,
-		);
-	}
-
-	/**
 	 * 특정 Review 조회
+	 * (reviewId, userId)
 	 */
 	async findOneById(reviewId: string, userId: string) {
 		if (!isValidObjectId(reviewId)) return false;
 
 		const review = await this.reviewModel.findOne({
 			_id: reviewId,
-			author: userId,
+			author: toObjectId(userId),
 		});
 
 		if (!review) return false;
@@ -94,12 +86,51 @@ export class ReviewRepository {
 	}
 
 	/**
+	 * 특정 Review 조회
+	 * (quizbookId, userId)
+	 */
+	async findOnebyQuizbookId(quizbookId: string, userId: string) {
+		if (!isValidObjectId(quizbookId)) return false;
+
+		const review = await this.reviewModel.findOne({
+			quizbook: toObjectId(quizbookId),
+			author: toObjectId(userId),
+		});
+
+		if (!review) return false;
+
+		return review;
+	}
+
+	/**
+	 * Review 수정
+	 */
+	async update(
+		data: Partial<Review>,
+		reviewId: string,
+		userId: string,
+		session?: ClientSession,
+	) {
+		return this.reviewModel.findOneAndUpdate(
+			{
+				_id: reviewId,
+				author: toObjectId(userId),
+			},
+			data,
+			{ session, new: true },
+		);
+	}
+
+	/**
 	 * 특정 Review 삭제
 	 */
-	async remove(reviewId: string, userId: string) {
-		return this.reviewModel.findOneAndDelete({
-			_id: reviewId,
-			author: userId,
-		});
+	async remove(reviewId: string, userId: string, session?: ClientSession) {
+		return this.reviewModel.findOneAndDelete(
+			{
+				_id: reviewId,
+				author: toObjectId(userId),
+			},
+			{ session },
+		);
 	}
 }
