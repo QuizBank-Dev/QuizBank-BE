@@ -6,6 +6,7 @@ import { Quizbook, QuizbookSchema } from './schema/quizbook.schema';
 import { DB_TYPE } from 'src/database/database.const';
 import { QuizbookRepository } from './quizbook.repository';
 import { QuizModule } from '../quiz/quiz.module';
+import { DatabaseModule } from 'src/database/database.module';
 
 @Module({
 	imports: [
@@ -14,6 +15,7 @@ import { QuizModule } from '../quiz/quiz.module';
 			DB_TYPE.DEFAULT,
 		),
 		forwardRef(() => QuizModule),
+		DatabaseModule,
 	],
 	controllers: [QuizbookController],
 	providers: [QuizbookService, QuizbookRepository],
