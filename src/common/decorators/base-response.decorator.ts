@@ -6,7 +6,7 @@ import { DefaultResponse } from '../dto/default-response.dto';
 /**
  * Swagger의 API 응답을 BaseResponse<T> 형태로 감싸는 커스텀 데코레이터
  * @param statusCode - 응답 상태 코드 (기본값 200)
- * @param description - 응답에 대한 설명 (기본값 '성공')
+ * @param description - 응답에 대한 설명
  * @param exmaple - 실제 응답값에 적용될 데이터 객체 (Optional)
  */
 export const ApiBaseResponse = (
