@@ -26,7 +26,7 @@ export class QuizbookRepository {
 		return this.quizbookModel.find(filter).populate({
 			path: 'author',
 			model: 'User',
-			select: 'ninckname profileImg',
+			select: 'nickname profileImg',
 		});
 	}
 
@@ -53,8 +53,14 @@ export class QuizbookRepository {
 	 * Quizbook 수정
 	 * (Review 관련 필드 업데이트)
 	 */
-	async updateReviewStats(filter: FilterQuery<Quizbook>, quizbookId: string) {
-		return this.quizbookModel.findByIdAndUpdate(quizbookId, filter);
+	async updateReviewStats(
+		filter: FilterQuery<Quizbook>,
+		quizbookId: string,
+		session?: ClientSession,
+	) {
+		return this.quizbookModel.findByIdAndUpdate(quizbookId, filter, {
+			session,
+		});
 	}
 
 	/**
