@@ -29,7 +29,7 @@ export class QuizbookController {
 	constructor(private readonly quizbookService: QuizbookService) {}
 
 	// POST v1/quizbook
-	// 문제집을 생성한다.
+	// Quizbook을 생성한다.
 	@Post()
 	@ApiOperation({
 		summary: 'Quizbook 생성',
@@ -44,7 +44,7 @@ export class QuizbookController {
 	}
 
 	// GET v1/quizbook
-	// 모든 문제집을 가져온다.
+	// 모든 Quizbook을 가져온다.
 	@Public()
 	@Get()
 	@ApiOperation({
@@ -57,7 +57,7 @@ export class QuizbookController {
 	}
 
 	// GET v1/quizbook/:quizbookId
-	// 특정 문제집의 상세정보를 가져온다.
+	// 특정 Quizbook의 상세정보를 가져온다.
 	@Public()
 	@Get(':quizbookId')
 	@ApiOperation({
