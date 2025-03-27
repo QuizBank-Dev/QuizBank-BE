@@ -7,10 +7,11 @@ import {
 import { CreateQuizbookDto } from './dto/create-quizbook.dto';
 import { FindAllQuizbookDto } from './dto/find-all-quizbook.dto';
 import { Quizbook } from './schema/quizbook.schema';
-import { FilterQuery, Types } from 'mongoose';
+import { FilterQuery } from 'mongoose';
 import { QuizRepository } from '../quiz/quiz.repository';
 import { QuizbookRepository } from './quizbook.repository';
 import { DatabaseService } from 'src/database/database.service';
+import { toObjectId } from 'src/common/utils/database.util';
 
 @Injectable()
 export class QuizbookService {
@@ -36,10 +37,10 @@ export class QuizbookService {
 				const quizbook = await this.quizbookRepo.create(
 					{
 						...dto,
-						quizList: quizList.map(
-							(q) => q._id,
-						) as Types.ObjectId[],
-						author: new Types.ObjectId(userId),
+						quizList: quizList.map((q) =>
+							toObjectId(q._id as string),
+						),
+						author: toObjectId(userId),
 					},
 					session,
 				);
