@@ -34,31 +34,29 @@ export class ReviewService {
 			throw new ConflictException('이미 작성된 Review가 존재합니다.');
 
 		// 트랜잭션 적용
-		return await this.databaseService.runInDefaultTransaction(
-			async (session) => {
-				// 2. Review 생성
-				const review = await this.reviewRepo.create({
-					score: dto.score,
-					content: dto.content,
-					quizbook: toObjectId(dto.quizbookId),
-					author: toObjectId(userId),
-				});
+		return this.databaseService.runInDefaultTransaction(async (session) => {
+			// 2. Review 생성
+			const review = await this.reviewRepo.create({
+				score: dto.score,
+				content: dto.content,
+				quizbook: toObjectId(dto.quizbookId),
+				author: toObjectId(userId),
+			});
 
-				// 3. Quizbook의 Review 관련 필드 업데이트
-				await this.quizbookRepo.updateReviewStats(
-					{
-						$inc: {
-							reviewCount: +1,
-							reviewScore: +review.score,
-						},
+			// 3. Quizbook의 Review 관련 필드 업데이트
+			await this.quizbookRepo.updateReviewStats(
+				{
+					$inc: {
+						reviewCount: +1,
+						reviewScore: +review.score,
 					},
-					dto.quizbookId,
-					session,
-				);
+				},
+				dto.quizbookId,
+				session,
+			);
 
-				return review;
-			},
-		);
+			return review;
+		});
 	}
 
 	// 모든 Review 조회
@@ -82,7 +80,7 @@ export class ReviewService {
 		}
 
 		// 3. 미인증인 경우
-		return await this.reviewRepo.findAll(quizbookId);
+		return this.reviewRepo.findAll(quizbookId);
 	}
 
 	// 특정 Review 수정
@@ -99,32 +97,30 @@ export class ReviewService {
 		const prevScore = review.score;
 
 		// 트랜잭션 적용
-		return await this.databaseService.runInDefaultTransaction(
-			async (session) => {
-				// 2. Review 업데이트
-				const updatedReview = await this.reviewRepo.update(
-					dto,
-					reviewId,
-					userId,
-					session,
-				);
+		return this.databaseService.runInDefaultTransaction(async (session) => {
+			// 2. Review 업데이트
+			const updatedReview = await this.reviewRepo.update(
+				dto,
+				reviewId,
+				userId,
+				session,
+			);
 
-				// 3. Quizbook의 Review 관련 필드 업데이트
-				const scoreDiff =
-					dto.score !== undefined && dto.score !== null
-						? dto.score - prevScore
-						: 0;
-				await this.quizbookRepo.updateReviewStats(
-					{
-						$inc: { reviewScore: scoreDiff },
-					},
-					quizbookId,
-					session,
-				);
+			// 3. Quizbook의 Review 관련 필드 업데이트
+			const scoreDiff =
+				dto.score !== undefined && dto.score !== null
+					? dto.score - prevScore
+					: 0;
+			await this.quizbookRepo.updateReviewStats(
+				{
+					$inc: { reviewScore: scoreDiff },
+				},
+				quizbookId,
+				session,
+			);
 
-				return updatedReview;
-			},
-		);
+			return updatedReview;
+		});
 	}
 
 	// 특정 리뷰를 삭제한다.
@@ -138,23 +134,21 @@ export class ReviewService {
 			);
 
 		// 트랜잭션 적용
-		return await this.databaseService.runInDefaultTransaction(
-			async (session) => {
-				// 2. Review 삭제
-				await this.reviewRepo.remove(reviewId, userId, session);
+		return this.databaseService.runInDefaultTransaction(async (session) => {
+			// 2. Review 삭제
+			await this.reviewRepo.remove(reviewId, userId, session);
 
-				// 3. Quizbook의 Review 관련 필드 업데이트
-				await this.quizbookRepo.updateReviewStats(
-					{
-						$inc: {
-							reviewCount: -1,
-							reviewScore: -review.score,
-						},
+			// 3. Quizbook의 Review 관련 필드 업데이트
+			await this.quizbookRepo.updateReviewStats(
+				{
+					$inc: {
+						reviewCount: -1,
+						reviewScore: -review.score,
 					},
-					(review.quizbook as Types.ObjectId).toString(),
-					session,
-				);
-			},
-		);
+				},
+				(review.quizbook as Types.ObjectId).toString(),
+				session,
+			);
+		});
 	}
 }

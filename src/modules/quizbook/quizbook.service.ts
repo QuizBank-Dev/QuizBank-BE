@@ -24,30 +24,24 @@ export class QuizbookService {
 	// Quizbook 생성
 	async createQuizbook(dto: CreateQuizbookDto, userId: string) {
 		// 트랜잭션 적용
-		return await this.databaseService.runInDefaultTransaction(
-			async (session) => {
-				// 1. Quiz 생성
-				const quizList = await Promise.all(
-					dto.quizList.map((data) =>
-						this.quizRepo.create(data, session),
-					),
-				);
+		return this.databaseService.runInDefaultTransaction(async (session) => {
+			// 1. Quiz 생성
+			const quizList = await Promise.all(
+				dto.quizList.map((data) => this.quizRepo.create(data, session)),
+			);
 
-				// 2. Quizbook 생성
-				const quizbook = await this.quizbookRepo.create(
-					{
-						...dto,
-						quizList: quizList.map((q) =>
-							toObjectId(q._id as string),
-						),
-						author: toObjectId(userId),
-					},
-					session,
-				);
+			// 2. Quizbook 생성
+			const quizbook = await this.quizbookRepo.create(
+				{
+					...dto,
+					quizList: quizList.map((q) => toObjectId(q._id as string)),
+					author: toObjectId(userId),
+				},
+				session,
+			);
 
-				return quizbook;
-			},
-		);
+			return quizbook;
+		});
 	}
 
 	// 모든 Quizbook 조회
