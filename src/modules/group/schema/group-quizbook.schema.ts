@@ -5,13 +5,13 @@ import { Quizbook } from 'src/modules/quizbook/schema/quizbook.schema';
 @Schema({ timestamps: true })
 export class GroupQuizbook extends Document {
 	@Prop({ type: Types.ObjectId, ref: 'Quizbook', required: true })
-	workbookId: Types.ObjectId | Quizbook;
+	quizbook: Types.ObjectId | Quizbook;
 
 	@Prop({
 		type: Date,
 		required: true,
 	})
-	endDate: Date;
+	endedAt: Date;
 }
 
 export const GroupQuizbookSchema = SchemaFactory.createForClass(GroupQuizbook);
