@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document, Types } from 'mongoose';
 import { User } from 'src/modules/user/schema/user.schema';
+import { GroupQuizbook } from './group-quizbook.schema';
 
 @Schema({ timestamps: true })
 export class Group extends Document {
@@ -51,8 +52,7 @@ export class Group extends Document {
 		type: [{ type: Types.ObjectId, ref: 'GroupQuizbook' }],
 		required: true,
 	})
-	groupQuizbookList: Types.ObjectId[];
-	// groupQuizbookList: Types.ObjectId[] | GroupQuizbook[];
+	groupQuizbookList: Types.ObjectId[] | GroupQuizbook[];
 
 	@ApiProperty({
 		example: '65e8a5d6fc13ae5e7f000002',
