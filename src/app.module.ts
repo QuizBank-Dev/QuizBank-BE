@@ -13,6 +13,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { AuthGuard } from './modules/auth/guard/auth.guard';
 import { RefreshTokenMiddleware } from './modules/auth/middleware/refresh-token.middleware';
+import { GroupModule } from './modules/group/group.module';
 
 @Module({
 	imports: [
@@ -26,6 +27,7 @@ import { RefreshTokenMiddleware } from './modules/auth/middleware/refresh-token.
 		MailerModule,
 		AuthModule,
 		UserModule,
+		GroupModule,
 	],
 	providers: [
 		{
