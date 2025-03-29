@@ -12,6 +12,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { AuthGuard } from './modules/auth/guard/auth.guard';
 import { RefreshTokenMiddleware } from './modules/auth/middleware/refresh-token.middleware';
+import { CommentModlue } from './modules/comment/comment.module';
 
 @Module({
 	imports: [
@@ -24,6 +25,7 @@ import { RefreshTokenMiddleware } from './modules/auth/middleware/refresh-token.
 		MailerModule,
 		AuthModule,
 		UserModule,
+		CommentModlue,
 	],
 	providers: [
 		{
