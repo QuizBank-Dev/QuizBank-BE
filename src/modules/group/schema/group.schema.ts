@@ -26,8 +26,7 @@ export class Group extends Document {
 	})
 	groupQuizbookList: Types.ObjectId[] | GroupQuizbook[];
 
-	@Prop({ type: Types.ObjectId, ref: 'ChatRoom', required: true })
-	chatRoom: Types.ObjectId;
+	// @Prop({ type: Types.ObjectId, ref: 'ChatRoom', required: true })
 	// chatRoom: Types.ObjectId | ChatRoom;
 }
 

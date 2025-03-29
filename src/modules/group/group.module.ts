@@ -4,6 +4,7 @@ import { GroupController } from './group.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Group, GroupSchema } from './schema/group.schema';
 import { DB_TYPE } from 'src/database/database.const';
+import { GroupRepository } from './group.repository';
 
 @Module({
 	imports: [
@@ -13,6 +14,7 @@ import { DB_TYPE } from 'src/database/database.const';
 		),
 	],
 	controllers: [GroupController],
-	providers: [GroupService],
+	providers: [GroupService, GroupRepository],
+	exports: [GroupService, GroupRepository],
 })
 export class GroupModule {}
