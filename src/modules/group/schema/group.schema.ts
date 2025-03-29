@@ -16,13 +16,16 @@ export class Group extends Document {
 
 	@Prop({
 		type: [{ type: Types.ObjectId, ref: 'User' }],
-		required: true,
+		default: function (): Types.ObjectId[] {
+			const self = this as Group; // `this`를 Group 타입으로 캐스팅
+			return [self.admin] as Types.ObjectId[]; // admin의 ObjectId가 들어간 배열을 기본값으로 설정
+		},
 	})
 	memberList: Types.ObjectId[] | User[];
 
 	@Prop({
 		type: [{ type: Types.ObjectId, ref: 'GroupQuizbook' }],
-		required: true,
+		default: [],
 	})
 	groupQuizbookList: Types.ObjectId[] | GroupQuizbook[];
 
