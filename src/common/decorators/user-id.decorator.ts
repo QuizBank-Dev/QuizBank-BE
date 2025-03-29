@@ -10,7 +10,9 @@ export const UserId = createParamDecorator(
 		const request = context.switchToHttp().getRequest<Request>();
 
 		if (!request || !request.user || !request.user.userId)
-			throw new UnauthorizedException('사용자 정보를 찾을 수 없습니다.');
+			throw new UnauthorizedException(
+				'인증 정보가 유효하지 않거나 존재하지 않습니다.',
+			);
 
 		return request.user.userId;
 	},

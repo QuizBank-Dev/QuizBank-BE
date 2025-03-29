@@ -6,13 +6,13 @@ import { LoggerModule } from './common/logger/logger.module';
 import { DatabaseModule } from './database/database.module';
 import { QuizModule } from './modules/quiz/quiz.module';
 import { QuizbookModule } from './modules/quizbook/quizbook.module';
-import { CommentModule } from './modules/comment/comment.module';
 import { ReviewModule } from './modules/review/review.module';
 import { MailerModule } from './modules/mailer/mailer.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { AuthGuard } from './modules/auth/guard/auth.guard';
 import { RefreshTokenMiddleware } from './modules/auth/middleware/refresh-token.middleware';
+import { CommentModlue } from './modules/comment/comment.module';
 
 @Module({
 	imports: [
@@ -21,11 +21,11 @@ import { RefreshTokenMiddleware } from './modules/auth/middleware/refresh-token.
 		DatabaseModule,
 		QuizModule,
 		QuizbookModule,
-		CommentModule,
 		ReviewModule,
 		MailerModule,
 		AuthModule,
 		UserModule,
+		CommentModlue,
 	],
 	providers: [
 		{
