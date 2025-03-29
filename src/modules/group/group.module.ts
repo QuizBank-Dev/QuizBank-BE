@@ -6,6 +6,7 @@ import { Group, GroupSchema } from './schema/group.schema';
 import { DB_TYPE } from 'src/database/database.const';
 import { GroupRepository } from './group.repository';
 import { DatabaseModule } from 'src/database/database.module';
+import { QuizbookModule } from '../quizbook/quizbook.module';
 
 @Module({
 	imports: [
@@ -14,6 +15,7 @@ import { DatabaseModule } from 'src/database/database.module';
 			DB_TYPE.DEFAULT,
 		),
 		DatabaseModule,
+		QuizbookModule,
 	],
 	controllers: [GroupController],
 	providers: [GroupService, GroupRepository],

@@ -35,7 +35,7 @@ export class GroupRepository {
 	async findById(groupId: string) {
 		return this.groupModel.findById(groupId).populate([
 			{
-				path: 'author',
+				path: 'admin',
 				model: 'User',
 				select: 'nickname profileImg',
 			},

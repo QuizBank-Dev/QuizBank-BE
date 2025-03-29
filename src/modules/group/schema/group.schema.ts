@@ -21,7 +21,7 @@ export class Group extends Document {
 			return [self.admin] as Types.ObjectId[]; // admin의 ObjectId가 들어간 배열을 기본값으로 설정
 		},
 	})
-	memberList: Types.ObjectId[] | User[];
+	memberList: Types.ObjectId[];
 
 	@Prop({
 		type: [{ type: Types.ObjectId, ref: 'GroupQuizbook' }],
@@ -31,6 +31,10 @@ export class Group extends Document {
 
 	// @Prop({ type: Types.ObjectId, ref: 'ChatRoom', required: true })
 	// chatRoom: Types.ObjectId | ChatRoom;
+
+	// Mongoose의 timestamps 옵션으로 자동 생성되는 필드
+	createdAt?: Date; // 추가
+	updatedAt?: Date; // 추가
 }
 
 export const GroupSchema = SchemaFactory.createForClass(Group);
