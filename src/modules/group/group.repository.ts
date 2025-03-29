@@ -12,12 +12,12 @@ export class GroupRepository {
 	) {}
 
 	/**
-	 * 내가 속한 Group 리스트 목록 조회
+	 * 내가 속한 Group 목록 조회
 	 */
 	async findAllBelongedGroupById(memberId: string) {
 		return this.groupModel.find({ memberList: memberId }).populate([
 			{
-				path: 'author',
+				path: 'admin',
 				model: 'User',
 				select: 'nickname profileImg',
 			},

@@ -31,6 +31,13 @@ export class QuizbookRepository {
 	}
 
 	/**
+	 * 특정 Quizbook 단순 정보 조회
+	 */
+	async findById(quizbookId: string) {
+		return this.quizbookModel.findById(quizbookId);
+	}
+
+	/**
 	 * 특정 Quizbook 상세 조회
 	 * (populate: quizList, author)
 	 */
