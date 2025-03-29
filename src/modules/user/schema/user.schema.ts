@@ -48,7 +48,9 @@ export class User extends Document<string> {
 	})
 	recentWorkbook: Types.ObjectId | Quizbook;
 
-	@Prop()
+	@Prop({
+		default: '',
+	})
 	profileImg: string;
 
 	@Prop({

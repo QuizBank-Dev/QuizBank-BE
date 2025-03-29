@@ -1,23 +1,24 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { QuizbookService } from './quizbook.service';
 import { QuizbookController } from './quizbook.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Quizbook, QuizbookSchema } from './schema/quizbook.schema';
-import { Quiz, QuizSchema } from '../quiz/schema/quiz.schema';
 import { DB_TYPE } from 'src/database/database.const';
+import { QuizbookRepository } from './quizbook.repository';
+import { QuizModule } from '../quiz/quiz.module';
+import { DatabaseModule } from 'src/database/database.module';
 
 @Module({
 	imports: [
 		MongooseModule.forFeature(
-			[
-				{ name: Quizbook.name, schema: QuizbookSchema },
-				{ name: Quiz.name, schema: QuizSchema },
-			],
+			[{ name: Quizbook.name, schema: QuizbookSchema }],
 			DB_TYPE.DEFAULT,
 		),
+		forwardRef(() => QuizModule),
+		DatabaseModule,
 	],
 	controllers: [QuizbookController],
-	providers: [QuizbookService],
-	exports: [QuizbookService],
+	providers: [QuizbookService, QuizbookRepository],
+	exports: [QuizbookService, QuizbookRepository],
 })
 export class QuizbookModule {}

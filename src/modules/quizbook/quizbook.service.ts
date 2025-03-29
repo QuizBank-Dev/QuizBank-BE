@@ -1,88 +1,77 @@
 import {
+	forwardRef,
+	Inject,
 	Injectable,
-	InternalServerErrorException,
 	NotFoundException,
 } from '@nestjs/common';
 import { CreateQuizbookDto } from './dto/create-quizbook.dto';
-import { Quizbook } from './schema/quizbook.schema';
-import { FilterQuery, Model } from 'mongoose';
-import { DB_TYPE } from 'src/database/database.const';
-import { InjectModel } from '@nestjs/mongoose';
-import { Quiz } from '../quiz/schema/quiz.schema';
 import { FindAllQuizbookDto } from './dto/find-all-quizbook.dto';
+import { Quizbook } from './schema/quizbook.schema';
+import { FilterQuery } from 'mongoose';
+import { QuizRepository } from '../quiz/quiz.repository';
+import { QuizbookRepository } from './quizbook.repository';
+import { DatabaseService } from 'src/database/database.service';
+import { toObjectId } from 'src/common/utils/database.util';
 
 @Injectable()
 export class QuizbookService {
 	constructor(
-		@InjectModel(Quizbook.name, DB_TYPE.DEFAULT)
-		private readonly quizbookModel: Model<Quizbook>,
-		@InjectModel(Quiz.name, DB_TYPE.DEFAULT)
-		private readonly quizModel: Model<Quiz>,
+		@Inject(forwardRef(() => QuizRepository))
+		private readonly quizRepo: QuizRepository,
+		private readonly quizbookRepo: QuizbookRepository,
+		private readonly databaseService: DatabaseService,
 	) {}
-	// Quizbook을 생성한다.
-	async create(createQuizbookDto: CreateQuizbookDto) {
-		// 트랜젝션 시작
-		const session = await this.quizbookModel.db.startSession();
-		session.startTransaction();
-
-		try {
+	// Quizbook 생성
+	async createQuizbook(dto: CreateQuizbookDto, userId: string) {
+		// 트랜잭션 적용
+		return this.databaseService.runInDefaultTransaction(async (session) => {
 			// 1. Quiz 생성
-			const quizDocs = await this.quizModel.insertMany(
-				createQuizbookDto.quizList,
-				{ session },
+			const quizList = await Promise.all(
+				dto.quizList.map((data) => this.quizRepo.create(data, session)),
 			);
 
 			// 2. Quizbook 생성
-			const quizbook: Quizbook = new this.quizbookModel({
-				title: createQuizbookDto.title,
-				category: createQuizbookDto.category,
-				description: createQuizbookDto.description,
-				quizzes: quizDocs.map((quiz) => quiz._id),
-			});
-
-			await quizbook.save({ session });
-
-			// 트랜젝션 커밋
-			await session.commitTransaction();
-			await session.endSession();
+			const quizbook = await this.quizbookRepo.create(
+				{
+					...dto,
+					quizList: quizList.map((q) => toObjectId(q._id as string)),
+					author: toObjectId(userId),
+				},
+				session,
+			);
 
 			return quizbook;
-		} catch (e) {
-			// 오류 발생시 롤백
-			await session.abortTransaction();
-			throw new InternalServerErrorException(
-				'DB 데이터 생성 도중 에러가 발생했습니다.',
-			);
-		}
+		});
 	}
 
-	// 모든 Quizbook을 가져온다.
-	async findAll(query: FindAllQuizbookDto) {
+	// 모든 Quizbook 조회
+	async getQuizbookList(query: FindAllQuizbookDto) {
+		const { keyword } = query;
 		const filters: FilterQuery<Quizbook> = {};
 
-		if (query.title) filters.title = { $regex: query.title, $options: 'i' };
-		if (query.description)
-			filters.description = { $regex: query.description, $options: 'i' };
-		if (query.category)
-			filters.category = { $regex: query.category, $options: 'i' };
+		if (keyword) {
+			const regex = new RegExp(keyword, 'i');
+			filters.$or = [
+				{ title: { $regex: regex } },
+				{ description: { $regex: regex } },
+				{ category: { $regex: regex } },
+			];
+		}
 
-		const quizbooks = await this.quizbookModel.find(filters);
+		const quizbookList = await this.quizbookRepo.findAll(filters);
 
-		return quizbooks;
+		return quizbookList;
 	}
 
-	// 특정 Quizbook을 가져온다.
-	async findOne(id: string) {
-		const quizbook = await this.quizbookModel
-			.findOne({ _id: id })
-			.populate({
-				path: 'quizList',
-				model: 'Quiz',
-				select: 'type question',
-			});
+	// 특정 Quizbook 상세 조회
+	async getQuizbookDetail(quizbookId: string) {
+		const quizbook =
+			await this.quizbookRepo.findByIdWithQuizAndAuthor(quizbookId);
 
 		if (!quizbook)
-			throw new NotFoundException(`${id} 문제집을 찾을 수 없습니다.`);
+			throw new NotFoundException(
+				`해당 ${quizbookId} Quizbook을 찾을 수 없습니다.`,
+			);
 
 		return quizbook;
 	}

@@ -1,22 +1,12 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
-import { CategoryType } from '../schema/quizbook.schema';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional, IsString } from 'class-validator';
 
 export class FindAllQuizbookDto {
-	@ApiPropertyOptional({ description: '문제집 제목' })
-	@IsOptional()
-	@IsString()
-	title?: string;
-
-	@ApiPropertyOptional({
-		description: '문제집 설명',
+	@ApiProperty({
+		type: String,
+		description: '(title, description, category) 검색',
 	})
 	@IsOptional()
 	@IsString()
-	description?: string;
-
-	@ApiPropertyOptional({ description: '문제집 카테고리', enum: CategoryType })
-	@IsOptional()
-	@IsEnum(CategoryType)
-	category?: CategoryType;
+	keyword?: string;
 }

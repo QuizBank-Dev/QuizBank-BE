@@ -4,64 +4,65 @@ import {
 	Post,
 	Body,
 	Param,
-	Version,
 	Query,
 	HttpStatus,
 } from '@nestjs/common';
 import { QuizbookService } from './quizbook.service';
 import { CreateQuizbookDto } from './dto/create-quizbook.dto';
-import { ApiExtraModels, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { FindAllQuizbookDto } from './dto/find-all-quizbook.dto';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiBaseResponse } from 'src/common/decorators/base-response.decorator';
-import { Quiz } from '../quiz/schema/quiz.schema';
+import { Public } from '../auth/decorator/public.decorator';
+import { UserId } from 'src/common/decorators/user-id.decorator';
 import {
-	QuizbookCreateResponseDto,
-	QuizbookFindAllResponseDto,
-	QuizbookFindOneResponseDto,
-} from './dto/response-quizbook.dto';
+	quizbookBaseExample,
+	quizbookDetailExample,
+	quizbookPreviewExample,
+} from './quizbook.example';
+import { FindAllQuizbookDto } from './dto/find-all-quizbook.dto';
 
-@Controller('quizbook')
+@Controller({
+	path: 'quizbook',
+	version: '1',
+})
 @ApiTags('Quizbook')
 export class QuizbookController {
 	constructor(private readonly quizbookService: QuizbookService) {}
 
 	// POST v1/quizbook
-	// 문제집을 생성한다.
+	// Quizbook을 생성한다.
 	@Post()
-	@Version('1')
 	@ApiOperation({
-		summary: '문제집 생성',
-		description: '문제집을 생성합니다.',
+		summary: 'Quizbook 생성',
+		description: 'Quizbook을 생성합니다.',
 	})
-	@ApiBaseResponse(QuizbookCreateResponseDto, HttpStatus.CREATED, '생성 성공')
-	async create(@Body() createQuizbookDto: CreateQuizbookDto) {
-		return this.quizbookService.create(createQuizbookDto);
+	@ApiBaseResponse(201, '생성 성공', quizbookBaseExample)
+	createQuizbook(@Body() dto: CreateQuizbookDto, @UserId() userId: string) {
+		return this.quizbookService.createQuizbook(dto, userId);
 	}
 
 	// GET v1/quizbook
-	// 모든 문제집을 가져온다.
+	// 모든 Quizbook을 가져온다.
+	@Public()
 	@Get()
-	@Version('1')
 	@ApiOperation({
-		summary: '모든 문제집 조회',
-		description: '모든 문제집을 가져옵니다.',
+		summary: '모든 Quizbook 조회',
+		description: '모든 Quizbook을 가져옵니다.',
 	})
-	@ApiBaseResponse([QuizbookFindAllResponseDto], HttpStatus.OK, '조회 성공')
-	async findAll(@Query() query: FindAllQuizbookDto) {
-		return this.quizbookService.findAll(query);
+	@ApiBaseResponse(HttpStatus.OK, '조회 성공', [quizbookPreviewExample])
+	getAllQuizbook(@Query() query: FindAllQuizbookDto) {
+		return this.quizbookService.getQuizbookList(query);
 	}
 
-	// GET v1/quizbook/:id
-	// 특정 문제집의 상세정보를 가져온다.
-	@Get(':id')
-	@Version('1')
+	// GET v1/quizbook/:quizbookId
+	// 특정 Quizbook의 상세정보를 가져온다.
+	@Public()
+	@Get(':quizbookId')
 	@ApiOperation({
-		summary: '문제집 상세 조회',
-		description: '문제집의 상세정보를 가져옵니다.',
+		summary: '특정 Quizbook 상세정보 조회',
+		description: '특정 Quizbook의 상세정보를 가져옵니다.',
 	})
-	@ApiExtraModels(Quiz)
-	@ApiBaseResponse(QuizbookFindOneResponseDto, HttpStatus.OK, '조회 성공')
-	async findOne(@Param('id') id: string) {
-		return this.quizbookService.findOne(id);
+	@ApiBaseResponse(200, '조회 성공', quizbookDetailExample)
+	getQuizbookById(@Param('quizbookId') quizbookId: string) {
+		return this.quizbookService.getQuizbookDetail(quizbookId);
 	}
 }

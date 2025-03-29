@@ -6,6 +6,7 @@ import { LoggerModule } from 'src/common/logger/logger.module';
 import { Connection } from 'mongoose';
 import { Logger } from 'winston';
 import { DB_TYPE } from './database.const';
+import { DatabaseService } from './database.service';
 
 @Module({
 	imports: [
@@ -61,6 +62,7 @@ import { DB_TYPE } from './database.const';
 			inject: [ConfigService, 'winston'],
 		}),
 	],
-	exports: [MongooseModule],
+	providers: [DatabaseService],
+	exports: [MongooseModule, DatabaseService],
 })
 export class DatabaseModule {}
