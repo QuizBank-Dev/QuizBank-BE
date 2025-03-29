@@ -25,7 +25,11 @@ export const commentDetailExample = {
 			content: '그러게요. 제 생각도 그렇습니다.',
 			quiz: '67e5ab5f60f22ad560ddac5b',
 			replies: [],
-			author: '67e2e20e5872c849d5dd4b87',
+			author: {
+				profileImg: '',
+				_id: '67e2e20e5872c849d5dd4b87',
+				nickname: 'test계정(2)',
+			},
 		},
 	],
 };
