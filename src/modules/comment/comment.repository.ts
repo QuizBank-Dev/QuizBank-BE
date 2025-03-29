@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DB_TYPE } from 'src/database/database.const';
 import { Comment } from './schema/comment.schema';
-import { ClientSession, isValidObjectId, Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import { toObjectId } from 'src/common/utils/database.util';
 
 @Injectable()
