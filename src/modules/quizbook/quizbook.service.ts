@@ -63,7 +63,7 @@ export class QuizbookService {
 		return quizbookList;
 	}
 
-	// 특정 Quizbook을 조회
+	// 특정 Quizbook 상세 조회
 	async getQuizbookDetail(quizbookId: string) {
 		const quizbook =
 			await this.quizbookRepo.findByIdWithQuizAndAuthor(quizbookId);

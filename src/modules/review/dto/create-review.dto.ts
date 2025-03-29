@@ -4,7 +4,7 @@ import { IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator';
 export class CreateReviewDto {
 	@ApiProperty({
 		example: '65e8a5d6fc13ae5e7f000002',
-		description: '문제집 ObjectId',
+		description: 'Quizbook ObjectId',
 	})
 	@IsString()
 	@IsNotEmpty()
@@ -12,7 +12,7 @@ export class CreateReviewDto {
 
 	@ApiProperty({
 		example: 5,
-		description: '문제집 평점(0 ~ 5)',
+		description: 'Quizbook 평점(0 ~ 5)',
 	})
 	@IsNumber()
 	@IsNotEmpty()
@@ -22,7 +22,7 @@ export class CreateReviewDto {
 
 	@ApiProperty({
 		example: '너무 좋은 문제였습니다!',
-		description: '리뷰 내용',
+		description: 'Review 내용',
 	})
 	@IsString()
 	@IsNotEmpty()

@@ -20,8 +20,8 @@ export class ReviewRepository {
 	}
 
 	/**
-	 * 모든 Review 조회
-	 * (미인증)
+	 * 특정 Quizbook의 모든 Review 조회
+	 * (비로그인 사용자)
 	 */
 	async findAll(quizbookId: string) {
 		return this.reviewModel
@@ -35,7 +35,7 @@ export class ReviewRepository {
 	}
 
 	/**
-	 * 모든 Review 조회
+	 * 특정 Quizbook의 모든 Review 조회
 	 * (사용자 제외)
 	 */
 	async findAllWithoutUser(quizbookId: string, userId: string) {
@@ -53,7 +53,7 @@ export class ReviewRepository {
 	}
 
 	/**
-	 * 사용자가 작성한 Review 조회
+	 * 사용자가 작성한 특정 Quizbook의 Review 조회
 	 */
 	async findByUser(quizbookId: string, userId: string) {
 		return this.reviewModel
@@ -75,14 +75,10 @@ export class ReviewRepository {
 	async findOneById(reviewId: string, userId: string) {
 		if (!isValidObjectId(reviewId)) return false;
 
-		const review = await this.reviewModel.findOne({
+		return this.reviewModel.findOne({
 			_id: reviewId,
 			author: toObjectId(userId),
 		});
-
-		if (!review) return false;
-
-		return review;
 	}
 
 	/**
@@ -92,14 +88,10 @@ export class ReviewRepository {
 	async findOnebyQuizbookId(quizbookId: string, userId: string) {
 		if (!isValidObjectId(quizbookId)) return false;
 
-		const review = await this.reviewModel.findOne({
+		return this.reviewModel.findOne({
 			quizbook: toObjectId(quizbookId),
 			author: toObjectId(userId),
 		});
-
-		if (!review) return false;
-
-		return review;
 	}
 
 	/**
@@ -122,13 +114,38 @@ export class ReviewRepository {
 	}
 
 	/**
-	 * 특정 Review 삭제
+	 * 특정 Review 삭제 (Hard)
 	 */
-	async remove(reviewId: string, userId: string, session?: ClientSession) {
+	async removeHard(
+		reviewId: string,
+		userId: string,
+		session?: ClientSession,
+	) {
 		return this.reviewModel.findOneAndDelete(
 			{
 				_id: reviewId,
 				author: toObjectId(userId),
+			},
+			{ session },
+		);
+	}
+
+	/**
+	 * 특정 Review 삭제 (Soft)
+	 */
+	async removeSoft(
+		reviewId: string,
+		userId: string,
+		session?: ClientSession,
+	) {
+		return this.reviewModel.findOneAndUpdate(
+			{
+				_id: reviewId,
+				author: toObjectId(userId),
+			},
+			{
+				content: '삭제된 리뷰 입니다.',
+				deletedAt: new Date(),
 			},
 			{ session },
 		);

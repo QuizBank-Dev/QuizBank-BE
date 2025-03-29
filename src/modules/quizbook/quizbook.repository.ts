@@ -19,8 +19,8 @@ export class QuizbookRepository {
 	}
 
 	/**
-	 * Quizbook 전체 조회
-	 * (query?: title, description, category)
+	 * 필터 조건에 맞는 Quizbook 목록 조회(filter = {}: 전체 목록 조회)
+	 * (populate: author)
 	 */
 	async findAll(filter: FilterQuery<Quizbook>) {
 		return this.quizbookModel.find(filter).populate({
@@ -31,7 +31,7 @@ export class QuizbookRepository {
 	}
 
 	/**
-	 * 특정 Quizbook 조회
+	 * 특정 Quizbook 상세 조회
 	 * (populate: quizList, author)
 	 */
 	async findByIdWithQuizAndAuthor(quizbookId: string) {
@@ -50,8 +50,8 @@ export class QuizbookRepository {
 	}
 
 	/**
-	 * Quizbook 수정
-	 * (Review 관련 필드 업데이트)
+	 * 특정 Quizbook의 Review 관련 통계 업데이트
+	 * (ex: reviewCount, reviewScore)
 	 */
 	async updateReviewStats(
 		filter: FilterQuery<Quizbook>,
@@ -64,11 +64,9 @@ export class QuizbookRepository {
 	}
 
 	/**
-	 * Quizbook 유/무 확인
+	 * 특정 Quizbook 유/무 확인
 	 */
 	async exists(quizbookId: string) {
-		if (!isValidObjectId(quizbookId)) return false;
-
 		return this.quizbookModel.exists({ _id: quizbookId }).then(Boolean);
 	}
 }

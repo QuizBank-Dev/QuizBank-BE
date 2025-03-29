@@ -36,11 +36,8 @@ export class QuizbookController {
 		description: 'Quizbook을 생성합니다.',
 	})
 	@ApiBaseResponse(201, '생성 성공', quizbookBaseExample)
-	createQuizbook(
-		@Body() createQuizbookDto: CreateQuizbookDto,
-		@UserId() userId: string,
-	) {
-		return this.quizbookService.createQuizbook(createQuizbookDto, userId);
+	createQuizbook(@Body() dto: CreateQuizbookDto, @UserId() userId: string) {
+		return this.quizbookService.createQuizbook(dto, userId);
 	}
 
 	// GET v1/quizbook
@@ -61,8 +58,8 @@ export class QuizbookController {
 	@Public()
 	@Get(':quizbookId')
 	@ApiOperation({
-		summary: 'Quizbook 상세 조회',
-		description: 'Quizbook의 상세정보를 가져옵니다.',
+		summary: '특정 Quizbook 상세정보 조회',
+		description: '특정 Quizbook의 상세정보를 가져옵니다.',
 	})
 	@ApiBaseResponse(200, '조회 성공', quizbookDetailExample)
 	getQuizbookById(@Param('quizbookId') quizbookId: string) {
