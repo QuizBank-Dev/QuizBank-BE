@@ -30,14 +30,11 @@ export class ReviewController {
 	@Post()
 	@ApiOperation({
 		summary: 'Review 생성',
-		description: 'Quizbook에 대한 Review를 생성합니다.',
+		description: '특정 Quizbook에 대한 Review를 생성합니다.',
 	})
 	@ApiBaseResponse(201, '생성 성공', reviewBaseExample)
-	createReview(
-		@Body() createReviewDto: CreateReviewDto,
-		@UserId() userId: string,
-	) {
-		return this.reviewService.createReview(createReviewDto, userId);
+	createReview(@Body() dto: CreateReviewDto, @UserId() userId: string) {
+		return this.reviewService.createReview(dto, userId);
 	}
 
 	// GET v1/review?quizbookId
@@ -46,7 +43,7 @@ export class ReviewController {
 	@Get()
 	@ApiOperation({
 		summary: 'Review 조회',
-		description: 'Quizbook에 대한 Review를 가져옵니다.',
+		description: '특정 Quizbook에 대한 모든 Review를 가져옵니다.',
 	})
 	@ApiBaseResponse(200, '조회 성공', [reviewBaseExample])
 	getAllReview(@Query('quizbookId') quizbookId: string) {
@@ -63,10 +60,10 @@ export class ReviewController {
 	@ApiBaseResponse(200, '수정 성공', reviewBaseExample)
 	updateReview(
 		@Param('reviewId') reviewId: string,
-		@Body() updateReviewDto: UpdateReviewDto,
+		@Body() dto: UpdateReviewDto,
 		@UserId() userId: string,
 	) {
-		return this.reviewService.update(updateReviewDto, reviewId, userId);
+		return this.reviewService.updateReview(dto, reviewId, userId);
 	}
 
 	// DELETE v1/review/:reviewId
@@ -81,6 +78,6 @@ export class ReviewController {
 		@Param('reviewId') reviewId: string,
 		@UserId() userId: string,
 	) {
-		return this.reviewService.remove(reviewId, userId);
+		return this.reviewService.removeReview(reviewId, userId);
 	}
 }

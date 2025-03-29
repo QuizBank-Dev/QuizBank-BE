@@ -84,7 +84,7 @@ export class ReviewService {
 	}
 
 	// 특정 Review 수정
-	async update(dto: UpdateReviewDto, reviewId: string, userId: string) {
+	async updateReview(dto: UpdateReviewDto, reviewId: string, userId: string) {
 		// 1. Review 조회
 		const review = await this.reviewRepo.findOneById(reviewId, userId);
 
@@ -124,7 +124,7 @@ export class ReviewService {
 	}
 
 	// 특정 리뷰를 삭제한다.
-	async remove(reviewId: string, userId: string) {
+	async removeReview(reviewId: string, userId: string) {
 		// 1. Review 조회
 		const review = await this.reviewRepo.findOneById(reviewId, userId);
 
@@ -136,7 +136,7 @@ export class ReviewService {
 		// 트랜잭션 적용
 		return this.databaseService.runInDefaultTransaction(async (session) => {
 			// 2. Review 삭제
-			await this.reviewRepo.remove(reviewId, userId, session);
+			await this.reviewRepo.removeHard(reviewId, userId, session);
 
 			// 3. Quizbook의 Review 관련 필드 업데이트
 			await this.quizbookRepo.updateReviewStats(

@@ -28,6 +28,11 @@ export class Review extends Document {
 		required: true,
 	})
 	author: Types.ObjectId | User;
+
+	@Prop({
+		type: Date,
+	})
+	deletedAt?: Date;
 }
 
 export const ReviewSchema = SchemaFactory.createForClass(Review);
