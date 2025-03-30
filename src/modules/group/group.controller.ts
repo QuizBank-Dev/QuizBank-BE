@@ -1,4 +1,12 @@
-import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
+import {
+	Body,
+	Controller,
+	Get,
+	HttpStatus,
+	Param,
+	Patch,
+	Post,
+} from '@nestjs/common';
 import { GroupService } from './group.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiBaseResponse } from 'src/common/decorators/base-response.decorator';
@@ -43,5 +51,19 @@ export class GroupController {
 	@ApiBaseResponse(201, '생성 성공', GroupIdExample)
 	postCreateGroup(@UserId() userId: string, @Body() request: CreateGroupDto) {
 		return this.groupService.postCreateGroup(userId, request);
+	}
+
+	@Patch(':groupId')
+	@ApiOperation({
+		summary: 'Group 정보 수정',
+		description: 'Group 정보를 수정합니다.',
+	})
+	@ApiBaseResponse(HttpStatus.OK, '수정 성공')
+	async patchUpadteGroup(
+		@UserId() userId: string,
+		@Param('groupId') groupId: string,
+		@Body() request: CreateGroupDto,
+	) {
+		await this.groupService.patchUpdateGroup(userId, groupId, request);
 	}
 }
