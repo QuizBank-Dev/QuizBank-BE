@@ -7,11 +7,18 @@ import { DB_TYPE } from 'src/database/database.const';
 import { GroupRepository } from './group.repository';
 import { DatabaseModule } from 'src/database/database.module';
 import { QuizbookModule } from '../quizbook/quizbook.module';
+import {
+	GroupQuizbook,
+	GroupQuizbookSchema,
+} from './schema/group-quizbook.schema';
 
 @Module({
 	imports: [
 		MongooseModule.forFeature(
-			[{ name: Group.name, schema: GroupSchema }],
+			[
+				{ name: Group.name, schema: GroupSchema },
+				{ name: GroupQuizbook.name, schema: GroupQuizbookSchema },
+			],
 			DB_TYPE.DEFAULT,
 		),
 		DatabaseModule,

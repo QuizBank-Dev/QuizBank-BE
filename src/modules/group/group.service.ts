@@ -59,31 +59,33 @@ export class GroupService {
 			await this.groupRepository.findAllBelongedGroupById(userId);
 
 		// 그룹 정보를 변환
-		const transformedGroups = groupList.map(async (group) => {
-			const {
-				memberList,
-				groupQuizbookList,
-				createdAt,
-				updatedAt,
-				...filteredFields
-			} = group.toObject();
+		const transformedGroups = await Promise.all(
+			groupList.map(async (group) => {
+				const {
+					memberList,
+					groupQuizbookList,
+					createdAt,
+					updatedAt,
+					...filteredFields
+				} = group.toObject();
 
-			// 간단히 변수 사용 처리
-			void createdAt;
-			void updatedAt;
+				// 간단히 변수 사용 처리
+				void createdAt;
+				void updatedAt;
 
-			// memberCount 계산
-			const memberCount = memberList.length;
+				// memberCount 계산
+				const memberCount = memberList.length;
 
-			const imminentQuizbook =
-				await this.makeImminentQuizbook(groupQuizbookList);
+				const imminentQuizbook =
+					await this.makeImminentQuizbook(groupQuizbookList);
 
-			return {
-				...filteredFields,
-				memberCount,
-				imminentQuizbook,
-			};
-		});
+				return {
+					...filteredFields,
+					memberCount,
+					imminentQuizbook,
+				};
+			}),
+		);
 
 		return transformedGroups;
 	}
@@ -101,7 +103,7 @@ export class GroupService {
 
 		void updatedAt;
 
-		if (!memberList.includes(toObjectId(userId)))
+		if (!memberList.map((id) => id.toString()).includes(userId))
 			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
 
 		const imminentQuizbook =
@@ -119,6 +121,14 @@ export class GroupService {
 			const data = { ...request, admin: toObjectId(userId) };
 
 			const newGroup = await this.groupRepository.create(data, session);
+
+			const memberData = { memberList: [toObjectId(userId)] };
+
+			await this.groupRepository.update(
+				memberData,
+				(newGroup._id as Types.ObjectId).toString(),
+				session,
+			);
 
 			// ChatRoom 생성 코드 추후에 추가.
 			// Group 정보 수정 코드 추후에 추가.
@@ -141,7 +151,7 @@ export class GroupService {
 				`해당 ${groupId} Group을 찾을 수 없습니다.`,
 			);
 
-		if (group.admin._id !== userId)
+		if (group.admin._id.toString() !== userId)
 			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
 
 		const updatedGroup = await this.groupRepository.update(
@@ -164,7 +174,7 @@ export class GroupService {
 					`해당 ${groupId} Group을 찾을 수 없습니다.`,
 				);
 
-			if (group.admin._id !== userId)
+			if (group.admin._id.toString() !== userId)
 				throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
 
 			// Group에 속한 모든 GroupQuizbook 제거 코드 추후에 추가.

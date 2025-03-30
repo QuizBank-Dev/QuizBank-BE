@@ -1,7 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { User } from 'src/modules/user/schema/user.schema';
-import { GroupQuizbook } from './group-quizbook.schema';
 
 @Schema({ timestamps: true })
 export class Group extends Document {
@@ -12,14 +10,11 @@ export class Group extends Document {
 	description: string;
 
 	@Prop({ type: Types.ObjectId, ref: 'User', required: true })
-	admin: Types.ObjectId | User;
+	admin: Types.ObjectId;
 
 	@Prop({
 		type: [{ type: Types.ObjectId, ref: 'User' }],
-		default: function (): Types.ObjectId[] {
-			const self = this as Group; // `this`를 Group 타입으로 캐스팅
-			return [self.admin] as Types.ObjectId[]; // admin의 ObjectId가 들어간 배열을 기본값으로 설정
-		},
+		default: [],
 	})
 	memberList: Types.ObjectId[];
 
@@ -27,7 +22,7 @@ export class Group extends Document {
 		type: [{ type: Types.ObjectId, ref: 'GroupQuizbook' }],
 		default: [],
 	})
-	groupQuizbookList: Types.ObjectId[] | GroupQuizbook[];
+	groupQuizbookList: Types.ObjectId[];
 
 	// @Prop({ type: Types.ObjectId, ref: 'ChatRoom', required: true })
 	// chatRoom: Types.ObjectId | ChatRoom;
