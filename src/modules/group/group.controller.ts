@@ -1,9 +1,14 @@
-import { Controller, Get, HttpStatus, Param } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiBaseResponse } from 'src/common/decorators/base-response.decorator';
-import { allBelongedGroupExample, GroupInfoExample } from './group.example';
+import {
+	allBelongedGroupExample,
+	GroupIdExample,
+	GroupInfoExample,
+} from './group.example';
 import { UserId } from 'src/common/decorators/user-id.decorator';
+import { CreateGroupDto } from './dto/create-group.dto';
 
 @Controller({ path: 'group', version: '1' })
 @ApiTags('Group')
@@ -28,5 +33,15 @@ export class GroupController {
 	@ApiBaseResponse(HttpStatus.OK, '조회 성공', GroupInfoExample)
 	getGroupInfo(@UserId() userId: string, @Param('groupId') groupId: string) {
 		return this.groupService.getGroupInfo(userId, groupId);
+	}
+
+	@Post()
+	@ApiOperation({
+		summary: 'Group 생성',
+		description: '새로운 Group을 생성합니다.',
+	})
+	@ApiBaseResponse(201, '생성 성공', GroupIdExample)
+	postCreateGroup(@UserId() userId: string, @Body() request: CreateGroupDto) {
+		return this.groupService.postCreateGroup(userId, request);
 	}
 }

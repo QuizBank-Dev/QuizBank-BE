@@ -8,12 +8,15 @@ import { QuizbookRepository } from '../quizbook/quizbook.repository';
 import { GroupQuizbook } from './schema/group-quizbook.schema';
 import { toObjectId } from 'src/common/utils/database.util';
 import { Types } from 'mongoose';
+import { CreateGroupDto } from './dto/create-group.dto';
+import { DatabaseService } from 'src/database/database.service';
 
 @Injectable()
 export class GroupService {
 	constructor(
 		private readonly groupRepository: GroupRepository,
 		private readonly quizbookRepository: QuizbookRepository,
+		private readonly databaseService: DatabaseService,
 	) {}
 
 	async makeImminentQuizbook(
@@ -109,5 +112,20 @@ export class GroupService {
 			memberList,
 			imminentQuizbook,
 		};
+	}
+
+	async postCreateGroup(userId: string, request: CreateGroupDto) {
+		return this.databaseService.runInDefaultTransaction(async (session) => {
+			const data = { ...request, admin: toObjectId(userId) };
+
+			const newGroup = await this.groupRepository.create(data, session);
+
+			// ChatRoom 생성 코드 추후에 추가.
+			// Group 정보 수정 코드 추후에 추가.
+
+			return {
+				_id: newGroup._id,
+			};
+		});
 	}
 }

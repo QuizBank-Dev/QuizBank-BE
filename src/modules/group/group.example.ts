@@ -16,3 +16,7 @@ export const GroupInfoExample = {
 	imminentQuizbook: {},
 	createdAt: '2025-03-30',
 };
+
+export const GroupIdExample = {
+	_id: '65e8a5d6fc13ae5e7f000002',
+};

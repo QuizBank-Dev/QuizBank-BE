@@ -57,8 +57,12 @@ export class GroupRepository {
 	/**
 	 * Group 정보 수정
 	 */
-	async update(data: Partial<Group>, groupId: string) {
-		return this.groupModel.findByIdAndUpdate(groupId, data);
+	async update(
+		data: Partial<Group>,
+		groupId: string,
+		session?: ClientSession,
+	) {
+		return this.groupModel.findByIdAndUpdate(groupId, data, { session });
 	}
 
 	/**
