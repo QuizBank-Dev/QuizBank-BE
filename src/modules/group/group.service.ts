@@ -154,4 +154,31 @@ export class GroupService {
 				`해당 ${groupId} Group을 업데이트할 수 없습니다.`,
 			);
 	}
+
+	async deleteGroup(userId: string, groupId: string) {
+		await this.databaseService.runInDefaultTransaction(async (session) => {
+			const group = await this.groupRepository.findById(groupId);
+
+			if (!group)
+				throw new NotFoundException(
+					`해당 ${groupId} Group을 찾을 수 없습니다.`,
+				);
+
+			if (group.admin._id !== userId)
+				throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
+
+			// Group에 속한 모든 GroupQuizbook 제거 코드 추후에 추가.
+			// ChatRoom 제거 코드 추후에 추가.
+
+			const deletedGroup = await this.groupRepository.delete(
+				groupId,
+				session,
+			);
+
+			if (!deletedGroup)
+				throw new NotFoundException(
+					`해당 ${groupId} Group을 삭제할 수 없습니다.`,
+				);
+		});
+	}
 }

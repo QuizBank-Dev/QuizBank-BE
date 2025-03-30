@@ -1,6 +1,7 @@
 import {
 	Body,
 	Controller,
+	Delete,
 	Get,
 	HttpStatus,
 	Param,
@@ -65,5 +66,18 @@ export class GroupController {
 		@Body() request: CreateGroupDto,
 	) {
 		await this.groupService.patchUpdateGroup(userId, groupId, request);
+	}
+
+	@Delete(':groupId')
+	@ApiOperation({
+		summary: 'Group 삭제',
+		description: 'Group을 삭제합니다.',
+	})
+	@ApiBaseResponse(HttpStatus.OK, '삭제 성공')
+	async deleteGroup(
+		@UserId() userId: string,
+		@Param('groupId') groupId: string,
+	) {
+		await this.groupService.deleteGroup(userId, groupId);
 	}
 }
