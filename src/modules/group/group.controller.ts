@@ -99,6 +99,19 @@ export class GroupController {
 		);
 	}
 
+	@Delete(':groupId/member')
+	@ApiOperation({
+		summary: '그룹 탈퇴',
+		description: '그룹을 탈퇴합니다.',
+	})
+	@ApiBaseResponse(HttpStatus.OK, '탈퇴 성공')
+	async deleteGroupWithdraw(
+		@UserId() userId: string,
+		@Param('groupId') groupId: string,
+	) {
+		await this.groupService.deleteGroupWithdraw(userId, groupId);
+	}
+
 	@Delete(':groupId/member/:memberId')
 	@ApiOperation({
 		summary: '그룹원 강퇴',

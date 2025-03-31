@@ -7,9 +7,10 @@ import { GroupRepository } from './group.repository';
 import { QuizbookRepository } from '../quizbook/quizbook.repository';
 import { GroupQuizbook } from './schema/group-quizbook.schema';
 import { toObjectId } from 'src/common/utils/database.util';
-import { Types } from 'mongoose';
+import { FilterQuery, Types } from 'mongoose';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { DatabaseService } from 'src/database/database.service';
+import { Group } from './schema/group.schema';
 
 @Injectable()
 export class GroupService {
@@ -156,14 +157,20 @@ export class GroupService {
 		await this.groupRepository.update(request, groupId);
 	}
 
-	async deleteGroup(userId: string, groupId: string) {
+	async deleteGroup(userId: string, groupId: string, reuse?: Group) {
 		await this.databaseService.runInDefaultTransaction(async (session) => {
-			const group = await this.groupRepository.findById(groupId);
+			let group: Group | null;
 
-			if (!group)
-				throw new NotFoundException(
-					`해당 ${groupId} Group을 찾을 수 없습니다.`,
-				);
+			if (!reuse) {
+				group = await this.groupRepository.findById(groupId);
+
+				if (!group)
+					throw new NotFoundException(
+						`해당 ${groupId} Group을 찾을 수 없습니다.`,
+					);
+			} else {
+				group = reuse;
+			}
 
 			if (group.admin._id.toString() !== userId)
 				throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
@@ -215,6 +222,47 @@ export class GroupService {
 			},
 			groupId,
 		);
+	}
+
+	async deleteGroupWithdraw(userId: string, groupId: string) {
+		const group = await this.groupRepository.findById(groupId);
+
+		if (!group)
+			throw new NotFoundException(
+				`해당 ${groupId} Group을 찾을 수 없습니다.`,
+			);
+
+		// 혼자인 경우
+		if (group.memberList.length === 1) {
+			await this.deleteGroup(userId, groupId, group);
+			return;
+		}
+
+		const targetMemberList = group.memberList.map((user) =>
+			user._id.toString(),
+		);
+		const indexOfNewOwner = targetMemberList.indexOf(userId);
+
+		if (indexOfNewOwner === -1)
+			throw new NotFoundException(
+				`해당 ${userId} 사용자를 찾을 수 없습니다.`,
+			);
+
+		await this.databaseService.runInDefaultTransaction(async (session) => {
+			let data: Partial<Group> | FilterQuery<Group>;
+
+			// 요청자가 그룹장인 경우
+			if (group.admin._id.toString() === userId) {
+				data = {
+					admin: group.memberList[1]._id,
+					$pull: { memberList: userId },
+				};
+			} else {
+				data = { $pull: { memberList: userId } };
+			}
+
+			await this.groupRepository.update(data, groupId, session);
+		});
 	}
 
 	async deleteGroupMember(userId: string, groupId: string, memberId: string) {
