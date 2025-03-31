@@ -1,7 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { User } from 'src/modules/user/schema/user.schema';
-import { GroupQuizbook } from './group-quizbook.schema';
 
 @Schema({ timestamps: true })
 export class Group extends Document {
@@ -12,23 +10,26 @@ export class Group extends Document {
 	description: string;
 
 	@Prop({ type: Types.ObjectId, ref: 'User', required: true })
-	admin: Types.ObjectId | User;
+	admin: Types.ObjectId;
 
 	@Prop({
 		type: [{ type: Types.ObjectId, ref: 'User' }],
-		required: true,
+		default: [],
 	})
-	memberList: Types.ObjectId[] | User[];
+	memberList: Types.ObjectId[];
 
 	@Prop({
 		type: [{ type: Types.ObjectId, ref: 'GroupQuizbook' }],
-		required: true,
+		default: [],
 	})
-	groupQuizbookList: Types.ObjectId[] | GroupQuizbook[];
+	groupQuizbookList: Types.ObjectId[];
 
-	@Prop({ type: Types.ObjectId, ref: 'ChatRoom', required: true })
-	chatRoom: Types.ObjectId;
+	// @Prop({ type: Types.ObjectId, ref: 'ChatRoom', required: true })
 	// chatRoom: Types.ObjectId | ChatRoom;
+
+	// Mongoose의 timestamps 옵션으로 자동 생성되는 필드
+	createdAt?: Date; // 추가
+	updatedAt?: Date; // 추가
 }
 
 export const GroupSchema = SchemaFactory.createForClass(Group);
