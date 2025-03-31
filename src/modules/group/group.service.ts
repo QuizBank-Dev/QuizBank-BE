@@ -103,7 +103,7 @@ export class GroupService {
 
 		void updatedAt;
 
-		if (!memberList.map((id) => id.toString()).includes(userId))
+		if (!memberList.map((user) => user._id.toString()).includes(userId))
 			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
 
 		const imminentQuizbook =

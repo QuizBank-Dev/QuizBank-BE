@@ -40,6 +40,11 @@ export class GroupRepository {
 				select: 'nickname profileImg',
 			},
 			{
+				path: 'memberList',
+				model: 'User',
+				select: 'nickname profileImg email',
+			},
+			{
 				path: 'groupQuizbookList',
 				model: 'GroupQuizbook',
 				select: 'quizbook endedAt',
