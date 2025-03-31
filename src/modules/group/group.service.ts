@@ -183,6 +183,40 @@ export class GroupService {
 		});
 	}
 
+	async patchGroupOwner(userId: string, groupId: string, memberId: string) {
+		const group = await this.groupRepository.findById(groupId);
+
+		if (!group)
+			throw new NotFoundException(
+				`해당 ${groupId} Group을 찾을 수 없습니다.`,
+			);
+
+		if (group.admin._id.toString() !== userId)
+			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
+
+		const targetMemberList = group.memberList.map((user) =>
+			user._id.toString(),
+		);
+		const indexOfNewOwner = targetMemberList.indexOf(memberId);
+
+		if (indexOfNewOwner === -1)
+			throw new NotFoundException(
+				`해당 ${memberId} 사용자를 찾을 수 없습니다.`,
+			);
+
+		targetMemberList.unshift(
+			targetMemberList.splice(indexOfNewOwner, 1)[0],
+		);
+
+		await this.groupRepository.update(
+			{
+				admin: toObjectId(memberId),
+				memberList: targetMemberList,
+			},
+			groupId,
+		);
+	}
+
 	async deleteGroupMember(userId: string, groupId: string, memberId: string) {
 		const group = await this.groupRepository.findById(groupId);
 

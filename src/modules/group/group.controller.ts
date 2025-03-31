@@ -81,6 +81,24 @@ export class GroupController {
 		await this.groupService.deleteGroup(userId, groupId);
 	}
 
+	@Patch(':groupId/owner')
+	@ApiOperation({
+		summary: '그룹장 위임',
+		description: '그룹장 권한을 위임합니다.',
+	})
+	@ApiBaseResponse(HttpStatus.OK, '위임 성공')
+	async patchGroupOwner(
+		@UserId() userId: string,
+		@Param('groupId') groupId: string,
+		@Body() request: { memberId: string },
+	) {
+		await this.groupService.patchGroupOwner(
+			userId,
+			groupId,
+			request.memberId,
+		);
+	}
+
 	@Delete(':groupId/member/:memberId')
 	@ApiOperation({
 		summary: '그룹원 강퇴',
