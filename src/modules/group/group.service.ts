@@ -131,7 +131,6 @@ export class GroupService {
 			);
 
 			// ChatRoom 생성 코드 추후에 추가.
-			// Group 정보 수정 코드 추후에 추가.
 
 			return {
 				_id: newGroup._id,
