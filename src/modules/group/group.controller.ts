@@ -80,4 +80,18 @@ export class GroupController {
 	) {
 		await this.groupService.deleteGroup(userId, groupId);
 	}
+
+	@Delete(':groupId/member/:memberId')
+	@ApiOperation({
+		summary: '그룹원 강퇴',
+		description: '그룹원을 강퇴합니다.',
+	})
+	@ApiBaseResponse(HttpStatus.OK, '강퇴 성공')
+	async deleteGroupMember(
+		@UserId() userId: string,
+		@Param('groupId') groupId: string,
+		@Param('memberId') memberId: string,
+	) {
+		await this.groupService.deleteGroupMember(userId, groupId, memberId);
+	}
 }

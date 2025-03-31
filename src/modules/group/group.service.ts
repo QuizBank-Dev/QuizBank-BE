@@ -182,4 +182,21 @@ export class GroupService {
 				);
 		});
 	}
+
+	async deleteGroupMember(userId: string, groupId: string, memberId: string) {
+		const group = await this.groupRepository.findById(groupId);
+
+		if (!group)
+			throw new NotFoundException(
+				`해당 ${groupId} Group을 찾을 수 없습니다.`,
+			);
+
+		if (group.admin._id.toString() !== userId)
+			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
+
+		await this.groupRepository.update(
+			{ $pull: { memberList: memberId } },
+			groupId,
+		);
+	}
 }
