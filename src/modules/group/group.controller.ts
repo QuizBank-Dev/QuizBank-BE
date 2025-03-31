@@ -15,6 +15,7 @@ import {
 	allBelongedGroupExample,
 	GroupIdExample,
 	GroupInfoExample,
+	GroupInviteUrlExample,
 } from './group.example';
 import { UserId } from 'src/common/decorators/user-id.decorator';
 import { CreateGroupDto } from './dto/create-group.dto';
@@ -80,6 +81,16 @@ export class GroupController {
 		@Param('groupId') groupId: string,
 	) {
 		await this.groupService.deleteGroup(userId, groupId);
+	}
+
+	@Get(':groupId/invitation')
+	@ApiOperation({
+		summary: 'Group 초대 링크 조회',
+		description: 'Group 초대 링크를 조회합니다.',
+	})
+	@ApiBaseResponse(HttpStatus.OK, '조회 성공', GroupInviteUrlExample)
+	getInviteUrl(@UserId() userId: string, @Param('groupId') groupId: string) {
+		return this.groupService.getInviteUrl(userId, groupId);
 	}
 
 	@Patch(':groupId/owner')

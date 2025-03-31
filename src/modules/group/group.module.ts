@@ -11,6 +11,7 @@ import {
 	GroupQuizbook,
 	GroupQuizbookSchema,
 } from './schema/group-quizbook.schema';
+import { AuthTokenModule } from '../auth/auth-token/auth-token.module';
 
 @Module({
 	imports: [
@@ -23,6 +24,7 @@ import {
 		),
 		DatabaseModule,
 		QuizbookModule,
+		AuthTokenModule,
 	],
 	controllers: [GroupController],
 	providers: [GroupService, GroupRepository],

@@ -20,3 +20,7 @@ export const GroupInfoExample = {
 export const GroupIdExample = {
 	_id: '65e8a5d6fc13ae5e7f000002',
 };
+
+export const GroupInviteUrlExample = {
+	url: 'http://localhost:3000/auth/login?token=token',
+};

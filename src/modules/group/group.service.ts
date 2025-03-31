@@ -11,6 +11,9 @@ import { FilterQuery, Types } from 'mongoose';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { DatabaseService } from 'src/database/database.service';
 import { Group } from './schema/group.schema';
+import { AuthTokenService } from '../auth/auth-token/auth-token.service';
+import { TokenType } from '../auth/auth-token/auth-token.types';
+import { InviteTokenPayloadDto } from './dto/invite-token-payload.dto';
 
 @Injectable()
 export class GroupService {
@@ -18,6 +21,7 @@ export class GroupService {
 		private readonly groupRepository: GroupRepository,
 		private readonly quizbookRepository: QuizbookRepository,
 		private readonly databaseService: DatabaseService,
+		private readonly authTokenService: AuthTokenService,
 	) {}
 
 	async makeImminentQuizbook(
@@ -188,6 +192,32 @@ export class GroupService {
 					`해당 ${groupId} Group을 삭제할 수 없습니다.`,
 				);
 		});
+	}
+
+	async getInviteUrl(userId: string, groupId: string) {
+		const group = await this.groupRepository.findById(groupId);
+
+		if (!group)
+			throw new NotFoundException(
+				`해당 ${groupId} Group을 찾을 수 없습니다.`,
+			);
+
+		const targetMemberList = group.memberList.map((user) =>
+			user._id.toString(),
+		);
+		const indexOfNewOwner = targetMemberList.indexOf(userId);
+
+		if (indexOfNewOwner === -1)
+			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
+
+		const token =
+			this.authTokenService.generateToken<InviteTokenPayloadDto>(
+				TokenType.INVITE,
+				{ groupId },
+			);
+
+		// 추후 url 수정 필요.
+		return { url: `http://localhost:3000/auth/login?token=${token}` };
 	}
 
 	async patchGroupOwner(userId: string, groupId: string, memberId: string) {
