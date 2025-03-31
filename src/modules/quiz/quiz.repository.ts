@@ -22,6 +22,12 @@ export class QuizRepository {
 	 * 특정 Quiz 조회
 	 */
 	async findById(quizId: string) {
-		return this.quizModel.findById(quizId);
+		return this.quizModel.findById(quizId).populate([
+			{
+				path: 'admin',
+				model: 'User',
+				select: 'nickname profileImg',
+			},
+		]);
 	}
 }
