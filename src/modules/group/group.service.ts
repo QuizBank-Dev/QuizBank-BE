@@ -154,15 +154,7 @@ export class GroupService {
 		if (group.admin._id.toString() !== userId)
 			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
 
-		const updatedGroup = await this.groupRepository.update(
-			request,
-			groupId,
-		);
-
-		if (!updatedGroup)
-			throw new NotFoundException(
-				`해당 ${groupId} Group을 업데이트할 수 없습니다.`,
-			);
+		await this.groupRepository.update(request, groupId);
 	}
 
 	async deleteGroup(userId: string, groupId: string) {
