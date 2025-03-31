@@ -7,6 +7,7 @@ export const envValidationSchema = Joi.object({
 	DB_SUB_URI: Joi.string().required(),
 	ACCESS_TOKEN_SECRET: Joi.string().required(),
 	REFRESH_TOKEN_SECRET: Joi.string().required(),
+	INVITE_TOKEN_SECRET: Joi.string().required(),
 	CLIENT_LOCAL_URL: Joi.string().default('http://localhost:3000'),
 	CLIENT_PROD_URL: Joi.string(),
 	MAILER_HOST: Joi.string(),
