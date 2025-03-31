@@ -18,6 +18,7 @@ import {
 } from './group.example';
 import { UserId } from 'src/common/decorators/user-id.decorator';
 import { CreateGroupDto } from './dto/create-group.dto';
+import { UpdateOwnerDto } from './dto/update-owner.dto';
 
 @Controller({ path: 'group', version: '1' })
 @ApiTags('Group')
@@ -90,7 +91,7 @@ export class GroupController {
 	async patchGroupOwner(
 		@UserId() userId: string,
 		@Param('groupId') groupId: string,
-		@Body() request: { memberId: string },
+		@Body() request: UpdateOwnerDto,
 	) {
 		await this.groupService.patchGroupOwner(
 			userId,
