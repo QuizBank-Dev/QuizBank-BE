@@ -45,7 +45,9 @@ export class UserRepository {
 	 * 특정 유저 수정
 	 */
 	async update(id: string, updateUserDto: UpdateUserDto) {
-		return this.userModel.findByIdAndUpdate(id, updateUserDto);
+		return this.userModel.findByIdAndUpdate(id, updateUserDto, {
+			new: true,
+		});
 	}
 
 	/**

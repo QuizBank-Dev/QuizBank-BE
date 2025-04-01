@@ -1,9 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from './user.repository';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UploadService } from '../upload/upload.service';
 
 @Injectable()
 export class UserService {
-	constructor(private readonly userRepository: UserRepository) {}
+	constructor(
+		private readonly userRepository: UserRepository,
+		private readonly imageUploadService: UploadService,
+	) {}
 
 	async getMyInformation(userId: string) {
 		const user = await this.userRepository.findById(userId);
@@ -46,5 +51,45 @@ export class UserService {
 			quizbook,
 			record,
 		};
+	}
+
+	async updateProfile(
+		userId: string,
+		{ nickname, introduce }: UpdateProfileDto,
+		file?: Express.Multer.File,
+	) {
+		const user = await this.userRepository.findById(userId);
+
+		if (!user) {
+			throw new NotFoundException('해당 유저를 찾을 수 없습니다.');
+		}
+
+		const updateData = { nickname, introduce };
+
+		// profileImg는 파일이 있는 경우에만 처리
+		if (file) {
+			const savedImage = await this.imageUploadService.upload(file);
+
+			if (user.profileImg) {
+				// 이미 프로필사진이 존재하는 경우 해당 이미지 삭제
+				await this.imageUploadService.delete(user.profileImg);
+			}
+
+			updateData['profileImg'] = savedImage;
+		}
+
+		return this.userRepository.update(userId, updateData);
+	}
+
+	async deleteProfileImg(userId: string) {
+		const user = await this.userRepository.findById(userId);
+
+		if (!user) {
+			throw new NotFoundException('해당 유저를 찾을 수 없습니다.');
+		}
+
+		await this.imageUploadService.delete(user.profileImg);
+
+		return this.userRepository.update(userId, { profileImg: '' });
 	}
 }

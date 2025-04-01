@@ -5,6 +5,7 @@ import { User, UserSchema } from './schema/user.schema';
 import { UserService } from './user.service';
 import { UserRepository } from './user.repository';
 import { UserController } from './user.controller';
+import { UploadModule } from '../upload/upload.module';
 
 @Module({
 	imports: [
@@ -12,6 +13,7 @@ import { UserController } from './user.controller';
 			[{ name: User.name, schema: UserSchema }],
 			DB_TYPE.DEFAULT,
 		),
+		UploadModule,
 	],
 	providers: [UserService, UserRepository],
 	exports: [UserService, UserRepository],
