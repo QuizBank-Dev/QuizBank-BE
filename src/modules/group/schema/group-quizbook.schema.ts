@@ -3,6 +3,9 @@ import { Document, Types } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class GroupQuizbook extends Document {
+	@Prop({ type: Types.ObjectId, ref: 'Group', required: true })
+	group: Types.ObjectId;
+
 	@Prop({ type: Types.ObjectId, ref: 'Quizbook', required: true })
 	quizbook: Types.ObjectId;
 
