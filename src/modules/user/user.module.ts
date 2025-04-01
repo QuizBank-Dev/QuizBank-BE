@@ -4,6 +4,7 @@ import { DB_TYPE } from '../../database/database.const';
 import { User, UserSchema } from './schema/user.schema';
 import { UserService } from './user.service';
 import { UserRepository } from './user.repository';
+import { UserController } from './user.controller';
 
 @Module({
 	imports: [
@@ -14,5 +15,6 @@ import { UserRepository } from './user.repository';
 	],
 	providers: [UserService, UserRepository],
 	exports: [UserService, UserRepository],
+	controllers: [UserController],
 })
 export class UserModule {}
