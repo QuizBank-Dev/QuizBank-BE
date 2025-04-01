@@ -46,7 +46,7 @@ export class User extends Document<string> {
 		type: Types.ObjectId,
 		ref: 'Quizbook',
 	})
-	recentWorkbook: Types.ObjectId | Quizbook;
+	recentQuizbook: Types.ObjectId | Quizbook;
 
 	@Prop({
 		default: '',
