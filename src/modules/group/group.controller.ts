@@ -20,6 +20,7 @@ import {
 import { UserId } from 'src/common/decorators/user-id.decorator';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateOwnerDto } from './dto/update-owner.dto';
+import { CreateGroupMemberDto } from './dto/create-group-member.dto';
 
 @Controller({ path: 'group', version: '1' })
 @ApiTags('Group')
@@ -91,6 +92,22 @@ export class GroupController {
 	@ApiBaseResponse(HttpStatus.OK, '조회 성공', GroupInviteUrlExample)
 	getInviteUrl(@UserId() userId: string, @Param('groupId') groupId: string) {
 		return this.groupService.getInviteUrl(userId, groupId);
+	}
+
+	@Post('invitation')
+	@ApiOperation({
+		summary: '초대 링크를 통한 Group 가입',
+		description: '초대 링크를 통한 Group 가입을 합니다.',
+	})
+	@ApiBaseResponse(201, '가입 성공')
+	async postCreateGroupMember(
+		@UserId() userId: string,
+		@Body() request: CreateGroupMemberDto,
+	) {
+		await this.groupService.postCreateGroupMember(
+			userId,
+			request.inviteCode,
+		);
 	}
 
 	@Patch(':groupId/owner')

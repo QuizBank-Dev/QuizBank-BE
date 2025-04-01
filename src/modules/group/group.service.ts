@@ -220,6 +220,34 @@ export class GroupService {
 		return { url: `http://localhost:3000/auth/login?token=${token}` };
 	}
 
+	async postCreateGroupMember(userId: string, token: string) {
+		if (await this.authTokenService.isExpiredToken(token)) {
+			throw new UnauthorizedException('인증정보가 올바르지 않습니다.');
+		}
+
+		const { groupId } =
+			this.authTokenService.verifyToken<InviteTokenPayloadDto>(
+				TokenType.INVITE,
+				token,
+			);
+
+		const group = await this.groupRepository.findById(groupId);
+
+		if (!group)
+			throw new NotFoundException(
+				`해당 ${groupId} Group을 찾을 수 없습니다.`,
+			);
+
+		await this.groupRepository.update(
+			{
+				$addToSet: { memberList: userId }, // 중복 없이 배열에 userId 추가
+			},
+			groupId,
+		);
+
+		await this.authTokenService.expireToken(token);
+	}
+
 	async patchGroupOwner(userId: string, groupId: string, memberId: string) {
 		const group = await this.groupRepository.findById(groupId);
 
