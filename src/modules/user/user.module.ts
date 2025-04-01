@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { DB_TYPE } from '../../database/database.const';
 import { User, UserSchema } from './schema/user.schema';
 import { UserService } from './user.service';
+import { UserRepository } from './user.repository';
 
 @Module({
 	imports: [
@@ -11,7 +12,7 @@ import { UserService } from './user.service';
 			DB_TYPE.DEFAULT,
 		),
 	],
-	providers: [UserService],
-	exports: [UserService],
+	providers: [UserService, UserRepository],
+	exports: [UserService, UserRepository],
 })
 export class UserModule {}

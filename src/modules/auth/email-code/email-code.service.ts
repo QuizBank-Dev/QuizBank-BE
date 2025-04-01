@@ -9,7 +9,7 @@ import { GenerateEmailVerificationCodeDto } from './dto/generate-email-verificat
 import { EmailVerificationDto } from './dto/email-verification.dto';
 import { EmailCode } from './schema/email-code.schema';
 import { MailerService } from '../../mailer/mailer.service';
-import { UserService } from '../../user/user.service';
+import { UserRepository } from '../../user/user.repository';
 import { DB_TYPE } from '../../../database/database.const';
 import { MAIL_CONTENT, MAIL_TITLE } from './email-code.const';
 
@@ -17,7 +17,7 @@ import { MAIL_CONTENT, MAIL_TITLE } from './email-code.const';
 export class EmailCodeService {
 	constructor(
 		private readonly mailerService: MailerService,
-		private readonly userService: UserService,
+		private readonly userRepository: UserRepository,
 		@InjectModel(EmailCode.name, DB_TYPE.DEFAULT)
 		private readonly emailCodeModel: Model<EmailCode>,
 	) {}
@@ -38,7 +38,7 @@ export class EmailCodeService {
 			throw new UnauthorizedException('인증 코드가 유효하지 않습니다.');
 		}
 
-		const user = await this.userService.findOne({ email });
+		const user = await this.userRepository.findOne({ email });
 
 		if (user) {
 			throw new ConflictException('이미 가입된 이메일입니다.');
