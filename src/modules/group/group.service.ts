@@ -306,21 +306,19 @@ export class GroupService {
 				`해당 ${userId} 사용자를 찾을 수 없습니다.`,
 			);
 
-		await this.databaseService.runInDefaultTransaction(async (session) => {
-			let data: Partial<Group> | FilterQuery<Group>;
+		let data: Partial<Group> | FilterQuery<Group>;
 
-			// 요청자가 그룹장인 경우
-			if (group.admin._id.toString() === userId) {
-				data = {
-					admin: group.memberList[1]._id,
-					$pull: { memberList: userId },
-				};
-			} else {
-				data = { $pull: { memberList: userId } };
-			}
+		// 요청자가 그룹장인 경우
+		if (group.admin._id.toString() === userId) {
+			data = {
+				admin: group.memberList[1]._id,
+				$pull: { memberList: userId },
+			};
+		} else {
+			data = { $pull: { memberList: userId } };
+		}
 
-			await this.groupRepository.update(data, groupId, session);
-		});
+		await this.groupRepository.update(data, groupId);
 	}
 
 	async deleteGroupMember(userId: string, groupId: string, memberId: string) {
