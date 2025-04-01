@@ -15,4 +15,10 @@ export const envValidationSchema = Joi.object({
 	MAILER_USER: Joi.string(),
 	MAILER_PASS: Joi.string(),
 	HASH_ROUNDS: Joi.number(),
+	CLOUDFLARE_R2_ACCESS_KEY: Joi.string(),
+	CLOUDFLARE_R2_SECRET_KEY: Joi.string(),
+	CLOUDFLARE_R2_ENDPOINT: Joi.string(),
+	CLOUDFLARE_R2_BUCKET: Joi.string(),
+	CLOUDFLARE_R2_REGION: Joi.string(),
+	CLOUDFLARE_R2_PUBLIC_URL: Joi.string(),
 });

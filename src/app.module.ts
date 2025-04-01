@@ -15,6 +15,7 @@ import { RefreshTokenMiddleware } from './modules/auth/middleware/refresh-token.
 import { GroupModule } from './modules/group/group.module';
 import { CommentModlue } from './modules/comment/comment.module';
 import { GroupQuizbookModule } from './modules/group/group-quizbook/group-quizbook.module';
+import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
 	imports: [
@@ -30,6 +31,7 @@ import { GroupQuizbookModule } from './modules/group/group-quizbook/group-quizbo
 		GroupModule,
 		CommentModlue,
 		GroupQuizbookModule,
+		UploadModule,
 	],
 	providers: [
 		{
