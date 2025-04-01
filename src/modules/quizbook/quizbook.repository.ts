@@ -34,7 +34,13 @@ export class QuizbookRepository {
 	 * 특정 Quizbook 단순 정보 조회
 	 */
 	async findById(quizbookId: string) {
-		return this.quizbookModel.findById(quizbookId);
+		return this.quizbookModel.findById(quizbookId).populate([
+			{
+				path: 'author',
+				model: 'User',
+				select: 'nickname profileImg',
+			},
+		]);
 	}
 
 	/**
