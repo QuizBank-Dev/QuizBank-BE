@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, ProjectionType, RootFilterQuery } from 'mongoose';
+import { Model, ProjectionType, RootFilterQuery, UpdateQuery } from 'mongoose';
 import { User } from './schema/user.schema';
 import { DB_TYPE } from '../../database/database.const';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -44,7 +44,7 @@ export class UserRepository {
 	/**
 	 * 특정 유저 수정
 	 */
-	async update(id: string, updateUserDto: UpdateUserDto) {
+	async update(id: string, updateUserDto: UpdateQuery<User> | UpdateUserDto) {
 		return this.userModel.findByIdAndUpdate(id, updateUserDto, {
 			new: true,
 		});
