@@ -14,6 +14,7 @@ import { Group } from './schema/group.schema';
 import { AuthTokenService } from '../auth/auth-token/auth-token.service';
 import { TokenType } from '../auth/auth-token/auth-token.types';
 import { InviteTokenPayloadDto } from './dto/invite-token-payload.dto';
+import { Quizbook } from '../quizbook/schema/quizbook.schema';
 
 @Injectable()
 export class GroupService {
@@ -41,7 +42,7 @@ export class GroupService {
 					new Date(b.endedAt).getTime(),
 			) as GroupQuizbook[];
 
-		let result = {};
+		let result: { endedAt?: Date } & Partial<Quizbook> = {};
 
 		if (quizbookList.length !== 0) {
 			const targetId = quizbookList[0].quizbook.toString();
@@ -53,7 +54,10 @@ export class GroupService {
 					`해당 ${targetId} Quizbook을 찾을 수 없습니다.`,
 				);
 
-			result = targetQuizbook;
+			result = {
+				...targetQuizbook.toObject(),
+				endedAt: quizbookList[0].endedAt,
+			};
 		}
 
 		return result;
