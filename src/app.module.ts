@@ -16,6 +16,7 @@ import { GroupModule } from './modules/group/group.module';
 import { CommentModlue } from './modules/comment/comment.module';
 import { GroupQuizbookModule } from './modules/group/group-quizbook/group-quizbook.module';
 import { UploadModule } from './modules/upload/upload.module';
+import { CategoryModule } from './modules/category/category.module';
 
 @Module({
 	imports: [
@@ -32,6 +33,7 @@ import { UploadModule } from './modules/upload/upload.module';
 		CommentModlue,
 		GroupQuizbookModule,
 		UploadModule,
+		CategoryModule,
 	],
 	providers: [
 		{
