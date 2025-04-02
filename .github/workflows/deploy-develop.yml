@@ -37,6 +37,18 @@ jobs:
                             secret: ACCESS_TOKEN_SECRET
                           - name: REFRESH_TOKEN_SECRET
                             secret: REFRESH_TOKEN_SECRET
+                          - name: HASH_ROUNDS
+                            secret: HASH_ROUNDS
+                          - name: MAILER_HOST
+                            secret: MAILER_HOST
+                          - name: MAILER_PORT
+                            secret: MAILER_PORT
+                          - name: MAILER_USER
+                            secret: MAILER_USER
+                          - name: MAILER_PASS
+                            secret: MAILER_PASS
+                          - name: INVITE_TOKEN_SECRET
+                            secret: INVITE_TOKEN_SECRET
                         ports: 3000
                         build: pnpm build
                         start: pnpm start:prod
