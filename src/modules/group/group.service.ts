@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { GroupRepository } from './group.repository';
 import { QuizbookRepository } from '../quizbook/quizbook.repository';
-import { GroupQuizbook } from './schema/group-quizbook.schema';
+import { GroupQuizbook } from './group-quizbook/schema/group-quizbook.schema';
 import { toObjectId } from 'src/common/utils/database.util';
 import { FilterQuery, Types } from 'mongoose';
 import { CreateGroupDto } from './dto/create-group.dto';
