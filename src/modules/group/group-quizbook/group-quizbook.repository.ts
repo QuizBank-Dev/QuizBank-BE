@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { GroupQuizbook } from './schema/group-quizbook.schema';
 import { DB_TYPE } from 'src/database/database.const';
-import { ClientSession, Model } from 'mongoose';
+import { ClientSession, FilterQuery, Model } from 'mongoose';
 import { toObjectId } from 'src/common/utils/database.util';
 
 @Injectable()
@@ -36,5 +36,21 @@ export class GroupQuizbookRepository {
 	 */
 	async create(data: Partial<GroupQuizbook>, session?: ClientSession) {
 		return new this.groupQuizbookModel(data).save({ session });
+	}
+
+	/**
+	 * 특정 GroupQuizbook 정보 수정
+	 */
+	async update(
+		data: Partial<GroupQuizbook> | FilterQuery<GroupQuizbook>,
+		groupId: string,
+		quizbookId: string,
+		session?: ClientSession,
+	) {
+		return this.groupQuizbookModel.findOneAndUpdate(
+			{ group: groupId, quizbook: quizbookId },
+			data,
+			{ session },
+		);
 	}
 }

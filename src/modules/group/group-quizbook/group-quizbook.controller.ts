@@ -1,4 +1,12 @@
-import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
+import {
+	Body,
+	Controller,
+	Get,
+	HttpStatus,
+	Param,
+	Patch,
+	Post,
+} from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GroupQuizbookService } from './group-quizbook.service';
 import { ApiBaseResponse } from 'src/common/decorators/base-response.decorator';
@@ -37,6 +45,26 @@ export class GroupQuizbookController {
 		@Body() request: CreateGroupQuizbookDto,
 	) {
 		await this.groupQuizbookService.postCreateGroupQuizbook(
+			userId,
+			groupId,
+			quizbookId,
+			request.endDate,
+		);
+	}
+
+	@Patch(':quizbookId')
+	@ApiOperation({
+		summary: 'Group 선정 문제집 마감일 수정',
+		description: 'Group 선정 문제집 마감일을 수정합니다.',
+	})
+	@ApiBaseResponse(HttpStatus.OK, '수정 성공')
+	async patchGroupQuizbookEndDate(
+		@UserId() userId: string,
+		@Param('groupId') groupId: string,
+		@Param('quizbookId') quizbookId: string,
+		@Body() request: CreateGroupQuizbookDto,
+	) {
+		await this.groupQuizbookService.patchGroupQuizbookEndDate(
 			userId,
 			groupId,
 			quizbookId,

@@ -8,6 +8,7 @@ import { QuizbookRepository } from 'src/modules/quizbook/quizbook.repository';
 import { DatabaseService } from 'src/database/database.service';
 import { GroupRepository } from '../group.repository';
 import { toObjectId } from 'src/common/utils/database.util';
+import { CreateGroupQuizbookDto } from './dto/create-group-quizbook.dto';
 
 @Injectable()
 export class GroupQuizbookService {
@@ -77,5 +78,28 @@ export class GroupQuizbookService {
 				session,
 			);
 		});
+	}
+
+	async patchGroupQuizbookEndDate(
+		userId: string,
+		groupId: string,
+		quizbookId: string,
+		endDate: Date,
+	) {
+		const group = await this.groupRepository.findById(groupId);
+
+		if (!group)
+			throw new NotFoundException(
+				`해당 ${groupId} Group을 찾을 수 없습니다.`,
+			);
+
+		if (group.admin._id.toString() !== userId)
+			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
+
+		await this.groupQuizbookRepository.update(
+			{ endedAt: endDate },
+			groupId,
+			quizbookId,
+		);
 	}
 }
