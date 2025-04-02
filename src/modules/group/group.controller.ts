@@ -15,9 +15,12 @@ import {
 	allBelongedGroupExample,
 	GroupIdExample,
 	GroupInfoExample,
+	GroupInviteUrlExample,
 } from './group.example';
 import { UserId } from 'src/common/decorators/user-id.decorator';
 import { CreateGroupDto } from './dto/create-group.dto';
+import { UpdateOwnerDto } from './dto/update-owner.dto';
+import { CreateGroupMemberDto } from './dto/create-group-member.dto';
 
 @Controller({ path: 'group', version: '1' })
 @ApiTags('Group')
@@ -79,5 +82,76 @@ export class GroupController {
 		@Param('groupId') groupId: string,
 	) {
 		await this.groupService.deleteGroup(userId, groupId);
+	}
+
+	@Get(':groupId/invitation')
+	@ApiOperation({
+		summary: 'Group 초대 링크 조회',
+		description: 'Group 초대 링크를 조회합니다.',
+	})
+	@ApiBaseResponse(HttpStatus.OK, '조회 성공', GroupInviteUrlExample)
+	getInviteUrl(@UserId() userId: string, @Param('groupId') groupId: string) {
+		return this.groupService.getInviteUrl(userId, groupId);
+	}
+
+	@Post('invitation')
+	@ApiOperation({
+		summary: '초대 링크를 통한 Group 가입',
+		description: '초대 링크를 통한 Group 가입을 합니다.',
+	})
+	@ApiBaseResponse(201, '가입 성공')
+	async postCreateGroupMember(
+		@UserId() userId: string,
+		@Body() request: CreateGroupMemberDto,
+	) {
+		await this.groupService.postCreateGroupMember(
+			userId,
+			request.inviteCode,
+		);
+	}
+
+	@Patch(':groupId/owner')
+	@ApiOperation({
+		summary: '그룹장 위임',
+		description: '그룹장 권한을 위임합니다.',
+	})
+	@ApiBaseResponse(HttpStatus.OK, '위임 성공')
+	async patchGroupOwner(
+		@UserId() userId: string,
+		@Param('groupId') groupId: string,
+		@Body() request: UpdateOwnerDto,
+	) {
+		await this.groupService.patchGroupOwner(
+			userId,
+			groupId,
+			request.memberId,
+		);
+	}
+
+	@Delete(':groupId/member')
+	@ApiOperation({
+		summary: '그룹 탈퇴',
+		description: '그룹을 탈퇴합니다.',
+	})
+	@ApiBaseResponse(HttpStatus.OK, '탈퇴 성공')
+	async deleteGroupWithdraw(
+		@UserId() userId: string,
+		@Param('groupId') groupId: string,
+	) {
+		await this.groupService.deleteGroupWithdraw(userId, groupId);
+	}
+
+	@Delete(':groupId/member/:memberId')
+	@ApiOperation({
+		summary: '그룹원 강퇴',
+		description: '그룹원을 강퇴합니다.',
+	})
+	@ApiBaseResponse(HttpStatus.OK, '강퇴 성공')
+	async deleteGroupMember(
+		@UserId() userId: string,
+		@Param('groupId') groupId: string,
+		@Param('memberId') memberId: string,
+	) {
+		await this.groupService.deleteGroupMember(userId, groupId, memberId);
 	}
 }

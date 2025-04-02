@@ -6,6 +6,7 @@
 export const AUTH_TOKEN_EXPIRY = {
 	ACCESS: 60 * 15, // 15m
 	REFRESH: 60 * 60 * 24 * 14, // 14d
+	INVITE: 60 * 60 * 24, // 1d
 };
 
 /**

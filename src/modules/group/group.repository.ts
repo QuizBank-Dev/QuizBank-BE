@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Group } from './schema/group.schema';
-import { ClientSession, Model } from 'mongoose';
+import { ClientSession, FilterQuery, Model } from 'mongoose';
 import { DB_TYPE } from 'src/database/database.const';
 
 @Injectable()
@@ -40,6 +40,11 @@ export class GroupRepository {
 				select: 'nickname profileImg',
 			},
 			{
+				path: 'memberList',
+				model: 'User',
+				select: 'nickname profileImg email',
+			},
+			{
 				path: 'groupQuizbookList',
 				model: 'GroupQuizbook',
 				select: 'quizbook endedAt',
@@ -58,7 +63,7 @@ export class GroupRepository {
 	 * Group 정보 수정
 	 */
 	async update(
-		data: Partial<Group>,
+		data: Partial<Group> | FilterQuery<Group>,
 		groupId: string,
 		session?: ClientSession,
 	) {
