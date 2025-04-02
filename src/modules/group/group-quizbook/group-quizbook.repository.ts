@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { GroupQuizbook } from './schema/group-quizbook.schema';
 import { DB_TYPE } from 'src/database/database.const';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 
 @Injectable()
 export class GroupQuizbookRepository {
@@ -26,5 +26,12 @@ export class GroupQuizbookRepository {
 				},
 			},
 		]);
+	}
+
+	/**
+	 * GroupQuizbook 생성
+	 */
+	async create(data: Partial<GroupQuizbook>, session?: ClientSession) {
+		return new this.groupQuizbookModel(data).save({ session });
 	}
 }
