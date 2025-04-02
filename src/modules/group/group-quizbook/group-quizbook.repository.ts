@@ -53,4 +53,14 @@ export class GroupQuizbookRepository {
 			{ session },
 		);
 	}
+
+	/**
+	 * GroupQuizbook 삭제
+	 */
+	async delete(groupId: string, quizbookId: string, session?: ClientSession) {
+		return this.groupQuizbookModel.findOneAndDelete(
+			{ group: toObjectId(groupId), quizbook: toObjectId(quizbookId) },
+			{ session },
+		);
+	}
 }

@@ -1,6 +1,7 @@
 import {
 	Body,
 	Controller,
+	Delete,
 	Get,
 	HttpStatus,
 	Param,
@@ -69,6 +70,24 @@ export class GroupQuizbookController {
 			groupId,
 			quizbookId,
 			request.endDate,
+		);
+	}
+
+	@Delete(':quizbookId')
+	@ApiOperation({
+		summary: 'Group 선정 문제집 삭제',
+		description: 'Group 선정 문제집을 삭제합니다.',
+	})
+	@ApiBaseResponse(HttpStatus.OK, '삭제 성공')
+	async deleteGroupWithdraw(
+		@UserId() userId: string,
+		@Param('groupId') groupId: string,
+		@Param('quizbookId') quizbookId: string,
+	) {
+		await this.groupQuizbookService.deleteGroupQuizbook(
+			userId,
+			groupId,
+			quizbookId,
 		);
 	}
 }
