@@ -48,7 +48,7 @@ export class GroupQuizbookRepository {
 		session?: ClientSession,
 	) {
 		return this.groupQuizbookModel.findOneAndUpdate(
-			{ group: groupId, quizbook: quizbookId },
+			{ group: toObjectId(groupId), quizbook: toObjectId(quizbookId) },
 			data,
 			{ session },
 		);
