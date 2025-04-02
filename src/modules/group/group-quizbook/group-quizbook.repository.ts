@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { GroupQuizbook } from './schema/group-quizbook.schema';
 import { DB_TYPE } from 'src/database/database.const';
 import { ClientSession, Model } from 'mongoose';
+import { toObjectId } from 'src/common/utils/database.util';
 
 @Injectable()
 export class GroupQuizbookRepository {
@@ -15,17 +16,19 @@ export class GroupQuizbookRepository {
 	 * 특정 Group의 선정 문제집 카드 정보 목록 조회
 	 */
 	async findAllGroupQuizbook(groupId: string) {
-		return this.groupQuizbookModel.find({ group: groupId }).populate([
-			{
-				path: 'quizbook',
-				model: 'Quizbook',
-				populate: {
-					path: 'author',
-					model: 'User',
-					select: 'nickname profileImg',
+		return this.groupQuizbookModel
+			.find({ group: toObjectId(groupId) })
+			.populate([
+				{
+					path: 'quizbook',
+					model: 'Quizbook',
+					populate: {
+						path: 'author',
+						model: 'User',
+						select: 'nickname profileImg',
+					},
 				},
-			},
-		]);
+			]);
 	}
 
 	/**

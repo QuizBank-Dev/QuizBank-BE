@@ -34,10 +34,10 @@ export class GroupQuizbookService {
 		if (indexOfNewOwner === -1)
 			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
 
-		const GroupQuizbookList =
+		const groupQuizbookList =
 			await this.groupQuizbookRepository.findAllGroupQuizbook(groupId);
 
-		return GroupQuizbookList;
+		return groupQuizbookList;
 	}
 
 	async postCreateGroupQuizbook(
