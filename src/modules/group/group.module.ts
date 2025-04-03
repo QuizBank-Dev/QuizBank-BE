@@ -10,7 +10,7 @@ import { QuizbookModule } from '../quizbook/quizbook.module';
 import {
 	GroupQuizbook,
 	GroupQuizbookSchema,
-} from './schema/group-quizbook.schema';
+} from './group-quizbook/schema/group-quizbook.schema';
 import { AuthTokenModule } from '../auth/auth-token/auth-token.module';
 
 @Module({

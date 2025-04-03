@@ -14,6 +14,7 @@ import { AuthGuard } from './modules/auth/guard/auth.guard';
 import { RefreshTokenMiddleware } from './modules/auth/middleware/refresh-token.middleware';
 import { GroupModule } from './modules/group/group.module';
 import { CommentModlue } from './modules/comment/comment.module';
+import { GroupQuizbookModule } from './modules/group/group-quizbook/group-quizbook.module';
 
 @Module({
 	imports: [
@@ -28,6 +29,7 @@ import { CommentModlue } from './modules/comment/comment.module';
 		UserModule,
 		GroupModule,
 		CommentModlue,
+		GroupQuizbookModule,
 	],
 	providers: [
 		{
