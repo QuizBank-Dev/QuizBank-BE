@@ -93,7 +93,7 @@ export class UserService {
 			updateData['profileImg'] = savedImage;
 		}
 
-		return this.userRepository.update(userId, updateData);
+		await this.userRepository.update(userId, updateData);
 	}
 
 	/**
@@ -108,7 +108,6 @@ export class UserService {
 		}
 
 		await this.imageUploadService.delete(user.profileImg);
-
-		return this.userRepository.update(userId, { profileImg: '' });
+		await this.userRepository.update(userId, { profileImg: '' });
 	}
 }

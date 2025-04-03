@@ -7,7 +7,7 @@ import {
 import { Types } from 'mongoose';
 import { UserRepository } from '../user/user.repository';
 import { toObjectId } from '../../common/utils/database.util';
-import { FollowType } from './follow.types';
+import { FollowType } from './dto/follow-query.dto';
 
 @Injectable()
 export class FollowService {
@@ -38,11 +38,11 @@ export class FollowService {
 
 		return {
 			follower:
-				type === 'all' || type === 'follower'
+				type === FollowType.ALL || type === FollowType.FOLLOWER
 					? filter.follower
 					: undefined,
 			following:
-				type === 'all' || type === 'following'
+				type === FollowType.ALL || type === FollowType.FOLLOWING
 					? filter.following
 					: undefined,
 		};
@@ -87,12 +87,8 @@ export class FollowService {
 	 *   - follower: 해당 유저(userId)를 팔로우하는 사람
 	 *   - following: 해당 유저(userId)가 팔로우하는 사람
 	 */
-	async removeFollow(
-		userId: string,
-		targetId: string,
-		type: Exclude<FollowType, 'all'>,
-	) {
-		if (type !== 'following' && type !== 'follower') {
+	async removeFollow(userId: string, targetId: string, type: FollowType) {
+		if (type !== FollowType.FOLLOWING && type !== FollowType.FOLLOWER) {
 			throw new BadRequestException('type이 제대로 입력되지 않았습니다.');
 		}
 
@@ -100,12 +96,14 @@ export class FollowService {
 		await Promise.all([
 			this.userRepository.update(userId, {
 				$pull: {
-					[type === 'following' ? 'following' : 'follower']: targetId,
+					[type]: targetId,
 				},
 			}),
 			this.userRepository.update(targetId, {
 				$pull: {
-					[type === 'following' ? 'follower' : 'following']: userId,
+					[type === FollowType.FOLLOWING
+						? FollowType.FOLLOWER
+						: FollowType.FOLLOWING]: userId,
 				},
 			}),
 		]);

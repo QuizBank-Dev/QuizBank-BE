@@ -1,14 +1,29 @@
 import { IsOptional, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateProfileDto {
+	@ApiProperty({
+		description: '닉네임',
+		example: 'nickname1',
+	})
 	@IsString()
 	@IsOptional()
-	nickname: string | undefined;
+	nickname?: string;
 
+	@ApiProperty({
+		description: '소개',
+		example: 'Hello, world!',
+	})
 	@IsString()
 	@IsOptional()
-	introduce: string | undefined;
+	introduce?: string;
 
+	@ApiProperty({
+		description: '프로필 이미지',
+		example: undefined,
+		type: 'string',
+		format: 'binary',
+	})
 	@IsOptional()
-	profileImg: File | undefined;
+	profileImg?: File;
 }
