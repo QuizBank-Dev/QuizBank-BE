@@ -10,7 +10,11 @@ export class UserService {
 		private readonly imageUploadService: UploadService,
 	) {}
 
-	async getMyInformation(userId: string) {
+	/**
+	 * 유저 정보 조회
+	 * @param userId
+	 */
+	async getUser(userId: string) {
 		const user = await this.userRepository.findById(userId);
 
 		if (!user) {
@@ -28,7 +32,11 @@ export class UserService {
 		};
 	}
 
-	async getUserInformation(userId: string) {
+	/**
+	 * 유저의 정보, 학습 현황, 해당 유저가 만든 문제집 목록 조회
+	 * @param userId
+	 */
+	async getUserAndStudy(userId: string) {
 		const user = await this.userRepository.findById(userId);
 
 		if (!user) {
@@ -53,6 +61,13 @@ export class UserService {
 		};
 	}
 
+	/**
+	 * 유저 닉네임, 소개, 프로필이미지 변경
+	 * @param userId
+	 * @param nickname
+	 * @param introduce
+	 * @param file
+	 */
 	async updateProfile(
 		userId: string,
 		{ nickname, introduce }: UpdateProfileDto,
@@ -81,6 +96,10 @@ export class UserService {
 		return this.userRepository.update(userId, updateData);
 	}
 
+	/**
+	 * 유저 프로필 이미지 제거
+	 * @param userId
+	 */
 	async deleteProfileImg(userId: string) {
 		const user = await this.userRepository.findById(userId);
 

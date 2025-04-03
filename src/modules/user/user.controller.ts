@@ -19,12 +19,12 @@ export class UserController {
 
 	@Get('me')
 	async me(@UserId() userId: string) {
-		return await this.userService.getMyInformation(userId);
+		return await this.userService.getUser(userId);
 	}
 
 	@Get(':id')
 	async other(@Param('id') id: string) {
-		return await this.userService.getUserInformation(id);
+		return await this.userService.getUserAndStudy(id);
 	}
 
 	@Patch('me')

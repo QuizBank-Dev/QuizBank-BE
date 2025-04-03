@@ -6,7 +6,12 @@ import { UserRepository } from '../user/user.repository';
 export class CategoryService {
 	constructor(private readonly userRepository: UserRepository) {}
 
-	setCategories(id: string, { categories }: UpdateCategoriesDto) {
-		return this.userRepository.update(id, { category: categories });
+	/**
+	 * 카테고리 설정
+	 * @param userId
+	 * @param categories
+	 */
+	setCategories(userId: string, { categories }: UpdateCategoriesDto) {
+		return this.userRepository.update(userId, { category: categories });
 	}
 }
