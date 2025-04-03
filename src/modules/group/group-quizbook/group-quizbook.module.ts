@@ -8,7 +8,6 @@ import {
 } from './schema/group-quizbook.schema';
 import { DB_TYPE } from 'src/database/database.const';
 import { DatabaseModule } from 'src/database/database.module';
-import { QuizbookModule } from 'src/modules/quizbook/quizbook.module';
 import { GroupQuizbookRepository } from './group-quizbook.repository';
 import { GroupModule } from '../group.module';
 
@@ -19,7 +18,6 @@ import { GroupModule } from '../group.module';
 			DB_TYPE.DEFAULT,
 		),
 		DatabaseModule,
-		QuizbookModule,
 		forwardRef(() => GroupModule),
 	],
 	controllers: [GroupQuizbookController],

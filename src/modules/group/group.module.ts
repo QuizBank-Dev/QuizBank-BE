@@ -7,24 +7,19 @@ import { DB_TYPE } from 'src/database/database.const';
 import { GroupRepository } from './group.repository';
 import { DatabaseModule } from 'src/database/database.module';
 import { QuizbookModule } from '../quizbook/quizbook.module';
-import {
-	GroupQuizbook,
-	GroupQuizbookSchema,
-} from './group-quizbook/schema/group-quizbook.schema';
 import { AuthTokenModule } from '../auth/auth-token/auth-token.module';
+import { GroupQuizbookModule } from './group-quizbook/group-quizbook.module';
 
 @Module({
 	imports: [
 		MongooseModule.forFeature(
-			[
-				{ name: Group.name, schema: GroupSchema },
-				{ name: GroupQuizbook.name, schema: GroupQuizbookSchema },
-			],
+			[{ name: Group.name, schema: GroupSchema }],
 			DB_TYPE.DEFAULT,
 		),
 		DatabaseModule,
 		QuizbookModule,
 		AuthTokenModule,
+		GroupQuizbookModule,
 	],
 	controllers: [GroupController],
 	providers: [GroupService, GroupRepository],

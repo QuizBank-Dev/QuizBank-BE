@@ -4,7 +4,6 @@ import {
 	UnauthorizedException,
 } from '@nestjs/common';
 import { GroupQuizbookRepository } from './group-quizbook.repository';
-import { QuizbookRepository } from 'src/modules/quizbook/quizbook.repository';
 import { DatabaseService } from 'src/database/database.service';
 import { GroupRepository } from '../group.repository';
 import { toObjectId } from 'src/common/utils/database.util';
@@ -13,7 +12,6 @@ import { toObjectId } from 'src/common/utils/database.util';
 export class GroupQuizbookService {
 	constructor(
 		private readonly groupQuizbookRepository: GroupQuizbookRepository,
-		private readonly quizbookRepository: QuizbookRepository,
 		private readonly databaseService: DatabaseService,
 		private readonly groupRepository: GroupRepository,
 	) {}
