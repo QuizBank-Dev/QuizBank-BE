@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Quizbook } from './schema/quizbook.schema';
 import { DB_TYPE } from 'src/database/database.const';
 import { ClientSession, FilterQuery, isValidObjectId, Model } from 'mongoose';
+import { toObjectId } from 'src/common/utils/database.util';
 
 @Injectable()
 export class QuizbookRepository {
@@ -81,5 +82,12 @@ export class QuizbookRepository {
 	 */
 	async exists(quizbookId: string) {
 		return this.quizbookModel.exists({ _id: quizbookId }).then(Boolean);
+	}
+
+	/**
+	 * 사용자가 작성한 모든 Quizbook 조회
+	 */
+	async findByUser(userId: string) {
+		return this.quizbookModel.find({ author: toObjectId(userId) });
 	}
 }

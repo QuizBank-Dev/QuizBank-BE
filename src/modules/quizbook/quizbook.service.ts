@@ -75,4 +75,9 @@ export class QuizbookService {
 
 		return quizbook;
 	}
+
+	// 사용자가 작성한 모든 Quizbook 조회
+	async getQuizbookByUser(userId: string) {
+		return this.quizbookRepo.findByUser(userId);
+	}
 }

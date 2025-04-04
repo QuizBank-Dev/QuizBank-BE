@@ -53,6 +53,18 @@ export class QuizbookController {
 		return this.quizbookService.getQuizbookList(query);
 	}
 
+	// GET v1/quizbook/me
+	// 사용자가 작성한 모든 Quizbook을 가져온다.
+	@Get('me')
+	@ApiOperation({
+		summary: '사용자가 작성한 모든 Quizbook 조회',
+		description: '사용자가 작성한 모든 Quizbook을 가져옵니다.',
+	})
+	@ApiBaseResponse(200, '조회 성공', [quizbookBaseExample])
+	getAllQuizbookByUser(@UserId() userId: string) {
+		return this.quizbookService.getQuizbookByUser(userId);
+	}
+
 	// GET v1/quizbook/:quizbookId
 	// 특정 Quizbook의 상세정보를 가져온다.
 	@Public()
