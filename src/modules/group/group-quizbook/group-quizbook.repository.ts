@@ -55,12 +55,21 @@ export class GroupQuizbookRepository {
 	}
 
 	/**
-	 * GroupQuizbook 삭제
+	 * GroupQuizbook 삭제 with filter
 	 */
 	async delete(groupId: string, quizbookId: string, session?: ClientSession) {
 		return this.groupQuizbookModel.findOneAndDelete(
 			{ group: toObjectId(groupId), quizbook: toObjectId(quizbookId) },
 			{ session },
 		);
+	}
+
+	/**
+	 * GroupQuizbook 삭제 by Id
+	 */
+	async deleteById(groupQuizbookId: string, session?: ClientSession) {
+		return this.groupQuizbookModel.findByIdAndDelete(groupQuizbookId, {
+			session,
+		});
 	}
 }

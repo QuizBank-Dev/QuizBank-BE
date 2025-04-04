@@ -15,6 +15,7 @@ import { AuthTokenService } from '../auth/auth-token/auth-token.service';
 import { TokenType } from '../auth/auth-token/auth-token.types';
 import { InviteTokenPayloadDto } from './dto/invite-token-payload.dto';
 import { Quizbook } from '../quizbook/schema/quizbook.schema';
+import { GroupQuizbookRepository } from './group-quizbook/group-quizbook.repository';
 
 @Injectable()
 export class GroupService {
@@ -23,6 +24,7 @@ export class GroupService {
 		private readonly quizbookRepository: QuizbookRepository,
 		private readonly databaseService: DatabaseService,
 		private readonly authTokenService: AuthTokenService,
+		private readonly groupQuizbookRepository: GroupQuizbookRepository,
 	) {}
 
 	async makeImminentQuizbook(
@@ -183,7 +185,21 @@ export class GroupService {
 			if (group.admin._id.toString() !== userId)
 				throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
 
-			// Group에 속한 모든 GroupQuizbook 제거 코드 추후에 추가.
+			await Promise.all(
+				group.groupQuizbookList.map(async (groupQuizbook) => {
+					const deletedGroupQuizbook =
+						await this.groupQuizbookRepository.deleteById(
+							groupQuizbook._id.toString(),
+							session,
+						);
+
+					if (!deletedGroupQuizbook)
+						throw new NotFoundException(
+							'Group의 해당 선정 문제집을 찾을 수 없습니다.',
+						);
+				}),
+			);
+
 			// ChatRoom 제거 코드 추후에 추가.
 
 			const deletedGroup = await this.groupRepository.delete(
