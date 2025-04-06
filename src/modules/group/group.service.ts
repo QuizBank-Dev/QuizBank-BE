@@ -436,9 +436,31 @@ export class GroupService {
 		if (group.admin._id.toString() !== userId)
 			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
 
-		await this.groupRepository.update(
-			{ $pull: { memberList: memberId } },
-			groupId,
-		);
+		await this.databaseService.runInDefaultTransaction(async (session) => {
+			await this.groupRepository.update(
+				{ $pull: { memberList: memberId } },
+				groupId,
+				session,
+			);
+
+			// 해당 유저의 ReadStatus 삭제
+			const deletedReadStatus = await this.readStatusRepository.delete(
+				toObjectId(memberId),
+				session,
+			);
+			if (!deletedReadStatus)
+				throw new NotFoundException(
+					`해당 ${memberId} 유저의 ReadStatus를 삭제할 수 없습니다.`,
+				);
+
+			// 그룹의 ChatRoom에 그룹원 삭제
+			await this.chatRoomRepository.update(
+				{
+					$pull: { memberList: memberId },
+				},
+				group.chatRoom,
+				session,
+			);
+		});
 	}
 }
