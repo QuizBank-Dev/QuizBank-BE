@@ -2,8 +2,8 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 
 export enum ChatRoomType {
-	Group = 'group',
-	individual = 'user',
+	GROUP = 'group',
+	INDIVIDUAL = 'user',
 }
 
 @Schema({ timestamps: true })
@@ -13,7 +13,7 @@ export class ChatRoom extends Document {
 
 	@Prop({
 		type: [{ type: Types.ObjectId, ref: 'User' }],
-		default: [],
+		required: true,
 	})
 	memberList: Types.ObjectId[];
 }

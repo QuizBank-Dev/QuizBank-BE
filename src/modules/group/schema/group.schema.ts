@@ -24,8 +24,8 @@ export class Group extends Document {
 	})
 	groupQuizbookList: Types.ObjectId[];
 
-	// @Prop({ type: Types.ObjectId, ref: 'ChatRoom', required: true })
-	// chatRoom: Types.ObjectId | ChatRoom;
+	@Prop({ type: Types.ObjectId, ref: 'ChatRoom', required: true })
+	chatRoom: Types.ObjectId;
 
 	// Mongoose의 timestamps 옵션으로 자동 생성되는 필드
 	createdAt?: Date; // 추가

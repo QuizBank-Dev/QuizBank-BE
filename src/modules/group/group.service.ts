@@ -16,6 +16,10 @@ import { TokenType } from '../auth/auth-token/auth-token.types';
 import { InviteTokenPayloadDto } from './dto/invite-token-payload.dto';
 import { Quizbook } from '../quizbook/schema/quizbook.schema';
 import { GroupQuizbookRepository } from './group-quizbook/group-quizbook.repository';
+import { ChatRepository } from '../chat/repository/chat.repository';
+import { ChatRoomRepository } from '../chat/repository/chat-room.repository';
+import { ReadStatusRepository } from '../chat/repository/read-status.repository';
+import { ChatRoomType } from '../chat/schema/chat-room.schema';
 
 @Injectable()
 export class GroupService {
@@ -25,6 +29,9 @@ export class GroupService {
 		private readonly databaseService: DatabaseService,
 		private readonly authTokenService: AuthTokenService,
 		private readonly groupQuizbookRepository: GroupQuizbookRepository,
+		private readonly chatRoomRepository: ChatRoomRepository,
+		private readonly chatRepository: ChatRepository,
+		private readonly readStatusRepository: ReadStatusRepository,
 	) {}
 
 	async makeImminentQuizbook(
@@ -129,7 +136,27 @@ export class GroupService {
 
 	async postCreateGroup(userId: string, request: CreateGroupDto) {
 		return this.databaseService.runInDefaultTransaction(async (session) => {
-			const data = { ...request, admin: toObjectId(userId) };
+			// ChatRoom 생성
+			const newChatRoom = await this.chatRoomRepository.create(
+				{ type: ChatRoomType.GROUP, memberList: [toObjectId(userId)] },
+				session,
+			);
+
+			// 그룹장의 ReadStatus 생성
+			await this.readStatusRepository.create(
+				{
+					chatRoom: newChatRoom._id as Types.ObjectId,
+					lastTimestamp: new Date(),
+					member: toObjectId(userId),
+				},
+				session,
+			);
+
+			const data = {
+				...request,
+				admin: toObjectId(userId),
+				chatRoom: newChatRoom._id as Types.ObjectId,
+			};
 
 			const newGroup = await this.groupRepository.create(data, session);
 
@@ -140,8 +167,6 @@ export class GroupService {
 				(newGroup._id as Types.ObjectId).toString(),
 				session,
 			);
-
-			// ChatRoom 생성 코드 추후에 추가.
 
 			return {
 				_id: newGroup._id,

@@ -9,6 +9,7 @@ import { DatabaseModule } from 'src/database/database.module';
 import { QuizbookModule } from '../quizbook/quizbook.module';
 import { AuthTokenModule } from '../auth/auth-token/auth-token.module';
 import { GroupQuizbookModule } from './group-quizbook/group-quizbook.module';
+import { ChatModule } from '../chat/chat.module';
 
 @Module({
 	imports: [
@@ -20,6 +21,7 @@ import { GroupQuizbookModule } from './group-quizbook/group-quizbook.module';
 		QuizbookModule,
 		AuthTokenModule,
 		GroupQuizbookModule,
+		ChatModule,
 	],
 	controllers: [GroupController],
 	providers: [GroupService, GroupRepository],

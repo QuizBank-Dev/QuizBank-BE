@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DB_TYPE } from 'src/database/database.const';
 import { ChatRoom } from '../schema/chat-room.schema';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 
 @Injectable()
 export class ChatRoomRepository {
@@ -10,4 +10,11 @@ export class ChatRoomRepository {
 		@InjectModel(ChatRoom.name, DB_TYPE.SUB)
 		private readonly chatRoomModel: Model<ChatRoom>,
 	) {}
+
+	/**
+	 * 특정 Group의 ChatRoom 생성
+	 */
+	async create(data: Partial<ChatRoom>, session?: ClientSession) {
+		return new this.chatRoomModel(data).save({ session });
+	}
 }
