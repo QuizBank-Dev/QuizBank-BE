@@ -16,7 +16,6 @@ import { TokenType } from '../auth/auth-token/auth-token.types';
 import { InviteTokenPayloadDto } from './dto/invite-token-payload.dto';
 import { Quizbook } from '../quizbook/schema/quizbook.schema';
 import { GroupQuizbookRepository } from './group-quizbook/group-quizbook.repository';
-import { ChatRepository } from '../chat/repository/chat.repository';
 import { ChatRoomRepository } from '../chat/repository/chat-room.repository';
 import { ReadStatusRepository } from '../chat/repository/read-status.repository';
 import { ChatRoomType } from '../chat/schema/chat-room.schema';
@@ -30,7 +29,6 @@ export class GroupService {
 		private readonly authTokenService: AuthTokenService,
 		private readonly groupQuizbookRepository: GroupQuizbookRepository,
 		private readonly chatRoomRepository: ChatRoomRepository,
-		private readonly chatRepository: ChatRepository,
 		private readonly readStatusRepository: ReadStatusRepository,
 	) {}
 
@@ -224,9 +222,6 @@ export class GroupService {
 						);
 				}),
 			);
-
-			// 그룹의 모든 Chat 제거
-			await this.chatRepository.deleteAll(group.chatRoom, session);
 
 			// 그룹원들의 ReadStatus 제거
 			await this.readStatusRepository.deleteAll(group.chatRoom, session);

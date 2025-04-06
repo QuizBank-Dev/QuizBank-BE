@@ -22,3 +22,5 @@ export class Chat extends Document {
 }
 
 export const ChatSchema = SchemaFactory.createForClass(Chat);
+// TTL 인덱스 설정 (30일 = 2592000초)
+ChatSchema.index({ createdAt: 1 }, { expireAfterSeconds: 2592000 });

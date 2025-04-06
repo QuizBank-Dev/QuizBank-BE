@@ -13,12 +13,15 @@ import { ReadStatusRepository } from './repository/read-status.repository';
 @Module({
 	imports: [
 		MongooseModule.forFeature(
+			[{ name: Chat.name, schema: ChatSchema }],
+			DB_TYPE.SUB,
+		),
+		MongooseModule.forFeature(
 			[
 				{ name: ChatRoom.name, schema: ChatRoomSchema },
-				{ name: Chat.name, schema: ChatSchema },
 				{ name: ReadStatus.name, schema: ReadStatusSchema },
 			],
-			DB_TYPE.SUB,
+			DB_TYPE.DEFAULT,
 		),
 	],
 	controllers: [ChatController],

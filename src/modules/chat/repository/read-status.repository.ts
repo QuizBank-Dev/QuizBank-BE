@@ -12,7 +12,7 @@ interface DeleteResult {
 @Injectable()
 export class ReadStatusRepository {
 	constructor(
-		@InjectModel(ReadStatus.name, DB_TYPE.SUB)
+		@InjectModel(ReadStatus.name, DB_TYPE.DEFAULT)
 		private readonly readStatusModel: Model<ReadStatus>,
 	) {}
 

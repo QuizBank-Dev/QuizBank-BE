@@ -7,7 +7,7 @@ import { ClientSession, FilterQuery, Model, Types } from 'mongoose';
 @Injectable()
 export class ChatRoomRepository {
 	constructor(
-		@InjectModel(ChatRoom.name, DB_TYPE.SUB)
+		@InjectModel(ChatRoom.name, DB_TYPE.DEFAULT)
 		private readonly chatRoomModel: Model<ChatRoom>,
 	) {}
 
