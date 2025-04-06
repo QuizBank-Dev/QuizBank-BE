@@ -389,19 +389,40 @@ export class GroupService {
 				`해당 ${userId} 사용자를 찾을 수 없습니다.`,
 			);
 
-		let data: Partial<Group> | FilterQuery<Group>;
+		await this.databaseService.runInDefaultTransaction(async (session) => {
+			let data: Partial<Group> | FilterQuery<Group>;
 
-		// 요청자가 그룹장인 경우
-		if (group.admin._id.toString() === userId) {
-			data = {
-				admin: group.memberList[1]._id,
-				$pull: { memberList: userId },
-			};
-		} else {
-			data = { $pull: { memberList: userId } };
-		}
+			// 요청자가 그룹장인 경우
+			if (group.admin._id.toString() === userId) {
+				data = {
+					admin: group.memberList[1]._id,
+					$pull: { memberList: userId },
+				};
+			} else {
+				data = { $pull: { memberList: userId } };
+			}
 
-		await this.groupRepository.update(data, groupId);
+			await this.groupRepository.update(data, groupId, session);
+
+			// 해당 유저의 ReadStatus 삭제
+			const deletedReadStatus = await this.readStatusRepository.delete(
+				toObjectId(userId),
+				session,
+			);
+			if (!deletedReadStatus)
+				throw new NotFoundException(
+					`해당 ${userId} 유저의 ReadStatus를 삭제할 수 없습니다.`,
+				);
+
+			// 그룹의 ChatRoom에 그룹원 삭제
+			await this.chatRoomRepository.update(
+				{
+					$pull: { memberList: userId },
+				},
+				group.chatRoom,
+				session,
+			);
+		});
 	}
 
 	async deleteGroupMember(userId: string, groupId: string, memberId: string) {
