@@ -1,8 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DB_TYPE } from 'src/database/database.const';
-import { ClientSession, Model } from 'mongoose';
+import { ClientSession, Model, Types } from 'mongoose';
 import { ReadStatus } from '../schema/read-status.schema';
+
+interface DeleteResult {
+	acknowledged: boolean;
+	deletedCount: number;
+}
 
 @Injectable()
 export class ReadStatusRepository {
@@ -16,5 +21,18 @@ export class ReadStatusRepository {
 	 */
 	async create(data: Partial<ReadStatus>, session?: ClientSession) {
 		return new this.readStatusModel(data).save({ session });
+	}
+
+	/**
+	 * 특정 Group의 모든 ReadStatus 삭제
+	 */
+	async deleteAll(
+		chatRoomId: Types.ObjectId,
+		session?: ClientSession,
+	): Promise<DeleteResult> {
+		return this.readStatusModel.deleteMany(
+			{ chatRoom: chatRoomId },
+			{ session },
+		);
 	}
 }

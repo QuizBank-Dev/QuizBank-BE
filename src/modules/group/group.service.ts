@@ -225,7 +225,21 @@ export class GroupService {
 				}),
 			);
 
-			// ChatRoom 제거 코드 추후에 추가.
+			// 그룹의 모든 Chat 제거
+			await this.chatRepository.deleteAll(group.chatRoom, session);
+
+			// 그룹원들의 ReadStatus 제거
+			await this.readStatusRepository.deleteAll(group.chatRoom, session);
+
+			// 그룹의 ChatRoom 제거
+			const deletedChatRoom = await this.chatRoomRepository.delete(
+				group.chatRoom,
+				session,
+			);
+			if (!deletedChatRoom)
+				throw new NotFoundException(
+					`해당 ${group.chatRoom.toString()} ChatRoom을 삭제할 수 없습니다.`,
+				);
 
 			const deletedGroup = await this.groupRepository.delete(
 				groupId,
