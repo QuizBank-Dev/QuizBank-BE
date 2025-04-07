@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DB_TYPE } from 'src/database/database.const';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Chat } from '../schema/chat.schema';
+import { toObjectId } from 'src/common/utils/database.util';
 
 interface ChatQuery {
-	chatRoom: string;
+	chatRoom: Types.ObjectId;
 	createdAt?: { $lt: Date };
 }
 
@@ -17,7 +18,7 @@ export class ChatRepository {
 	) {}
 
 	async findList(chatRoom: string, cursor: Date, take: number) {
-		const query: ChatQuery = { chatRoom };
+		const query: ChatQuery = { chatRoom: toObjectId(chatRoom) };
 
 		if (cursor) {
 			query.createdAt = { $lt: cursor };
