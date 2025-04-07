@@ -19,6 +19,10 @@ export class Chat extends Document {
 
 	@Prop({ required: true })
 	content: string;
+
+	// Mongoose의 timestamps 옵션으로 자동 생성되는 필드
+	createdAt?: Date; // 추가
+	updatedAt?: Date; // 추가
 }
 
 export const ChatSchema = SchemaFactory.createForClass(Chat);

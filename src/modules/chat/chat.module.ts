@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { ChatController } from './chat.controller';
 import { ChatRepository } from './repository/chat.repository';
@@ -9,6 +9,7 @@ import { Chat, ChatSchema } from './schema/chat.schema';
 import { ReadStatus, ReadStatusSchema } from './schema/read-status.schema';
 import { ChatRoomRepository } from './repository/chat-room.repository';
 import { ReadStatusRepository } from './repository/read-status.repository';
+import { GroupModule } from '../group/group.module';
 
 @Module({
 	imports: [
@@ -23,6 +24,7 @@ import { ReadStatusRepository } from './repository/read-status.repository';
 			],
 			DB_TYPE.DEFAULT,
 		),
+		forwardRef(() => GroupModule),
 	],
 	controllers: [ChatController],
 	providers: [
