@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { DB_TYPE } from 'src/database/database.const';
 import { Model, Types } from 'mongoose';
 import { Chat } from '../schema/chat.schema';
-import { toObjectId } from 'src/common/utils/database.util';
 
 interface ChatQuery {
 	chatRoom: Types.ObjectId;
@@ -17,8 +16,11 @@ export class ChatRepository {
 		private readonly chatModel: Model<Chat>,
 	) {}
 
-	async findList(chatRoom: string, cursor: Date, take: number) {
-		const query: ChatQuery = { chatRoom: toObjectId(chatRoom) };
+	/**
+	 * 채팅 내역 조회
+	 */
+	async findList(chatRoom: Types.ObjectId, cursor: Date, take: number) {
+		const query: ChatQuery = { chatRoom };
 
 		if (cursor) {
 			query.createdAt = { $lt: cursor };

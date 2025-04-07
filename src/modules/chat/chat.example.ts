@@ -1,4 +1,4 @@
-export const GroupChatsExample = {
+export const ChatsExample = {
 	chats: [
 		{
 			_id: '65e8a5d6fc13ae5e7f000002',

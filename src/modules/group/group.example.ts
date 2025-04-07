@@ -14,6 +14,7 @@ export const GroupInfoExample = {
 	admin: {},
 	memberList: [{}],
 	imminentQuizbook: {},
+	chatRoom: '65e8a5d6fc13ae5e7f000002',
 	createdAt: '2025-03-30',
 };
 

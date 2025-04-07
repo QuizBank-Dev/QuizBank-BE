@@ -12,6 +12,13 @@ export class ChatRoomRepository {
 	) {}
 
 	/**
+	 * 특정 ChatRoom 상세 정보 조회
+	 */
+	async findById(chatRoomId: string) {
+		return this.chatRoomModel.findById(chatRoomId);
+	}
+
+	/**
 	 * 특정 Group의 ChatRoom 생성
 	 */
 	async create(data: Partial<ChatRoom>, session?: ClientSession) {
