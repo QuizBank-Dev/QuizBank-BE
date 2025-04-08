@@ -122,42 +122,18 @@ export class ChatGateway
 			content,
 		});
 
-		try {
-			// readStatus 갱신 로직
-			await this.readStatusRepository.update(
-				{ lastTimestamp: new Date() },
-				toObjectId(userId),
-				toObjectId(chatRoomId),
-			);
+		// 내 정보 조회
+		const myInfo = await this.userRepository.findById(userId);
+		if (!myInfo)
+			throw new WsException(`해당 ${userId} 유저를 찾을 수 없습니다.`);
 
-			// 내 정보 조회
-			const myInfo = await this.userRepository.findById(userId);
-			if (!myInfo)
-				throw new WsException(
-					`해당 ${userId} 유저를 찾을 수 없습니다.`,
-				);
-
-			socket.to(chatRoomId).emit('receive_chat', {
-				...newChat,
-				sender: {
-					_id: myInfo._id,
-					nickname: myInfo.nickname,
-					profileImg: myInfo.profileImg,
-				},
-			});
-		} catch (err) {
-			// 복구 작업
-			await this.chatRepository.delete(
-				(newChat._id as Types.ObjectId).toString(),
-			);
-
-			if (err instanceof Error) {
-				socket.emit('exception', { data: err.message });
-			} else {
-				socket.emit('exception', {
-					data: '알 수 없는 에러가 발생했습니다.',
-				});
-			}
-		}
+		socket.to(chatRoomId).emit('receive_chat', {
+			...newChat,
+			sender: {
+				_id: myInfo._id,
+				nickname: myInfo.nickname,
+				profileImg: myInfo.profileImg,
+			},
+		});
 	}
 }
