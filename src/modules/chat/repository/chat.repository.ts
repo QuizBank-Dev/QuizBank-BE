@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DB_TYPE } from 'src/database/database.const';
-import { Model, Types } from 'mongoose';
+import { ClientSession, Model, Types } from 'mongoose';
 import { Chat } from '../schema/chat.schema';
 
 interface ChatQuery {
@@ -37,5 +37,19 @@ export class ChatRepository {
 					select: 'nickname profileImg',
 				},
 			]);
+	}
+
+	/**
+	 * Chat 생성
+	 */
+	async create(data: Partial<Chat>, session?: ClientSession) {
+		return new this.chatModel(data).save({ session });
+	}
+
+	/**
+	 * Chat 삭제
+	 */
+	async delete(chatId: string, session?: ClientSession) {
+		return this.chatModel.findByIdAndDelete(chatId, { session });
 	}
 }

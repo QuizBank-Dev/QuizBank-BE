@@ -11,6 +11,7 @@ import { ChatRoomRepository } from './repository/chat-room.repository';
 import { ReadStatusRepository } from './repository/read-status.repository';
 import { AuthTokenModule } from '../auth/auth-token/auth-token.module';
 import { ChatGateway } from './chat.gateway';
+import { UserModule } from '../user/user.module';
 
 @Module({
 	imports: [
@@ -26,6 +27,7 @@ import { ChatGateway } from './chat.gateway';
 			DB_TYPE.DEFAULT,
 		),
 		AuthTokenModule,
+		UserModule,
 	],
 	controllers: [ChatController],
 	providers: [

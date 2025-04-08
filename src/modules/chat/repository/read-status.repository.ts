@@ -24,6 +24,24 @@ export class ReadStatusRepository {
 	}
 
 	/**
+	 * 특정 그룹원의 ReadStatus 갱신
+	 */
+	async update(
+		data: Partial<ReadStatus>,
+		userId: Types.ObjectId,
+		chatRoomId: Types.ObjectId,
+		session?: ClientSession,
+	) {
+		return this.readStatusModel.findOneAndUpdate(
+			{ chatRoom: chatRoomId, member: userId },
+			data,
+			{
+				session,
+			},
+		);
+	}
+
+	/**
 	 * 특정 Group의 모든 ReadStatus 삭제
 	 */
 	async deleteAll(
