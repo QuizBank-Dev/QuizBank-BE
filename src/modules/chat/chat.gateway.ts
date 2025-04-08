@@ -1,7 +1,10 @@
 import {
+	ConnectedSocket,
+	MessageBody,
 	OnGatewayConnection,
 	OnGatewayDisconnect,
 	OnGatewayInit,
+	SubscribeMessage,
 	WebSocketGateway,
 	WebSocketServer,
 } from '@nestjs/websockets';
@@ -23,6 +26,7 @@ interface AuthenticatedSocket extends Socket {
 		origin: true,
 		credentials: true,
 	},
+	namespace: 'chat',
 })
 export class ChatGateway
 	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -36,10 +40,10 @@ export class ChatGateway
 		console.log('Socket server initialized');
 	}
 
-	async handleConnection(client: AuthenticatedSocket) {
+	async handleConnection(socket: AuthenticatedSocket) {
 		try {
 			const cookies: Record<string, string | undefined> = parse(
-				client.handshake.headers.cookie || '',
+				socket.handshake.headers.cookie || '',
 			);
 			const accessToken = cookies['access_token'];
 
@@ -61,22 +65,32 @@ export class ChatGateway
 					accessToken || '',
 				);
 
-			client.data.user = payload;
-			console.log(`Socket connected : ${client.id}`);
+			socket.data.user = payload;
+			console.log(`Socket connected : ${socket.id}`);
 			console.log('사용자:', payload.userId);
 		} catch (err) {
 			if (err instanceof Error) {
-				client.emit('exception', { data: err.message });
+				socket.emit('exception', { data: err.message });
 			} else {
-				client.emit('exception', {
+				socket.emit('exception', {
 					data: '알 수 없는 에러가 발생했습니다.',
 				});
 			}
-			client.disconnect(true);
+			socket.disconnect(true);
 		}
 	}
 
-	handleDisconnect(client: Socket) {
-		console.log(`Socket disconnected : ${client.id}`);
+	handleDisconnect(socket: Socket) {
+		console.log(`Socket disconnected : ${socket.id}`);
+	}
+
+	@SubscribeMessage('enter_chat')
+	async enterChat(
+		@ConnectedSocket() socket: AuthenticatedSocket,
+		@MessageBody() chatRoomIds: string[],
+	) {
+		for (const chatRoomId of chatRoomIds) {
+			await socket.join(chatRoomId);
+		}
 	}
 }
