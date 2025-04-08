@@ -1,4 +1,11 @@
-import { Controller, Get, HttpStatus, Param, Query } from '@nestjs/common';
+import {
+	Controller,
+	Get,
+	HttpStatus,
+	Param,
+	Patch,
+	Query,
+} from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiBaseResponse } from 'src/common/decorators/base-response.decorator';
@@ -36,5 +43,19 @@ export class ChatController {
 		@Param('chatRoomId') chatRoomId: string,
 	) {
 		return this.chatService.getGroupChatUnreadCount(userId, chatRoomId);
+	}
+
+	@Patch(':chatRoomId/read')
+	@ApiOperation({
+		summary: '채팅 읽음 처리',
+		description:
+			'특정 ChatRoom에 대한 사용자의 ReadStatus를 최신으로 갱신합니다.',
+	})
+	@ApiBaseResponse(HttpStatus.OK, '갱신 성공')
+	async patchReadStatus(
+		@UserId() userId: string,
+		@Param('chatRoomId') chatRoomId: string,
+	) {
+		await this.chatService.patchReadStatus(userId, chatRoomId);
 	}
 }

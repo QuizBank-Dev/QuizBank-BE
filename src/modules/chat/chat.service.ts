@@ -74,4 +74,25 @@ export class ChatService {
 			count: chatList.length,
 		};
 	}
+
+	async patchReadStatus(userId: string, chatRoomId: string) {
+		const now = new Date();
+
+		const chatRoom = await this.chatRoomRepository.findById(chatRoomId);
+
+		if (!chatRoom)
+			throw new NotFoundException(
+				`해당 ${chatRoomId} ChatRoom을 찾을 수 없습니다.`,
+			);
+
+		if (!chatRoom.memberList.map((id) => id.toString()).includes(userId))
+			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
+
+		// readStatus 갱신 로직
+		await this.readStatusRepository.update(
+			{ lastTimestamp: now },
+			toObjectId(userId),
+			toObjectId(chatRoomId),
+		);
+	}
 }
