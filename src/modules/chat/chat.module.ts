@@ -9,6 +9,8 @@ import { Chat, ChatSchema } from './schema/chat.schema';
 import { ReadStatus, ReadStatusSchema } from './schema/read-status.schema';
 import { ChatRoomRepository } from './repository/chat-room.repository';
 import { ReadStatusRepository } from './repository/read-status.repository';
+import { AuthTokenModule } from '../auth/auth-token/auth-token.module';
+import { ChatGateway } from './chat.gateway';
 
 @Module({
 	imports: [
@@ -23,6 +25,7 @@ import { ReadStatusRepository } from './repository/read-status.repository';
 			],
 			DB_TYPE.DEFAULT,
 		),
+		AuthTokenModule,
 	],
 	controllers: [ChatController],
 	providers: [
@@ -30,6 +33,7 @@ import { ReadStatusRepository } from './repository/read-status.repository';
 		ChatRoomRepository,
 		ChatRepository,
 		ReadStatusRepository,
+		ChatGateway,
 	],
 	exports: [
 		ChatService,
