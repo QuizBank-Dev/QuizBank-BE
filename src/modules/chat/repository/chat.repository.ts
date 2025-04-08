@@ -40,6 +40,13 @@ export class ChatRepository {
 	}
 
 	/**
+	 * 채팅 내역 조회
+	 */
+	async findUnreadList(chatRoom: Types.ObjectId, date: Date) {
+		return this.chatModel.find({ chatRoom, createdAt: { $gt: date } });
+	}
+
+	/**
 	 * Chat 생성
 	 */
 	async create(data: Partial<Chat>, session?: ClientSession) {

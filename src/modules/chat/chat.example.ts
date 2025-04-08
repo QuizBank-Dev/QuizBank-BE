@@ -13,3 +13,7 @@ export const ChatsExample = {
 	],
 	nextCursor: '2025-04-07',
 };
+
+export const UnreadCountExample = {
+	count: 5,
+};

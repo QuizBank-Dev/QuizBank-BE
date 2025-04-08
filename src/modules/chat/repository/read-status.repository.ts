@@ -17,6 +17,13 @@ export class ReadStatusRepository {
 	) {}
 
 	/**
+	 * 특정 그룹원의 ReadStatus 조회
+	 */
+	async findOne(member: Types.ObjectId, chatRoom: Types.ObjectId) {
+		return this.readStatusModel.findOne({ member, chatRoom });
+	}
+
+	/**
 	 * 특정 그룹원의 ReadStatus 생성
 	 */
 	async create(data: Partial<ReadStatus>, session?: ClientSession) {
