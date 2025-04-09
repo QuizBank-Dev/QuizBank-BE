@@ -21,4 +21,6 @@ export const envValidationSchema = Joi.object({
 	CLOUDFLARE_R2_BUCKET: Joi.string(),
 	CLOUDFLARE_R2_REGION: Joi.string(),
 	CLOUDFLARE_R2_PUBLIC_URL: Joi.string(),
+	GITHUB_CLIENT_ID: Joi.string(),
+	GITHUB_CLIENT_SECRET: Joi.string(),
 });
