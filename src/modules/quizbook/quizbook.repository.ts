@@ -46,7 +46,7 @@ export class QuizbookRepository {
 
 	/**
 	 * 특정 Quizbook 상세 조회
-	 * (populate: quizList, author)
+	 * populate: quizList, author
 	 */
 	async findByIdWithQuizAndAuthor(quizbookId: string) {
 		return this.quizbookModel.findById(quizbookId).populate([
@@ -64,10 +64,22 @@ export class QuizbookRepository {
 	}
 
 	/**
-	 * 특정 Quizbook의 Review 관련 통계 업데이트
-	 * (ex: reviewCount, reviewScore)
+	 * 특정 Quizbook 상세 조회
+	 * populate: quizList(답안 포함)
 	 */
-	async updateReviewStats(
+	async findByIdWithQuiz(quizbookId: string) {
+		return this.quizbookModel.findById(quizbookId).populate([
+			{
+				path: 'quizList',
+				model: 'Quiz',
+			},
+		]);
+	}
+
+	/**
+	 * 특정 Quizbook의 통계 업데이트
+	 */
+	async updateStats(
 		filter: FilterQuery<Quizbook>,
 		quizbookId: string,
 		session?: ClientSession,

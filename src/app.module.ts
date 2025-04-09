@@ -16,6 +16,7 @@ import { GroupModule } from './modules/group/group.module';
 import { CommentModlue } from './modules/comment/comment.module';
 import { GroupQuizbookModule } from './modules/group/group-quizbook/group-quizbook.module';
 import { LikeModule } from './modules/like/like.module';
+import { StudyModule } from './modules/study/study.module';
 
 @Module({
 	imports: [
@@ -32,6 +33,7 @@ import { LikeModule } from './modules/like/like.module';
 		CommentModlue,
 		GroupQuizbookModule,
 		LikeModule,
+		StudyModule,
 	],
 	providers: [
 		{
