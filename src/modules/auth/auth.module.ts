@@ -5,10 +5,11 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AuthTokenModule } from './auth-token/auth-token.module';
 import { LocalStrategy } from './strategy/local.strategy';
+import { GitHubStrategy } from './strategy/github.strategy';
 
 @Module({
 	imports: [UserModule, EmailCodeModule, AuthTokenModule],
 	controllers: [AuthController],
-	providers: [AuthService, LocalStrategy],
+	providers: [AuthService, LocalStrategy, GitHubStrategy],
 })
 export class AuthModule {}

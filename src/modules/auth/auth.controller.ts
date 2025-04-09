@@ -3,6 +3,7 @@ import {
 	Body,
 	Controller,
 	Delete,
+	Get,
 	HttpCode,
 	Post,
 	Req,
@@ -17,6 +18,8 @@ import { AuthService } from './auth.service';
 import { UserId } from '../../common/decorators/user-id.decorator';
 import { AuthToken } from './auth.types';
 import { BaseResponse } from '../../common/dto/base-response.dto';
+import { DynamicAuthGuard } from './guard/dynamic-auth.guard';
+import { OAuthLoginDto } from '../user/dto/oauth-login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -106,5 +109,24 @@ export class AuthController {
 	) {
 		await this.authService.withdraw(userId);
 		await this.authService.clearAuthCookies(response, request.cookies);
+	}
+
+	@Public()
+	@Get('oauth/:provider')
+	@UseGuards(DynamicAuthGuard())
+	checkOAuthProvider() {}
+
+	@Public()
+	@Get('oauth/:provider/callback')
+	@UseGuards(DynamicAuthGuard())
+	async oauthCallback(
+		@Req() request: Request,
+		@Res({ passthrough: true }) response: Response,
+	) {
+		const result = await this.authService.oauthLogin(
+			request.user as unknown as OAuthLoginDto,
+		);
+
+		this.authService.setAuthCookies(result, response);
 	}
 }
