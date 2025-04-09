@@ -3,10 +3,10 @@ import { Document, Query, Types } from 'mongoose';
 import { CategoryType, Quizbook } from '../../quizbook/schema/quizbook.schema';
 
 export enum ProviderType {
-	GOOGLE = 'Google',
-	KAKAO = 'Kakao',
-	NAVER = 'Naver',
-	GITHUB = 'GitHub',
+	GOOGLE = 'google',
+	KAKAO = 'kakao',
+	NAVER = 'naver',
+	GITHUB = 'github',
 }
 
 @Schema({ timestamps: true })

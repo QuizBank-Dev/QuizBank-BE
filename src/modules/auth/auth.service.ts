@@ -10,6 +10,7 @@ import { AUTH_COOKIE_KEY, AUTH_COOKIE_OPTIONS } from './auth.const';
 import { AuthToken } from './auth.types';
 import { ConfigService } from '@nestjs/config';
 import { envKeys } from '../../config/env.const';
+import { OAuthLoginDto } from '../user/dto/oauth-login.dto';
 
 @Injectable()
 export class AuthService {
@@ -58,6 +59,33 @@ export class AuthService {
 		return !!user && (await bcrypt.compare(password, user.password))
 			? user
 			: null;
+	}
+
+	/**
+	 * OAuth 로그인(회원가입)
+	 * @param id OAuth 고유 id
+	 * @param nickname 닉네임
+	 * @param profileImg 프로필사진
+	 * @param provider OAuth Provider
+	 */
+	async oauthLogin({ id, nickname, profileImg, provider }: OAuthLoginDto) {
+		const user = await this.userRepository.findOne({
+			email: id,
+			oAuth: provider,
+		});
+
+		// 가입된 정보가 없는 경우 회원 등록
+		if (!user) {
+			const newUser = await this.userRepository.createOAuth({
+				id,
+				nickname,
+				profileImg,
+				provider,
+			});
+			return this.generateToken({ userId: newUser._id });
+		}
+
+		return this.generateToken({ userId: user._id });
 	}
 
 	/**

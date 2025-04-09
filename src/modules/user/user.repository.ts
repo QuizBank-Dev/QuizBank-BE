@@ -5,6 +5,7 @@ import { User } from './schema/user.schema';
 import { DB_TYPE } from '../../database/database.const';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { OAuthLoginDto } from './dto/oauth-login.dto';
 
 @Injectable()
 export class UserRepository {
@@ -21,6 +22,18 @@ export class UserRepository {
 			email,
 			password,
 			nickname,
+		});
+	}
+
+	/**
+	 * OAuth 유저 생성
+	 */
+	async createOAuth({ id, nickname, profileImg, provider }: OAuthLoginDto) {
+		return await this.userModel.create({
+			email: id,
+			nickname,
+			profileImg,
+			oAuth: provider,
 		});
 	}
 
