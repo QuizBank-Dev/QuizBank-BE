@@ -40,7 +40,10 @@ export class LikeRepository {
 	async addQuiz(quizId: string, userId: string) {
 		return this.likeModel.findOneAndUpdate(
 			{ owner: toObjectId(userId) },
-			{ $addToSet: { quizList: toObjectId(quizId) } },
+			{
+				$addToSet: { quizList: toObjectId(quizId) },
+				$setOnInsert: { createdAt: new Date() },
+			},
 			{ new: true, upsert: true },
 		);
 	}
@@ -59,7 +62,7 @@ export class LikeRepository {
 	/**
 	 * 찜 목록 단순 조회
 	 */
-	async findOneQuizbookLikeByOwner(userId: string) {
+	async findByOwner(userId: string) {
 		return this.likeModel.findOne({ owner: toObjectId(userId) });
 	}
 
@@ -67,7 +70,7 @@ export class LikeRepository {
 	 * 찜 목록 조회(quizbook)
 	 * populate(quizbookList)
 	 */
-	async findOneByOwnerWithQuizbookList(userId: string) {
+	async findByOwnerWithQuizbookList(userId: string) {
 		return this.likeModel
 			.findOne({ owner: toObjectId(userId) })
 			.select('-quizList')
@@ -78,7 +81,7 @@ export class LikeRepository {
 	 * 찜 목록 조회(quiz)
 	 * populate(quizList)
 	 */
-	async findOneByOwnerWithQuizList(userId: string) {
+	async findByOwnerWithQuizList(userId: string) {
 		return this.likeModel
 			.findOne({ owner: toObjectId(userId) })
 			.select('-quizbookList')

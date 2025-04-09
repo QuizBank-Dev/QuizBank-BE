@@ -10,7 +10,7 @@ export class LikeService {
 	// 특정 Quizbook의 찜 상태 변경
 	async toggleQuizbookLike(dto: toggleQuizbookLikeDto, userId: string) {
 		const { quizbookId } = dto;
-		const like = await this.likeRepo.findOneQuizbookLikeByOwner(userId);
+		const like = await this.likeRepo.findByOwner(userId);
 
 		// 1. 찜 목록이 없는 경우
 		if (!like) {
@@ -40,7 +40,7 @@ export class LikeService {
 	async toggleQuizLike(dto: toggleQuizLikeDto, userId: string) {
 		const { quizId } = dto;
 
-		const like = await this.likeRepo.findOneQuizbookLikeByOwner(userId);
+		const like = await this.likeRepo.findByOwner(userId);
 
 		// 1. 찜 목록이 없는 경우
 		if (!like) {
@@ -66,11 +66,11 @@ export class LikeService {
 
 	// 사용자의 찜한 Quizbook 목록 조회
 	async findOneByOwnerWithQuizbookList(userId: string) {
-		return this.likeRepo.findOneByOwnerWithQuizbookList(userId);
+		return this.likeRepo.findByOwnerWithQuizbookList(userId);
 	}
 
 	// 사용자의 찜한 Quiz 목록 조회
 	async findOneByOwnerWithQuizList(userId: string) {
-		return this.likeRepo.findOneByOwnerWithQuizList(userId);
+		return this.likeRepo.findByOwnerWithQuizList(userId);
 	}
 }
