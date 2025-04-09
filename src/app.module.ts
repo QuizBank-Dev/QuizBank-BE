@@ -18,6 +18,7 @@ import { GroupQuizbookModule } from './modules/group/group-quizbook/group-quizbo
 import { UploadModule } from './modules/upload/upload.module';
 import { CategoryModule } from './modules/category/category.module';
 import { FollowModule } from './modules/follow/follow.module';
+import { ChatModule } from './modules/chat/chat.module';
 
 @Module({
 	imports: [
@@ -36,6 +37,7 @@ import { FollowModule } from './modules/follow/follow.module';
 		UploadModule,
 		CategoryModule,
 		FollowModule,
+		ChatModule,
 	],
 	providers: [
 		{

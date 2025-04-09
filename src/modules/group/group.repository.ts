@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Group } from './schema/group.schema';
 import { ClientSession, FilterQuery, Model } from 'mongoose';
 import { DB_TYPE } from 'src/database/database.const';
+import { toObjectId } from 'src/common/utils/database.util';
 
 @Injectable()
 export class GroupRepository {
@@ -15,18 +16,20 @@ export class GroupRepository {
 	 * 내가 속한 Group 목록 조회
 	 */
 	async findAllBelongedGroupById(memberId: string) {
-		return this.groupModel.find({ memberList: memberId }).populate([
-			{
-				path: 'admin',
-				model: 'User',
-				select: 'nickname profileImg',
-			},
-			{
-				path: 'groupQuizbookList',
-				model: 'GroupQuizbook',
-				select: 'quizbook endedAt',
-			},
-		]);
+		return this.groupModel
+			.find({ memberList: toObjectId(memberId) })
+			.populate([
+				{
+					path: 'admin',
+					model: 'User',
+					select: 'nickname profileImg',
+				},
+				{
+					path: 'groupQuizbookList',
+					model: 'GroupQuizbook',
+					select: 'quizbook endedAt',
+				},
+			]);
 	}
 
 	/**

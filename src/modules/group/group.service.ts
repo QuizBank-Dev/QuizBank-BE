@@ -16,6 +16,9 @@ import { TokenType } from '../auth/auth-token/auth-token.types';
 import { InviteTokenPayloadDto } from './dto/invite-token-payload.dto';
 import { Quizbook } from '../quizbook/schema/quizbook.schema';
 import { GroupQuizbookRepository } from './group-quizbook/group-quizbook.repository';
+import { ChatRoomRepository } from '../chat/repository/chat-room.repository';
+import { ReadStatusRepository } from '../chat/repository/read-status.repository';
+import { ChatRoomType } from '../chat/schema/chat-room.schema';
 
 @Injectable()
 export class GroupService {
@@ -25,6 +28,8 @@ export class GroupService {
 		private readonly databaseService: DatabaseService,
 		private readonly authTokenService: AuthTokenService,
 		private readonly groupQuizbookRepository: GroupQuizbookRepository,
+		private readonly chatRoomRepository: ChatRoomRepository,
+		private readonly readStatusRepository: ReadStatusRepository,
 	) {}
 
 	async makeImminentQuizbook(
@@ -129,7 +134,27 @@ export class GroupService {
 
 	async postCreateGroup(userId: string, request: CreateGroupDto) {
 		return this.databaseService.runInDefaultTransaction(async (session) => {
-			const data = { ...request, admin: toObjectId(userId) };
+			// ChatRoom 생성
+			const newChatRoom = await this.chatRoomRepository.create(
+				{ type: ChatRoomType.GROUP, memberList: [toObjectId(userId)] },
+				session,
+			);
+
+			// 그룹장의 ReadStatus 생성
+			await this.readStatusRepository.create(
+				{
+					chatRoom: newChatRoom._id as Types.ObjectId,
+					lastTimestamp: new Date(),
+					member: toObjectId(userId),
+				},
+				session,
+			);
+
+			const data = {
+				...request,
+				admin: toObjectId(userId),
+				chatRoom: newChatRoom._id as Types.ObjectId,
+			};
 
 			const newGroup = await this.groupRepository.create(data, session);
 
@@ -140,8 +165,6 @@ export class GroupService {
 				(newGroup._id as Types.ObjectId).toString(),
 				session,
 			);
-
-			// ChatRoom 생성 코드 추후에 추가.
 
 			return {
 				_id: newGroup._id,
@@ -200,7 +223,18 @@ export class GroupService {
 				}),
 			);
 
-			// ChatRoom 제거 코드 추후에 추가.
+			// 그룹원들의 ReadStatus 제거
+			await this.readStatusRepository.deleteAll(group.chatRoom, session);
+
+			// 그룹의 ChatRoom 제거
+			const deletedChatRoom = await this.chatRoomRepository.delete(
+				group.chatRoom,
+				session,
+			);
+			if (!deletedChatRoom)
+				throw new NotFoundException(
+					`해당 ${group.chatRoom.toString()} ChatRoom을 삭제할 수 없습니다.`,
+				);
 
 			const deletedGroup = await this.groupRepository.delete(
 				groupId,
@@ -241,31 +275,55 @@ export class GroupService {
 	}
 
 	async postCreateGroupMember(userId: string, token: string) {
-		if (await this.authTokenService.isExpiredToken(token)) {
-			throw new UnauthorizedException('인증정보가 올바르지 않습니다.');
-		}
+		await this.databaseService.runInDefaultTransaction(async (session) => {
+			if (await this.authTokenService.isExpiredToken(token)) {
+				throw new UnauthorizedException(
+					'인증정보가 올바르지 않습니다.',
+				);
+			}
 
-		const { groupId } =
-			this.authTokenService.verifyToken<InviteTokenPayloadDto>(
-				TokenType.INVITE,
-				token,
+			const { groupId } =
+				this.authTokenService.verifyToken<InviteTokenPayloadDto>(
+					TokenType.INVITE,
+					token,
+				);
+
+			const group = await this.groupRepository.findById(groupId);
+
+			if (!group)
+				throw new NotFoundException(
+					`해당 ${groupId} Group을 찾을 수 없습니다.`,
+				);
+
+			await this.groupRepository.update(
+				{
+					$addToSet: { memberList: userId }, // 중복 없이 배열에 userId 추가
+				},
+				groupId,
+				session,
 			);
 
-		const group = await this.groupRepository.findById(groupId);
-
-		if (!group)
-			throw new NotFoundException(
-				`해당 ${groupId} Group을 찾을 수 없습니다.`,
+			// 그룹의 ChatRoom에 그룹원 추가
+			await this.chatRoomRepository.update(
+				{
+					$addToSet: { memberList: userId }, // 중복 없이 배열에 userId 추가
+				},
+				group.chatRoom,
+				session,
 			);
 
-		await this.groupRepository.update(
-			{
-				$addToSet: { memberList: userId }, // 중복 없이 배열에 userId 추가
-			},
-			groupId,
-		);
+			// 추가된 그룹원의 ReadStatus 추가
+			await this.readStatusRepository.create(
+				{
+					chatRoom: group.chatRoom,
+					lastTimestamp: new Date(),
+					member: toObjectId(userId),
+				},
+				session,
+			);
 
-		await this.authTokenService.expireToken(token);
+			await this.authTokenService.expireToken(token);
+		});
 	}
 
 	async patchGroupOwner(userId: string, groupId: string, memberId: string) {
@@ -326,19 +384,40 @@ export class GroupService {
 				`해당 ${userId} 사용자를 찾을 수 없습니다.`,
 			);
 
-		let data: Partial<Group> | FilterQuery<Group>;
+		await this.databaseService.runInDefaultTransaction(async (session) => {
+			let data: Partial<Group> | FilterQuery<Group>;
 
-		// 요청자가 그룹장인 경우
-		if (group.admin._id.toString() === userId) {
-			data = {
-				admin: group.memberList[1]._id,
-				$pull: { memberList: userId },
-			};
-		} else {
-			data = { $pull: { memberList: userId } };
-		}
+			// 요청자가 그룹장인 경우
+			if (group.admin._id.toString() === userId) {
+				data = {
+					admin: group.memberList[1]._id,
+					$pull: { memberList: userId },
+				};
+			} else {
+				data = { $pull: { memberList: userId } };
+			}
 
-		await this.groupRepository.update(data, groupId);
+			await this.groupRepository.update(data, groupId, session);
+
+			// 해당 유저의 ReadStatus 삭제
+			const deletedReadStatus = await this.readStatusRepository.delete(
+				toObjectId(userId),
+				session,
+			);
+			if (!deletedReadStatus)
+				throw new NotFoundException(
+					`해당 ${userId} 유저의 ReadStatus를 삭제할 수 없습니다.`,
+				);
+
+			// 그룹의 ChatRoom에 그룹원 삭제
+			await this.chatRoomRepository.update(
+				{
+					$pull: { memberList: userId },
+				},
+				group.chatRoom,
+				session,
+			);
+		});
 	}
 
 	async deleteGroupMember(userId: string, groupId: string, memberId: string) {
@@ -352,9 +431,31 @@ export class GroupService {
 		if (group.admin._id.toString() !== userId)
 			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
 
-		await this.groupRepository.update(
-			{ $pull: { memberList: memberId } },
-			groupId,
-		);
+		await this.databaseService.runInDefaultTransaction(async (session) => {
+			await this.groupRepository.update(
+				{ $pull: { memberList: memberId } },
+				groupId,
+				session,
+			);
+
+			// 해당 유저의 ReadStatus 삭제
+			const deletedReadStatus = await this.readStatusRepository.delete(
+				toObjectId(memberId),
+				session,
+			);
+			if (!deletedReadStatus)
+				throw new NotFoundException(
+					`해당 ${memberId} 유저의 ReadStatus를 삭제할 수 없습니다.`,
+				);
+
+			// 그룹의 ChatRoom에 그룹원 삭제
+			await this.chatRoomRepository.update(
+				{
+					$pull: { memberList: memberId },
+				},
+				group.chatRoom,
+				session,
+			);
+		});
 	}
 }
