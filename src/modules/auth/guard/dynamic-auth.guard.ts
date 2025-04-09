@@ -1,4 +1,4 @@
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { Logger } from 'winston';
 import {
 	CanActivate,
@@ -22,7 +22,18 @@ export function DynamicAuthGuard(): Type<CanActivate> {
 
 		async canActivate(context: ExecutionContext) {
 			const request: Request = context.switchToHttp().getRequest();
+			const response: Response = context.switchToHttp().getResponse();
 			const provider = request.params.provider;
+			const redirect = request.query.redirect;
+
+			if (redirect) {
+				// redirectUrl 있는 경우 쿠키에 추가
+				response.cookie('redirect', redirect, {
+					httpOnly: true,
+					maxAge: 1000 * 60 * 5,
+				});
+			}
+
 			try {
 				const Guard = AuthGuard(provider);
 				return (await new Guard().canActivate(context)) as boolean;
@@ -30,6 +41,7 @@ export function DynamicAuthGuard(): Type<CanActivate> {
 				if (error instanceof Error) {
 					this.logger.error(error.stack || error.message);
 				}
+				response.clearCookie('redirect');
 				return false;
 			}
 		}

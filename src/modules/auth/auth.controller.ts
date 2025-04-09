@@ -108,8 +108,8 @@ export class AuthController {
 	@UseGuards(DynamicAuthGuard())
 	@ApiOperation({
 		summary: 'OAuth 로그인',
-		description:
-			'OAuth 로그인을 진행합니다. (Swagger로 테스트 불가능, 브라우저에 url 직접 입력) ',
+		description: `OAuth 로그인을 진행합니다.
+		\n- Swagger에서는 테스트할 수 없으며, 브라우저에서 URL을 직접 입력해 테스트해야 합니다.`,
 	})
 	@ApiParam({
 		name: 'provider',
@@ -124,14 +124,20 @@ export class AuthController {
 	@UseGuards(DynamicAuthGuard())
 	@ApiOperation({ summary: 'OAuth 콜백' })
 	@ApiExcludeEndpoint()
-	async oauthCallback(
-		@Req() request: Request,
-		@Res({ passthrough: true }) response: Response,
-	) {
+	async oauthCallback(@Req() request: Request, @Res() response: Response) {
 		const result = await this.authService.oauthLogin(
 			request.user as unknown as OAuthLoginDto,
 		);
 
 		this.authService.setAuthCookies(result, response);
+
+		const redirectUrl = request.cookies.redirect as string | undefined;
+
+		if (redirectUrl) {
+			// RedirectUrl 있는 경우
+			return response.clearCookie('redirect').redirect(redirectUrl);
+		} else {
+			return response.status(200).send('OK');
+		}
 	}
 }
