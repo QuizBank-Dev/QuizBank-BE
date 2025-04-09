@@ -44,7 +44,7 @@ export class ReviewService {
 			});
 
 			// 3. Quizbook의 Review 관련 필드 업데이트
-			await this.quizbookRepo.updateReviewStats(
+			await this.quizbookRepo.updateStats(
 				{
 					$inc: {
 						reviewCount: +1,
@@ -111,7 +111,7 @@ export class ReviewService {
 				dto.score !== undefined && dto.score !== null
 					? dto.score - prevScore
 					: 0;
-			await this.quizbookRepo.updateReviewStats(
+			await this.quizbookRepo.updateStats(
 				{
 					$inc: { reviewScore: scoreDiff },
 				},
@@ -139,7 +139,7 @@ export class ReviewService {
 			await this.reviewRepo.removeHard(reviewId, userId, session);
 
 			// 3. Quizbook의 Review 관련 필드 업데이트
-			await this.quizbookRepo.updateReviewStats(
+			await this.quizbookRepo.updateStats(
 				{
 					$inc: {
 						reviewCount: -1,
