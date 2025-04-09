@@ -10,18 +10,26 @@ import {
 	Res,
 	UseGuards,
 } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+	ApiBody,
+	ApiExcludeEndpoint,
+	ApiOperation,
+	ApiParam,
+	ApiTags,
+} from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { Public } from './decorator/public.decorator';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { UserId } from '../../common/decorators/user-id.decorator';
 import { AuthToken } from './auth.types';
-import { BaseResponse } from '../../common/dto/base-response.dto';
 import { DynamicAuthGuard } from './guard/dynamic-auth.guard';
 import { OAuthLoginDto } from '../user/dto/oauth-login.dto';
+import { ProviderType } from '../user/schema/user.schema';
+import { ApiBaseResponse } from '../../common/decorators/base-response.decorator';
 
-@Controller('auth')
+@Controller({ path: 'auth', version: '1' })
+@ApiTags('Auth')
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
 
@@ -31,11 +39,7 @@ export class AuthController {
 		summary: '회원가입',
 		description: '회원가입을 진행합니다.',
 	})
-	@ApiResponse({
-		status: 201,
-		description: '회원가입 완료',
-		type: BaseResponse<undefined>,
-	})
+	@ApiBaseResponse(201, '회원가입 완료')
 	async signup(
 		@Res({ passthrough: true }) response: Response,
 		@Body() signupDto: CreateUserDto,
@@ -62,11 +66,7 @@ export class AuthController {
 			required: ['email', 'password'],
 		},
 	})
-	@ApiResponse({
-		status: 200,
-		description: '로그인 완료',
-		type: BaseResponse<undefined>,
-	})
+	@ApiBaseResponse(200, '로그인 완료')
 	login(
 		@Req() request: Request,
 		@Res({ passthrough: true }) response: Response,
@@ -81,11 +81,7 @@ export class AuthController {
 		summary: '로그아웃',
 		description: '로그아웃입니다.',
 	})
-	@ApiResponse({
-		status: 200,
-		description: '로그아웃 완료',
-		type: BaseResponse<undefined>,
-	})
+	@ApiBaseResponse(200, '로그아웃 완료')
 	async logout(
 		@Req() request: Request,
 		@Res({ passthrough: true }) response: Response,
@@ -97,11 +93,7 @@ export class AuthController {
 	@ApiOperation({
 		summary: '회원탈퇴',
 	})
-	@ApiResponse({
-		status: 200,
-		description: '탈퇴 완료',
-		type: BaseResponse<undefined>,
-	})
+	@ApiBaseResponse(200, '탈퇴 완료')
 	async withdraw(
 		@UserId() userId: string,
 		@Req() request: Request,
@@ -114,11 +106,24 @@ export class AuthController {
 	@Public()
 	@Get('oauth/:provider')
 	@UseGuards(DynamicAuthGuard())
+	@ApiOperation({
+		summary: 'OAuth 로그인',
+		description:
+			'OAuth 로그인을 진행합니다. (Swagger로 테스트 불가능, 브라우저에 url 직접 입력) ',
+	})
+	@ApiParam({
+		name: 'provider',
+		enum: ProviderType,
+		description: 'OAuth provider',
+	})
+	@ApiBaseResponse(200, '로그인 완료')
 	checkOAuthProvider() {}
 
 	@Public()
 	@Get('oauth/:provider/callback')
 	@UseGuards(DynamicAuthGuard())
+	@ApiOperation({ summary: 'OAuth 콜백' })
+	@ApiExcludeEndpoint()
 	async oauthCallback(
 		@Req() request: Request,
 		@Res({ passthrough: true }) response: Response,
