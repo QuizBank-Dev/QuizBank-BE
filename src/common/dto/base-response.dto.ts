@@ -4,7 +4,7 @@ export class BaseResponse<T> {
 	constructor(statusCode: number, message: string, data?: T) {
 		this.statusCode = statusCode;
 		this.message = message;
-		this.data = data;
+		this.result = data;
 	}
 
 	@ApiProperty({ type: Number, example: 200, description: 'HTTP 상태 코드' })
@@ -17,5 +17,5 @@ export class BaseResponse<T> {
 		description: '응답 데이터',
 		required: false,
 	})
-	data?: T;
+	result?: T;
 }
