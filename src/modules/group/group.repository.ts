@@ -42,6 +42,11 @@ export class GroupRepository {
 				model: 'User',
 				select: 'nickname profileImg email',
 			},
+			{
+				path: 'applyingUserList',
+				model: 'User',
+				select: 'nickname profileImg email',
+			},
 		]);
 	}
 

@@ -3,6 +3,7 @@ export const allBelongedGroupExample = {
 	name: '서울 강남 cs 공부 스터디',
 	description: '서울에 사는 컴공 취준생들의 cs 공부 스터디 그룹입니다.',
 	admin: {},
+	'chatRoom?': '65e8a5d6fc13ae5e7f000002',
 	memberCount: '7',
 };
 
@@ -12,6 +13,7 @@ export const GroupInfoExample = {
 	description: '서울에 사는 컴공 취준생들의 cs 공부 스터디 그룹입니다.',
 	admin: {},
 	memberList: [{}],
+	applyingUserList: [{}],
 	chatRoom: '65e8a5d6fc13ae5e7f000002',
 	createdAt: '2025-03-30',
 };

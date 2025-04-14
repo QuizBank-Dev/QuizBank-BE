@@ -19,6 +19,12 @@ export class Group extends Document {
 	memberList: Types.ObjectId[];
 
 	@Prop({
+		type: [{ type: Types.ObjectId, ref: 'User' }],
+		default: [],
+	})
+	applyingUserList: Types.ObjectId[];
+
+	@Prop({
 		type: [{ type: Types.ObjectId, ref: 'GroupQuizbook' }],
 		default: [],
 	})

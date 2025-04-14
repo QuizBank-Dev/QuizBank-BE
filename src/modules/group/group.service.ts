@@ -35,10 +35,18 @@ export class GroupService {
 		// 그룹 정보를 변환
 		const transformedGroups = await Promise.all(
 			groupList.map((group) => {
-				const { memberList, createdAt, updatedAt, ...filteredFields } =
-					group.toObject();
+				const {
+					memberList,
+					applyingUserList,
+					groupQuizbookList,
+					createdAt,
+					updatedAt,
+					...filteredFields
+				} = group.toObject();
 
 				// 간단히 변수 사용 처리
+				void applyingUserList;
+				void groupQuizbookList;
 				void createdAt;
 				void updatedAt;
 
@@ -63,8 +71,10 @@ export class GroupService {
 				`해당 ${groupId} Group을 찾을 수 없습니다.`,
 			);
 
-		const { memberList, updatedAt, ...filteredFields } = group.toObject();
+		const { memberList, groupQuizbookList, updatedAt, ...filteredFields } =
+			group.toObject();
 
+		void groupQuizbookList;
 		void updatedAt;
 
 		if (!memberList.map((user) => user._id.toString()).includes(userId))
