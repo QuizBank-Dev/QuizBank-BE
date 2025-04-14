@@ -24,11 +24,6 @@ export class GroupRepository {
 					model: 'User',
 					select: 'nickname profileImg',
 				},
-				{
-					path: 'groupQuizbookList',
-					model: 'GroupQuizbook',
-					select: 'quizbook endedAt',
-				},
 			]);
 	}
 
@@ -46,11 +41,6 @@ export class GroupRepository {
 				path: 'memberList',
 				model: 'User',
 				select: 'nickname profileImg email',
-			},
-			{
-				path: 'groupQuizbookList',
-				model: 'GroupQuizbook',
-				select: 'quizbook endedAt',
 			},
 		]);
 	}

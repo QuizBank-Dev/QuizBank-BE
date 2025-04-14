@@ -6,7 +6,6 @@ import { Group, GroupSchema } from './schema/group.schema';
 import { DB_TYPE } from 'src/database/database.const';
 import { GroupRepository } from './group.repository';
 import { DatabaseModule } from 'src/database/database.module';
-import { QuizbookModule } from '../quizbook/quizbook.module';
 import { AuthTokenModule } from '../auth/auth-token/auth-token.module';
 import { GroupQuizbookModule } from './group-quizbook/group-quizbook.module';
 import { ChatModule } from '../chat/chat.module';
@@ -18,7 +17,6 @@ import { ChatModule } from '../chat/chat.module';
 			DB_TYPE.DEFAULT,
 		),
 		DatabaseModule,
-		QuizbookModule,
 		AuthTokenModule,
 		GroupQuizbookModule,
 		ChatModule,

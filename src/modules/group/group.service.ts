@@ -4,8 +4,6 @@ import {
 	UnauthorizedException,
 } from '@nestjs/common';
 import { GroupRepository } from './group.repository';
-import { QuizbookRepository } from '../quizbook/quizbook.repository';
-import { GroupQuizbook } from './group-quizbook/schema/group-quizbook.schema';
 import { toObjectId } from 'src/common/utils/database.util';
 import { FilterQuery, Types } from 'mongoose';
 import { CreateGroupDto } from './dto/create-group.dto';
@@ -14,7 +12,6 @@ import { Group } from './schema/group.schema';
 import { AuthTokenService } from '../auth/auth-token/auth-token.service';
 import { TokenType } from '../auth/auth-token/auth-token.types';
 import { InviteTokenPayloadDto } from './dto/invite-token-payload.dto';
-import { Quizbook } from '../quizbook/schema/quizbook.schema';
 import { GroupQuizbookRepository } from './group-quizbook/group-quizbook.repository';
 import { ChatRoomRepository } from '../chat/repository/chat-room.repository';
 import { ReadStatusRepository } from '../chat/repository/read-status.repository';
@@ -24,7 +21,6 @@ import { ChatRoomType } from '../chat/schema/chat-room.schema';
 export class GroupService {
 	constructor(
 		private readonly groupRepository: GroupRepository,
-		private readonly quizbookRepository: QuizbookRepository,
 		private readonly databaseService: DatabaseService,
 		private readonly authTokenService: AuthTokenService,
 		private readonly groupQuizbookRepository: GroupQuizbookRepository,
@@ -32,58 +28,15 @@ export class GroupService {
 		private readonly readStatusRepository: ReadStatusRepository,
 	) {}
 
-	async makeImminentQuizbook(
-		groupQuizbookList: Types.ObjectId[] | GroupQuizbook[],
-	) {
-		// imminentQuizbook 계산: endedAt이 오늘 이후인 문제집 중 가장 가까운 날짜를 찾음
-		const today = new Date();
-		const year = today.getFullYear();
-		const month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
-		const day = String(today.getDate()).padStart(2, '0');
-		const todayDate = new Date(`${year}-${month}-${day}`);
-		const quizbookList = groupQuizbookList
-			.filter((quizbook: GroupQuizbook) => quizbook.endedAt >= todayDate) // 오늘 이후만 포함
-			.sort(
-				(a: GroupQuizbook, b: GroupQuizbook) =>
-					new Date(a.endedAt).getTime() -
-					new Date(b.endedAt).getTime(),
-			) as GroupQuizbook[];
-
-		let result: { endedAt?: Date } & Partial<Quizbook> = {};
-
-		if (quizbookList.length !== 0) {
-			const targetId = quizbookList[0].quizbook.toString();
-			const targetQuizbook =
-				await this.quizbookRepository.findById(targetId);
-
-			if (!targetQuizbook)
-				throw new NotFoundException(
-					`해당 ${targetId} Quizbook을 찾을 수 없습니다.`,
-				);
-
-			result = {
-				...targetQuizbook.toObject(),
-				endedAt: quizbookList[0].endedAt,
-			};
-		}
-
-		return result;
-	}
-
 	async getAllBelongedGroup(userId: string) {
 		const groupList =
 			await this.groupRepository.findAllBelongedGroupById(userId);
 
 		// 그룹 정보를 변환
 		const transformedGroups = await Promise.all(
-			groupList.map(async (group) => {
-				const {
-					memberList,
-					groupQuizbookList,
-					createdAt,
-					updatedAt,
-					...filteredFields
-				} = group.toObject();
+			groupList.map((group) => {
+				const { memberList, createdAt, updatedAt, ...filteredFields } =
+					group.toObject();
 
 				// 간단히 변수 사용 처리
 				void createdAt;
@@ -92,13 +45,9 @@ export class GroupService {
 				// memberCount 계산
 				const memberCount = memberList.length;
 
-				const imminentQuizbook =
-					await this.makeImminentQuizbook(groupQuizbookList);
-
 				return {
 					...filteredFields,
 					memberCount,
-					imminentQuizbook,
 				};
 			}),
 		);
@@ -114,21 +63,16 @@ export class GroupService {
 				`해당 ${groupId} Group을 찾을 수 없습니다.`,
 			);
 
-		const { memberList, groupQuizbookList, updatedAt, ...filteredFields } =
-			group.toObject();
+		const { memberList, updatedAt, ...filteredFields } = group.toObject();
 
 		void updatedAt;
 
 		if (!memberList.map((user) => user._id.toString()).includes(userId))
 			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
 
-		const imminentQuizbook =
-			await this.makeImminentQuizbook(groupQuizbookList);
-
 		return {
 			...filteredFields,
 			memberList,
-			imminentQuizbook,
 		};
 	}
 
@@ -212,7 +156,7 @@ export class GroupService {
 				group.groupQuizbookList.map(async (groupQuizbook) => {
 					const deletedGroupQuizbook =
 						await this.groupQuizbookRepository.deleteById(
-							groupQuizbook._id.toString(),
+							groupQuizbook.toString(),
 							session,
 						);
 
