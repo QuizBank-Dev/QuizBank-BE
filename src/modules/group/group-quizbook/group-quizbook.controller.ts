@@ -79,7 +79,7 @@ export class GroupQuizbookController {
 		description: 'Group 선정 문제집을 삭제합니다.',
 	})
 	@ApiBaseResponse(HttpStatus.OK, '삭제 성공')
-	async deleteGroupWithdraw(
+	async deleteGroupQuizbook(
 		@UserId() userId: string,
 		@Param('groupId') groupId: string,
 		@Param('quizbookId') quizbookId: string,
