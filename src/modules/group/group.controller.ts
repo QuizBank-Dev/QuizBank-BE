@@ -21,6 +21,7 @@ import { UserId } from 'src/common/decorators/user-id.decorator';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateOwnerDto } from './dto/update-owner.dto';
 import { CreateGroupMemberDto } from './dto/create-group-member.dto';
+import { RespondApplicationDto } from './dto/patch-respond-application.dto';
 
 @Controller({ path: 'group', version: '1' })
 @ApiTags('Group')
@@ -95,6 +96,24 @@ export class GroupController {
 		@Param('groupId') groupId: string,
 	) {
 		await this.groupService.patchGroupApplying(userId, groupId);
+	}
+
+	@Patch(':groupId/application-response')
+	@ApiOperation({
+		summary: 'Group 가입 요청 처리(수락 또는 거절)',
+		description: 'Group 가입 요청을 수락 또는 거절 처리합니다.',
+	})
+	@ApiBaseResponse(HttpStatus.OK, '처리 성공')
+	async patchRespondToApplication(
+		@UserId() userId: string,
+		@Param('groupId') groupId: string,
+		@Body() request: RespondApplicationDto,
+	) {
+		await this.groupService.patchRespondToApplication(
+			userId,
+			groupId,
+			request.accepted,
+		);
 	}
 
 	@Get(':groupId/invitation')

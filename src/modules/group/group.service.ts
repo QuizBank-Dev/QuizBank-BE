@@ -222,10 +222,46 @@ export class GroupService {
 
 		await this.groupRepository.update(
 			{
-				$addToSet: { applyingUserList: userId }, // 중복 없이 배열에 userId 추가
+				$addToSet: { applyingUserList: userId },
 			},
 			groupId,
 		);
+	}
+
+	async patchRespondToApplication(
+		userId: string,
+		groupId: string,
+		accepted: boolean,
+	) {
+		const group = await this.groupRepository.findById(groupId);
+
+		if (!group)
+			throw new NotFoundException(
+				`해당 ${groupId} Group을 찾을 수 없습니다.`,
+			);
+
+		const targetApplyingUserList = group.applyingUserList.map((user) =>
+			user._id.toString(),
+		);
+		const indexOfApplyingUser = targetApplyingUserList.indexOf(userId);
+
+		if (indexOfApplyingUser === -1)
+			throw new NotFoundException(
+				`해당 ${userId} 사용자는 그룹에 가입 요청을 하지 않았습니다.`,
+			);
+
+		let filter: FilterQuery<Group>;
+		if (accepted) {
+			filter = {
+				$pull: { applyingUserList: userId },
+				$addToSet: { memberList: userId },
+			};
+		} else {
+			filter = {
+				$pull: { applyingUserList: userId },
+			};
+		}
+		await this.groupRepository.update(filter, groupId);
 	}
 
 	async getInviteUrl(userId: string, groupId: string) {
