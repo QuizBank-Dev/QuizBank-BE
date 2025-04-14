@@ -84,6 +84,19 @@ export class GroupController {
 		await this.groupService.deleteGroup(userId, groupId);
 	}
 
+	@Patch(':groupId/application')
+	@ApiOperation({
+		summary: 'Group 가입 요청',
+		description: 'Group 가입을 요청합니다.',
+	})
+	@ApiBaseResponse(HttpStatus.OK, '요청 성공')
+	async patchGroupApplying(
+		@UserId() userId: string,
+		@Param('groupId') groupId: string,
+	) {
+		await this.groupService.patchGroupApplying(userId, groupId);
+	}
+
 	@Get(':groupId/invitation')
 	@ApiOperation({
 		summary: 'Group 초대 링크 조회',

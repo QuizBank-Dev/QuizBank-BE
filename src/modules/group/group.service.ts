@@ -202,6 +202,32 @@ export class GroupService {
 		});
 	}
 
+	async patchGroupApplying(userId: string, groupId: string) {
+		const group = await this.groupRepository.findById(groupId);
+
+		if (!group)
+			throw new NotFoundException(
+				`해당 ${groupId} Group을 찾을 수 없습니다.`,
+			);
+
+		const targetMemberList = group.memberList.map((user) =>
+			user._id.toString(),
+		);
+		const indexOfNewOwner = targetMemberList.indexOf(userId);
+
+		if (indexOfNewOwner !== -1)
+			throw new UnauthorizedException(
+				`해당 ${userId} 사용자는 이미 그룹에 소속되어 있습니다.`,
+			);
+
+		await this.groupRepository.update(
+			{
+				$addToSet: { applyingUserList: userId }, // 중복 없이 배열에 userId 추가
+			},
+			groupId,
+		);
+	}
+
 	async getInviteUrl(userId: string, groupId: string) {
 		const group = await this.groupRepository.findById(groupId);
 
