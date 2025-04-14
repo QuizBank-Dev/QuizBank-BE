@@ -47,7 +47,7 @@ export class GroupService {
 		if (quizbookList.length !== 0) {
 			const targetId = quizbookList[0].quizbook.toString();
 			const targetQuizbook =
-				await this.quizbookRepository.findById(targetId);
+				await this.quizbookRepository.findByIdWithAuthor(targetId);
 
 			if (!targetQuizbook)
 				throw new NotFoundException(
@@ -55,7 +55,7 @@ export class GroupService {
 				);
 
 			result = {
-				...targetQuizbook.toObject(),
+				...targetQuizbook,
 				endedAt: quizbookList[0].endedAt,
 			};
 		}
