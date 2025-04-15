@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { GroupController } from './group.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -23,7 +23,7 @@ import { AuthTokenModule } from '../auth/auth-token/auth-token.module';
 			DB_TYPE.DEFAULT,
 		),
 		DatabaseModule,
-		QuizbookModule,
+		forwardRef(() => QuizbookModule),
 		AuthTokenModule,
 	],
 	controllers: [GroupController],
