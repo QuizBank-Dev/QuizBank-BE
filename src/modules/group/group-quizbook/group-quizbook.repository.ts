@@ -2,8 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { GroupQuizbook } from './schema/group-quizbook.schema';
 import { DB_TYPE } from 'src/database/database.const';
-import { ClientSession, FilterQuery, Model } from 'mongoose';
+import { ClientSession, FilterQuery, Model, Types } from 'mongoose';
 import { toObjectId } from 'src/common/utils/database.util';
+
+interface GroupQuizbookListQuery {
+	group: Types.ObjectId;
+	endedAt?: { $lt: Date } | { $gt: Date };
+}
 
 @Injectable()
 export class GroupQuizbookRepository {
@@ -15,9 +20,24 @@ export class GroupQuizbookRepository {
 	/**
 	 * 특정 Group의 선정 문제집 카드 정보 목록 조회
 	 */
-	async findAllGroupQuizbook(groupId: string) {
+	async findGroupQuizbookList(
+		group: Types.ObjectId,
+		cursor: Date,
+		limit: number,
+		done: boolean,
+	) {
+		const query: GroupQuizbookListQuery = { group };
+
+		if (done) {
+			query.endedAt = { $lt: cursor };
+		} else {
+			query.endedAt = { $gt: cursor };
+		}
+
 		return this.groupQuizbookModel
-			.find({ group: toObjectId(groupId) })
+			.find(query)
+			.sort({ endedAt: done ? -1 : 1 })
+			.limit(limit)
 			.populate([
 				{
 					path: 'quizbook',
@@ -29,6 +49,21 @@ export class GroupQuizbookRepository {
 					},
 				},
 			]);
+	}
+
+	/**
+	 * 특정 Group의 선정 문제집 전체 개수 동기화를 위한 남은 개수 조회
+	 */
+	async findLeftCount(group: Types.ObjectId, cursor: Date, done: boolean) {
+		const query: GroupQuizbookListQuery = { group };
+
+		if (done) {
+			query.endedAt = { $lt: cursor };
+		} else {
+			query.endedAt = { $gt: cursor };
+		}
+
+		return this.groupQuizbookModel.countDocuments(query);
 	}
 
 	/**
