@@ -1,12 +1,33 @@
-export const reviewBaseExample = {
-	_id: '65e8a5d6fc13ae5e7f000002',
-	score: 5,
-	content: '너무 유용한 Quizbook 이었습니다!',
-	quizbook: '65e8a5d6fc13ae5e7f000003',
-	author: {
-		_id: '65e8a5d6fc13ae5e7f000004',
-		nickname: 'example123',
-		profileImg:
-			'https://your-bucket.s3.ap-northeast-2.amazonaws.com/profile/user123.jpg',
-	},
+export const getReviewListEx = {
+	data: [
+		{
+			_id: '67fe3c0c277a68a1ac3f4aa4',
+			score: 2.5,
+			content: '쏘쏘',
+			quizbook: '67fdc5ac1e49a2871aeb6657',
+			author: {
+				_id: '67fe18f8bb486fc72e9a8004',
+				nickname: 'test2계정',
+				profileImg: '',
+			},
+			createdAt: '2025-04-15T10:59:24.969Z',
+			updatedAt: '2025-04-15T10:59:24.969Z',
+			__v: 0,
+		},
+		{
+			_id: '67fdc64a1e49a2871aeb668d',
+			score: 4,
+			content: '좋아용',
+			quizbook: '67fdc5ac1e49a2871aeb6657',
+			author: {
+				_id: '67e2e20e5872c849d5dd4b86',
+				nickname: 'test계정',
+			},
+			createdAt: '2025-04-15T02:36:58.467Z',
+			updatedAt: '2025-04-15T02:36:58.467Z',
+			__v: 0,
+		},
+	],
+	nextCursor: null,
+	totalCount: 2,
 };

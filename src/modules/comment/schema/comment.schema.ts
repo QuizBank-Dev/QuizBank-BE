@@ -5,8 +5,11 @@ import { User } from 'src/modules/user/schema/user.schema';
 
 @Schema({ timestamps: true })
 export class Comment extends Document {
-	@Prop({ default: 0 })
-	depth: number;
+	@Prop({
+		type: Types.ObjectId,
+		ref: 'Comment',
+	})
+	parent?: Types.ObjectId | Comment;
 
 	@Prop({ required: true })
 	content: string;
@@ -17,12 +20,6 @@ export class Comment extends Document {
 		required: true,
 	})
 	quiz: Types.ObjectId | Quiz;
-
-	@Prop({
-		type: [{ type: Types.ObjectId, ref: 'Comment' }],
-		default: [],
-	})
-	replies: Types.ObjectId[] | Comment[];
 
 	@Prop({
 		type: Types.ObjectId,

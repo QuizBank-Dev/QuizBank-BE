@@ -43,11 +43,12 @@ export class UserService {
 			throw new NotFoundException('해당 유저를 찾을 수 없습니다.');
 		}
 
+		// 엔드포인트가 따로 파진 관계로 주석 처리 했습니다.
 		// TODO userId로 해당 유저의 quizbook, record 가져오는 서비스
-		const [quizbook, record] = await Promise.all([
-			new Promise<string[]>((resolve) => resolve([])),
-			new Promise<string[]>((resolve) => resolve([])),
-		]);
+		// const [quizbook, record] = await Promise.all([
+		// 	new Promise<string[]>((resolve) => resolve([])),
+		// 	new Promise<string[]>((resolve) => resolve([])),
+		// ]);
 
 		return {
 			_id: user._id,
@@ -56,8 +57,9 @@ export class UserService {
 			introduce: user.introduce,
 			experience: user.experience,
 			follower: user.follower,
-			quizbook,
-			record,
+			// 엔드포인트가 따로 파진 관계로 주석 처리 했습니다.
+			// quizbook,
+			// record,
 		};
 	}
 

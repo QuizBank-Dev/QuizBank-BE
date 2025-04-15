@@ -1,4 +1,4 @@
-export const quizBaseExample = {
+export const quizBaseEx = {
 	_id: '6602b123abc123456789abcd',
 	type: '객관식',
 	question: '다음 중 정렬 알고리즘이 아닌 것은?',

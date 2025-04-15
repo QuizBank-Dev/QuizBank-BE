@@ -106,4 +106,16 @@ export class GroupRepository {
 	async delete(groupId: string, session?: ClientSession) {
 		return this.groupModel.findByIdAndDelete(groupId, { session });
 	}
+
+	/**
+	 * Group 조회
+	 */
+	async findOneById(groupId: string, userId: string) {
+		return await this.groupModel
+			.findOne({
+				_id: groupId,
+				memberList: { $in: [toObjectId(userId)] },
+			})
+			.lean();
+	}
 }

@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Quizbook } from './quizbook.schema';
-import { QuizRecord } from 'src/modules/quiz/schema/quiz-record.schema';
+import { Quizbook } from 'src/modules/quizbook/schema/quizbook.schema';
+import { User } from 'src/modules/user/schema/user.schema';
+import { QuizRecord } from './quiz-record.schema';
 
 @Schema({ timestamps: true })
 export class QuizbookRecord extends Document {
@@ -16,20 +17,25 @@ export class QuizbookRecord extends Document {
 		type: [{ type: Types.ObjectId, ref: 'QuizRecord' }],
 		required: true,
 	})
-	quizRecords: Types.ObjectId[] | QuizRecord[];
+	quizRecordList: Types.ObjectId[] | QuizRecord[];
 
 	@Prop({
 		required: true,
 	})
 	score: number;
 
-	//// User 모델 완성 시 추가
-	// @Prop({
-	// 	type: Types.ObjectId,
-	// 	ref: 'User',
-	// 	required: true,
-	// })
-	// user: Types.ObjectId | User;
+	@Prop({
+		type: Types.ObjectId,
+		ref: 'User',
+		required: true,
+	})
+	owner: Types.ObjectId | User;
+
+	@Prop()
+	readonly createdAt: Date;
+
+	@Prop()
+	readonly updatedAt: Date;
 }
 
 export const QuizbookRecordSchema =

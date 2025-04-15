@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { GroupController } from './group.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -9,6 +9,7 @@ import { DatabaseModule } from 'src/database/database.module';
 import { AuthTokenModule } from '../auth/auth-token/auth-token.module';
 import { GroupQuizbookModule } from './group-quizbook/group-quizbook.module';
 import { ChatModule } from '../chat/chat.module';
+import { QuizbookModule } from '../quizbook/quizbook.module';
 
 @Module({
 	imports: [
@@ -17,6 +18,7 @@ import { ChatModule } from '../chat/chat.module';
 			DB_TYPE.DEFAULT,
 		),
 		DatabaseModule,
+		forwardRef(() => QuizbookModule),
 		AuthTokenModule,
 		GroupQuizbookModule,
 		ChatModule,

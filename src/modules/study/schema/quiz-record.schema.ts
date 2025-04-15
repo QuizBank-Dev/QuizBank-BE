@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Quiz } from './quiz.schema';
+import { Quiz, QuizType } from 'src/modules/quiz/schema/quiz.schema';
+import { User } from 'src/modules/user/schema/user.schema';
 
 export enum RoleType {
 	AI = 'AI',
@@ -14,6 +15,12 @@ export class QuizRecord extends Document {
 		enum: RoleType,
 	})
 	role: RoleType;
+
+	@Prop({
+		required: true,
+		enum: QuizType,
+	})
+	type: QuizType;
 
 	@Prop({
 		required: true,
@@ -32,13 +39,12 @@ export class QuizRecord extends Document {
 	})
 	quiz: Types.ObjectId | Quiz;
 
-	//// User 모델 완성 시 추가
-	// @Prop({
-	// 	type: Types.ObjectId,
-	// 	ref: 'User',
-	// 	required: true,
-	// })
-	// user: Types.ObjectId | User;
+	@Prop({
+		type: Types.ObjectId,
+		ref: 'User',
+		required: true,
+	})
+	owner: Types.ObjectId | User;
 }
 
 export const QuizRecordSchema = SchemaFactory.createForClass(QuizRecord);

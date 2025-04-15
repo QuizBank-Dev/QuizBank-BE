@@ -15,7 +15,8 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiBaseResponse } from 'src/common/decorators/base-response.decorator';
 import { UserId } from 'src/common/decorators/user-id.decorator';
 import { Public } from '../auth/decorator/public.decorator';
-import { reviewBaseExample } from './review.example';
+import { PaginationRequestDto } from 'src/common/dto/pagination.dto';
+import { getReviewListEx } from './review.example';
 
 @Controller({
 	path: 'review',
@@ -32,22 +33,26 @@ export class ReviewController {
 		summary: 'Review 생성',
 		description: '특정 Quizbook에 대한 Review를 생성합니다.',
 	})
-	@ApiBaseResponse(201, '생성 성공', reviewBaseExample)
+	@ApiBaseResponse(201, '생성 성공')
 	createReview(@Body() dto: CreateReviewDto, @UserId() userId: string) {
 		return this.reviewService.createReview(dto, userId);
 	}
 
-	// GET v1/review?quizbookId
+	// GET v1/review/quizbook/:quizbookId
 	// 특정 Quizbook에 대한 Review를 가져온다.
 	@Public()
-	@Get()
+	@Get('/quizbook/:quizbookId')
 	@ApiOperation({
 		summary: 'Review 조회',
 		description: '특정 Quizbook에 대한 모든 Review를 가져옵니다.',
 	})
-	@ApiBaseResponse(200, '조회 성공', [reviewBaseExample])
-	getAllReview(@Query('quizbookId') quizbookId: string) {
-		return this.reviewService.getReviewList(quizbookId);
+	@ApiBaseResponse(200, '조회 성공', getReviewListEx)
+	getReviewList(
+		@Query() dto: PaginationRequestDto,
+		@Param('quizbookId') quizbookId: string,
+		@UserId() userId?: string,
+	) {
+		return this.reviewService.getReviewList(dto, quizbookId, userId);
 	}
 
 	// PATCH v1/review/:reviewId
@@ -57,7 +62,7 @@ export class ReviewController {
 		summary: 'Review 수정',
 		description: '특정 Review를 수정합니다.',
 	})
-	@ApiBaseResponse(200, '수정 성공', reviewBaseExample)
+	@ApiBaseResponse(200, '수정 성공')
 	updateReview(
 		@Param('reviewId') reviewId: string,
 		@Body() dto: UpdateReviewDto,

@@ -20,7 +20,7 @@ export const ApiBaseResponse = (
 	};
 
 	if (example) {
-		baseProperties['data'] = { example };
+		baseProperties['result'] = { example };
 
 		return applyDecorators(
 			ApiExtraModels(BaseResponse),

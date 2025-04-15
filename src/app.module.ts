@@ -15,6 +15,9 @@ import { RefreshTokenMiddleware } from './modules/auth/middleware/refresh-token.
 import { GroupModule } from './modules/group/group.module';
 import { CommentModlue } from './modules/comment/comment.module';
 import { GroupQuizbookModule } from './modules/group/group-quizbook/group-quizbook.module';
+import { LikeModule } from './modules/like/like.module';
+import { StudyModule } from './modules/study/study.module';
+import { StudyLogModule } from './modules/study-log/study-log.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { CategoryModule } from './modules/category/category.module';
 import { FollowModule } from './modules/follow/follow.module';
@@ -34,6 +37,9 @@ import { ChatModule } from './modules/chat/chat.module';
 		GroupModule,
 		CommentModlue,
 		GroupQuizbookModule,
+		LikeModule,
+		StudyModule,
+		StudyLogModule,
 		UploadModule,
 		CategoryModule,
 		FollowModule,

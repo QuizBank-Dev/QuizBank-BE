@@ -6,14 +6,15 @@ import {
 import { Request } from 'express';
 
 export const UserId = createParamDecorator(
-	(data: unknown, context: ExecutionContext) => {
+	(optional: boolean = false, context: ExecutionContext) => {
 		const request = context.switchToHttp().getRequest<Request>();
+		const userId = request?.user?.userId;
 
-		if (!request || !request.user || !request.user.userId)
+		if (!userId && !optional)
 			throw new UnauthorizedException(
 				'인증 정보가 유효하지 않거나 존재하지 않습니다.',
 			);
 
-		return request.user.userId;
+		return userId;
 	},
 );
