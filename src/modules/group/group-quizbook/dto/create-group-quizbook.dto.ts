@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { IsDate, IsNotEmpty } from 'class-validator';
 
 export class CreateGroupQuizbookDto {
@@ -8,5 +9,6 @@ export class CreateGroupQuizbookDto {
 	})
 	@IsDate()
 	@IsNotEmpty()
+	@Type(() => Date)
 	endDate: Date;
 }

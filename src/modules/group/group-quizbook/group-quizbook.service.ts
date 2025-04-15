@@ -80,11 +80,15 @@ export class GroupQuizbookService {
 			if (group.admin._id.toString() !== userId)
 				throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
 
+			// endDate의 시간 부분을 23:59:59.999로 설정
+			const endedAt = new Date(endDate);
+			endedAt.setHours(23, 59, 59, 999);
+
 			// 그룹 선정 문제집 생성
 			const data = {
 				group: toObjectId(groupId),
 				quizbook: toObjectId(quizbookId),
-				endedAt: endDate,
+				endedAt,
 			};
 			const newGroupQuizbook = await this.groupQuizbookRepository.create(
 				data,
@@ -118,8 +122,12 @@ export class GroupQuizbookService {
 		if (group.admin._id.toString() !== userId)
 			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
 
+		// endDate의 시간 부분을 23:59:59.999로 설정
+		const endedAt = new Date(endDate);
+		endedAt.setHours(23, 59, 59, 999);
+
 		await this.groupQuizbookRepository.update(
-			{ endedAt: endDate },
+			{ endedAt },
 			groupId,
 			quizbookId,
 		);
