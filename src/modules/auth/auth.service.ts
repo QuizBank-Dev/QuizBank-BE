@@ -2,18 +2,22 @@ import * as bcrypt from 'bcrypt';
 import { Response } from 'express';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from '../user/dto/create-user.dto';
-import { UserService } from '../user/user.service';
 import { AuthTokenService } from './auth-token/auth-token.service';
+import { UserRepository } from '../user/user.repository';
 import { TokenType } from './auth-token/auth-token.types';
 import { AuthTokenPayloadDto } from './auth-token/dto/auth-token-payload.dto';
 import { AUTH_COOKIE_KEY, AUTH_COOKIE_OPTIONS } from './auth.const';
 import { AuthToken } from './auth.types';
+import { ConfigService } from '@nestjs/config';
+import { envKeys } from '../../config/env.const';
+import { OAuthLoginDto } from '../user/dto/oauth-login.dto';
 
 @Injectable()
 export class AuthService {
 	constructor(
-		private readonly userService: UserService,
+		private readonly configService: ConfigService,
 		private readonly authTokenService: AuthTokenService,
+		private readonly userRepository: UserRepository,
 	) {}
 
 	/**
@@ -21,7 +25,7 @@ export class AuthService {
 	 * @param createUserDto 이메일, 비밀번호, 닉네임
 	 */
 	async register(createUserDto: CreateUserDto) {
-		const alreadySignedUp = await this.userService.findOne({
+		const alreadySignedUp = await this.userRepository.findOne({
 			email: createUserDto.email,
 		});
 
@@ -29,7 +33,15 @@ export class AuthService {
 			throw new ConflictException('이미 가입된 이메일입니다.');
 		}
 
-		const user = await this.userService.create(createUserDto);
+		const hashedPassword: string = await bcrypt.hash(
+			createUserDto.password,
+			this.configService.get<number>(envKeys.SECURITY.HASH_ROUNDS)!,
+		);
+		const user = await this.userRepository.create({
+			...createUserDto,
+			password: hashedPassword,
+		});
+
 		return this.generateToken({ userId: user._id });
 	}
 
@@ -39,7 +51,10 @@ export class AuthService {
 	 * @param password 비밀번호
 	 */
 	async validateUser(email: string, password: string) {
-		const user = await this.userService.findOne({ email }, { password: 1 });
+		const user = await this.userRepository.findOne(
+			{ email },
+			{ password: 1 },
+		);
 
 		return !!user && (await bcrypt.compare(password, user.password))
 			? user
@@ -47,11 +62,38 @@ export class AuthService {
 	}
 
 	/**
+	 * OAuth 로그인(회원가입)
+	 * @param id OAuth 고유 id
+	 * @param nickname 닉네임
+	 * @param profileImg 프로필사진
+	 * @param provider OAuth Provider
+	 */
+	async oauthLogin({ id, nickname, profileImg, provider }: OAuthLoginDto) {
+		const user = await this.userRepository.findOne({
+			email: id,
+			oAuth: provider,
+		});
+
+		// 가입된 정보가 없는 경우 회원 등록
+		if (!user) {
+			const newUser = await this.userRepository.createOAuth({
+				id,
+				nickname,
+				profileImg,
+				provider,
+			});
+			return this.generateToken({ userId: newUser._id });
+		}
+
+		return this.generateToken({ userId: user._id });
+	}
+
+	/**
 	 * 회원 탈퇴
 	 * @param id 해당 사용자의 아이디
 	 */
 	async withdraw(id: string) {
-		await this.userService.delete(id);
+		await this.userRepository.delete(id);
 	}
 
 	/**

@@ -18,6 +18,10 @@ import { GroupQuizbookModule } from './modules/group/group-quizbook/group-quizbo
 import { LikeModule } from './modules/like/like.module';
 import { StudyModule } from './modules/study/study.module';
 import { StudyLogModule } from './modules/study-log/study-log.module';
+import { UploadModule } from './modules/upload/upload.module';
+import { CategoryModule } from './modules/category/category.module';
+import { FollowModule } from './modules/follow/follow.module';
+import { ChatModule } from './modules/chat/chat.module';
 
 @Module({
 	imports: [
@@ -36,6 +40,10 @@ import { StudyLogModule } from './modules/study-log/study-log.module';
 		LikeModule,
 		StudyModule,
 		StudyLogModule,
+		UploadModule,
+		CategoryModule,
+		FollowModule,
+		ChatModule,
 	],
 	providers: [
 		{

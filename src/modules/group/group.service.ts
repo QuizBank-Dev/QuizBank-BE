@@ -4,8 +4,6 @@ import {
 	UnauthorizedException,
 } from '@nestjs/common';
 import { GroupRepository } from './group.repository';
-import { QuizbookRepository } from '../quizbook/quizbook.repository';
-import { GroupQuizbook } from './group-quizbook/schema/group-quizbook.schema';
 import { toObjectId } from 'src/common/utils/database.util';
 import { FilterQuery, Types } from 'mongoose';
 import { CreateGroupDto } from './dto/create-group.dto';
@@ -14,89 +12,73 @@ import { Group } from './schema/group.schema';
 import { AuthTokenService } from '../auth/auth-token/auth-token.service';
 import { TokenType } from '../auth/auth-token/auth-token.types';
 import { InviteTokenPayloadDto } from './dto/invite-token-payload.dto';
-import { Quizbook } from '../quizbook/schema/quizbook.schema';
+import { GroupQuizbookRepository } from './group-quizbook/group-quizbook.repository';
+import { ChatRoomRepository } from '../chat/repository/chat-room.repository';
+import { ReadStatusRepository } from '../chat/repository/read-status.repository';
+import { ChatRoomType } from '../chat/schema/chat-room.schema';
+import { GroupQueryDto } from './dto/group-query.dto';
 
 @Injectable()
 export class GroupService {
 	constructor(
 		private readonly groupRepository: GroupRepository,
-		private readonly quizbookRepository: QuizbookRepository,
 		private readonly databaseService: DatabaseService,
 		private readonly authTokenService: AuthTokenService,
+		private readonly groupQuizbookRepository: GroupQuizbookRepository,
+		private readonly chatRoomRepository: ChatRoomRepository,
+		private readonly readStatusRepository: ReadStatusRepository,
 	) {}
 
-	async makeImminentQuizbook(
-		groupQuizbookList: Types.ObjectId[] | GroupQuizbook[],
-	) {
-		// imminentQuizbook 계산: endedAt이 오늘 이후인 문제집 중 가장 가까운 날짜를 찾음
-		const today = new Date();
-		const year = today.getFullYear();
-		const month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
-		const day = String(today.getDate()).padStart(2, '0');
-		const todayDate = new Date(`${year}-${month}-${day}`);
-		const quizbookList = groupQuizbookList
-			.filter((quizbook: GroupQuizbook) => quizbook.endedAt >= todayDate) // 오늘 이후만 포함
-			.sort(
-				(a: GroupQuizbook, b: GroupQuizbook) =>
-					new Date(a.endedAt).getTime() -
-					new Date(b.endedAt).getTime(),
-			) as GroupQuizbook[];
-
-		let result: { endedAt?: Date } & Partial<Quizbook> = {};
-
-		if (quizbookList.length !== 0) {
-			const targetId = quizbookList[0].quizbook.toString();
-			const targetQuizbook =
-				await this.quizbookRepository.findByIdWithAuthor(targetId);
-
-			if (!targetQuizbook)
-				throw new NotFoundException(
-					`해당 ${targetId} Quizbook을 찾을 수 없습니다.`,
-				);
-
-			result = {
-				...targetQuizbook,
-				endedAt: quizbookList[0].endedAt,
-			};
-		}
-
-		return result;
-	}
-
-	async getAllBelongedGroup(userId: string) {
-		const groupList =
-			await this.groupRepository.findAllBelongedGroupById(userId);
-
-		// 그룹 정보를 변환
-		const transformedGroups = await Promise.all(
-			groupList.map(async (group) => {
-				const {
-					memberList,
-					groupQuizbookList,
-					createdAt,
-					updatedAt,
-					...filteredFields
-				} = group.toObject();
-
-				// 간단히 변수 사용 처리
-				void createdAt;
-				void updatedAt;
-
-				// memberCount 계산
-				const memberCount = memberList.length;
-
-				const imminentQuizbook =
-					await this.makeImminentQuizbook(groupQuizbookList);
-
-				return {
-					...filteredFields,
-					memberCount,
-					imminentQuizbook,
-				};
-			}),
+	async getGroupList(userId: string, query: GroupQueryDto) {
+		const groupList = await this.groupRepository.findGroupList(
+			toObjectId(userId),
+			query,
 		);
 
-		return transformedGroups;
+		const leftCount = await this.groupRepository.findLeftCount(
+			toObjectId(userId),
+			query,
+		);
+
+		// 그룹 정보를 변환
+		const transformedGroups = groupList.map((group) => {
+			const {
+				memberList,
+				applyingUserList,
+				groupQuizbookList,
+				createdAt,
+				updatedAt,
+				...filteredFields
+			} = group.toObject();
+
+			// 간단히 변수 사용 처리
+			void applyingUserList;
+			void groupQuizbookList;
+			void createdAt;
+			void updatedAt;
+
+			// memberCount 계산
+			const memberCount = memberList.length;
+
+			// 소속 여부
+			const targetMemberList = memberList.map((user) => user.toString());
+			const indexOfUser = targetMemberList.indexOf(userId);
+
+			return {
+				...filteredFields,
+				memberCount,
+				is_mine: indexOfUser !== -1,
+			};
+		});
+
+		return {
+			list: transformedGroups,
+			nextCursor:
+				transformedGroups.length > 0
+					? transformedGroups[transformedGroups.length - 1]._id
+					: null,
+			leftCount: leftCount - transformedGroups.length,
+		};
 	}
 
 	async getGroupInfo(userId: string, groupId: string) {
@@ -110,24 +92,41 @@ export class GroupService {
 		const { memberList, groupQuizbookList, updatedAt, ...filteredFields } =
 			group.toObject();
 
+		void groupQuizbookList;
 		void updatedAt;
 
 		if (!memberList.map((user) => user._id.toString()).includes(userId))
 			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
 
-		const imminentQuizbook =
-			await this.makeImminentQuizbook(groupQuizbookList);
-
 		return {
 			...filteredFields,
 			memberList,
-			imminentQuizbook,
 		};
 	}
 
 	async postCreateGroup(userId: string, request: CreateGroupDto) {
 		return this.databaseService.runInDefaultTransaction(async (session) => {
-			const data = { ...request, admin: toObjectId(userId) };
+			// ChatRoom 생성
+			const newChatRoom = await this.chatRoomRepository.create(
+				{ type: ChatRoomType.GROUP, memberList: [toObjectId(userId)] },
+				session,
+			);
+
+			// 그룹장의 ReadStatus 생성
+			await this.readStatusRepository.create(
+				{
+					chatRoom: newChatRoom._id as Types.ObjectId,
+					lastTimestamp: new Date(),
+					member: toObjectId(userId),
+				},
+				session,
+			);
+
+			const data = {
+				...request,
+				admin: toObjectId(userId),
+				chatRoom: newChatRoom._id as Types.ObjectId,
+			};
 
 			const newGroup = await this.groupRepository.create(data, session);
 
@@ -138,8 +137,6 @@ export class GroupService {
 				(newGroup._id as Types.ObjectId).toString(),
 				session,
 			);
-
-			// ChatRoom 생성 코드 추후에 추가.
 
 			return {
 				_id: newGroup._id,
@@ -183,8 +180,33 @@ export class GroupService {
 			if (group.admin._id.toString() !== userId)
 				throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
 
-			// Group에 속한 모든 GroupQuizbook 제거 코드 추후에 추가.
-			// ChatRoom 제거 코드 추후에 추가.
+			await Promise.all(
+				group.groupQuizbookList.map(async (groupQuizbook) => {
+					const deletedGroupQuizbook =
+						await this.groupQuizbookRepository.deleteById(
+							groupQuizbook.toString(),
+							session,
+						);
+
+					if (!deletedGroupQuizbook)
+						throw new NotFoundException(
+							'Group의 해당 선정 문제집을 찾을 수 없습니다.',
+						);
+				}),
+			);
+
+			// 그룹원들의 ReadStatus 제거
+			await this.readStatusRepository.deleteAll(group.chatRoom, session);
+
+			// 그룹의 ChatRoom 제거
+			const deletedChatRoom = await this.chatRoomRepository.delete(
+				group.chatRoom,
+				session,
+			);
+			if (!deletedChatRoom)
+				throw new NotFoundException(
+					`해당 ${group.chatRoom.toString()} ChatRoom을 삭제할 수 없습니다.`,
+				);
 
 			const deletedGroup = await this.groupRepository.delete(
 				groupId,
@@ -196,6 +218,68 @@ export class GroupService {
 					`해당 ${groupId} Group을 삭제할 수 없습니다.`,
 				);
 		});
+	}
+
+	async patchGroupApplying(userId: string, groupId: string) {
+		const group = await this.groupRepository.findById(groupId);
+
+		if (!group)
+			throw new NotFoundException(
+				`해당 ${groupId} Group을 찾을 수 없습니다.`,
+			);
+
+		const targetMemberList = group.memberList.map((user) =>
+			user._id.toString(),
+		);
+		const indexOfNewOwner = targetMemberList.indexOf(userId);
+
+		if (indexOfNewOwner !== -1)
+			throw new UnauthorizedException(
+				`해당 ${userId} 사용자는 이미 그룹에 소속되어 있습니다.`,
+			);
+
+		await this.groupRepository.update(
+			{
+				$addToSet: { applyingUserList: userId },
+			},
+			groupId,
+		);
+	}
+
+	async patchRespondToApplication(
+		userId: string,
+		groupId: string,
+		accepted: boolean,
+	) {
+		const group = await this.groupRepository.findById(groupId);
+
+		if (!group)
+			throw new NotFoundException(
+				`해당 ${groupId} Group을 찾을 수 없습니다.`,
+			);
+
+		const targetApplyingUserList = group.applyingUserList.map((user) =>
+			user._id.toString(),
+		);
+		const indexOfApplyingUser = targetApplyingUserList.indexOf(userId);
+
+		if (indexOfApplyingUser === -1)
+			throw new NotFoundException(
+				`해당 ${userId} 사용자는 그룹에 가입 요청을 하지 않았습니다.`,
+			);
+
+		let filter: FilterQuery<Group>;
+		if (accepted) {
+			filter = {
+				$pull: { applyingUserList: userId },
+				$addToSet: { memberList: userId },
+			};
+		} else {
+			filter = {
+				$pull: { applyingUserList: userId },
+			};
+		}
+		await this.groupRepository.update(filter, groupId);
 	}
 
 	async getInviteUrl(userId: string, groupId: string) {
@@ -225,31 +309,55 @@ export class GroupService {
 	}
 
 	async postCreateGroupMember(userId: string, token: string) {
-		if (await this.authTokenService.isExpiredToken(token)) {
-			throw new UnauthorizedException('인증정보가 올바르지 않습니다.');
-		}
+		await this.databaseService.runInDefaultTransaction(async (session) => {
+			if (await this.authTokenService.isExpiredToken(token)) {
+				throw new UnauthorizedException(
+					'인증정보가 올바르지 않습니다.',
+				);
+			}
 
-		const { groupId } =
-			this.authTokenService.verifyToken<InviteTokenPayloadDto>(
-				TokenType.INVITE,
-				token,
+			const { groupId } =
+				this.authTokenService.verifyToken<InviteTokenPayloadDto>(
+					TokenType.INVITE,
+					token,
+				);
+
+			const group = await this.groupRepository.findById(groupId);
+
+			if (!group)
+				throw new NotFoundException(
+					`해당 ${groupId} Group을 찾을 수 없습니다.`,
+				);
+
+			await this.groupRepository.update(
+				{
+					$addToSet: { memberList: userId }, // 중복 없이 배열에 userId 추가
+				},
+				groupId,
+				session,
 			);
 
-		const group = await this.groupRepository.findById(groupId);
-
-		if (!group)
-			throw new NotFoundException(
-				`해당 ${groupId} Group을 찾을 수 없습니다.`,
+			// 그룹의 ChatRoom에 그룹원 추가
+			await this.chatRoomRepository.update(
+				{
+					$addToSet: { memberList: userId }, // 중복 없이 배열에 userId 추가
+				},
+				group.chatRoom,
+				session,
 			);
 
-		await this.groupRepository.update(
-			{
-				$addToSet: { memberList: userId }, // 중복 없이 배열에 userId 추가
-			},
-			groupId,
-		);
+			// 추가된 그룹원의 ReadStatus 추가
+			await this.readStatusRepository.create(
+				{
+					chatRoom: group.chatRoom,
+					lastTimestamp: new Date(),
+					member: toObjectId(userId),
+				},
+				session,
+			);
 
-		await this.authTokenService.expireToken(token);
+			await this.authTokenService.expireToken(token);
+		});
 	}
 
 	async patchGroupOwner(userId: string, groupId: string, memberId: string) {
@@ -310,19 +418,40 @@ export class GroupService {
 				`해당 ${userId} 사용자를 찾을 수 없습니다.`,
 			);
 
-		let data: Partial<Group> | FilterQuery<Group>;
+		await this.databaseService.runInDefaultTransaction(async (session) => {
+			let data: Partial<Group> | FilterQuery<Group>;
 
-		// 요청자가 그룹장인 경우
-		if (group.admin._id.toString() === userId) {
-			data = {
-				admin: group.memberList[1]._id,
-				$pull: { memberList: userId },
-			};
-		} else {
-			data = { $pull: { memberList: userId } };
-		}
+			// 요청자가 그룹장인 경우
+			if (group.admin._id.toString() === userId) {
+				data = {
+					admin: group.memberList[1]._id,
+					$pull: { memberList: userId },
+				};
+			} else {
+				data = { $pull: { memberList: userId } };
+			}
 
-		await this.groupRepository.update(data, groupId);
+			await this.groupRepository.update(data, groupId, session);
+
+			// 해당 유저의 ReadStatus 삭제
+			const deletedReadStatus = await this.readStatusRepository.delete(
+				toObjectId(userId),
+				session,
+			);
+			if (!deletedReadStatus)
+				throw new NotFoundException(
+					`해당 ${userId} 유저의 ReadStatus를 삭제할 수 없습니다.`,
+				);
+
+			// 그룹의 ChatRoom에 그룹원 삭제
+			await this.chatRoomRepository.update(
+				{
+					$pull: { memberList: userId },
+				},
+				group.chatRoom,
+				session,
+			);
+		});
 	}
 
 	async deleteGroupMember(userId: string, groupId: string, memberId: string) {
@@ -336,9 +465,31 @@ export class GroupService {
 		if (group.admin._id.toString() !== userId)
 			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
 
-		await this.groupRepository.update(
-			{ $pull: { memberList: memberId } },
-			groupId,
-		);
+		await this.databaseService.runInDefaultTransaction(async (session) => {
+			await this.groupRepository.update(
+				{ $pull: { memberList: memberId } },
+				groupId,
+				session,
+			);
+
+			// 해당 유저의 ReadStatus 삭제
+			const deletedReadStatus = await this.readStatusRepository.delete(
+				toObjectId(memberId),
+				session,
+			);
+			if (!deletedReadStatus)
+				throw new NotFoundException(
+					`해당 ${memberId} 유저의 ReadStatus를 삭제할 수 없습니다.`,
+				);
+
+			// 그룹의 ChatRoom에 그룹원 삭제
+			await this.chatRoomRepository.update(
+				{
+					$pull: { memberList: memberId },
+				},
+				group.chatRoom,
+				session,
+			);
+		});
 	}
 }
