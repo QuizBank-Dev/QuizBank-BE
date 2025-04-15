@@ -12,10 +12,10 @@ import { GroupService } from './group.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiBaseResponse } from 'src/common/decorators/base-response.decorator';
 import {
-	allBelongedGroupExample,
 	GroupIdExample,
 	GroupInfoExample,
 	GroupInviteUrlExample,
+	GroupListExample,
 } from './group.example';
 import { UserId } from 'src/common/decorators/user-id.decorator';
 import { CreateGroupDto } from './dto/create-group.dto';
@@ -33,7 +33,7 @@ export class GroupController {
 		summary: '내가 속한 Group 목록 조회',
 		description: '내가 속한 Group 목록을 조회합니다.',
 	})
-	@ApiBaseResponse(HttpStatus.OK, '조회 성공', [allBelongedGroupExample])
+	@ApiBaseResponse(HttpStatus.OK, '조회 성공', GroupListExample)
 	getAllBelongedGroup(@UserId() userId: string) {
 		return this.groupService.getAllBelongedGroup(userId);
 	}

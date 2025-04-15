@@ -18,6 +18,6 @@ export const GroupQuizbookListExample = {
 			endedAt: '2025-04-02',
 		},
 	],
-	nextCursor: '65e8a5d6fc13ae5e7f000002',
+	nextCursor: '2025-04-02',
 	leftCount: 24,
 };
