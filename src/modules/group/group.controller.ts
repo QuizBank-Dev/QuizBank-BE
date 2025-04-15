@@ -7,6 +7,7 @@ import {
 	Param,
 	Patch,
 	Post,
+	Query,
 } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -22,20 +23,21 @@ import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateOwnerDto } from './dto/update-owner.dto';
 import { CreateGroupMemberDto } from './dto/create-group-member.dto';
 import { RespondApplicationDto } from './dto/patch-respond-application.dto';
+import { GroupQueryDto } from './dto/group-query.dto';
 
 @Controller({ path: 'group', version: '1' })
 @ApiTags('Group')
 export class GroupController {
 	constructor(private readonly groupService: GroupService) {}
 
-	@Get('me')
+	@Get()
 	@ApiOperation({
-		summary: '내가 속한 Group 목록 조회',
-		description: '내가 속한 Group 목록을 조회합니다.',
+		summary: 'Group 목록 조회',
+		description: 'Group 목록을 조회합니다.',
 	})
 	@ApiBaseResponse(HttpStatus.OK, '조회 성공', GroupListExample)
-	getAllBelongedGroup(@UserId() userId: string) {
-		return this.groupService.getAllBelongedGroup(userId);
+	getGroupList(@UserId() userId: string, @Query() query: GroupQueryDto) {
+		return this.groupService.getGroupList(userId, query);
 	}
 
 	@Get(':groupId')

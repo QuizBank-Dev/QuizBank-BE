@@ -1,9 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Group } from './schema/group.schema';
-import { ClientSession, FilterQuery, Model } from 'mongoose';
+import { ClientSession, FilterQuery, Model, Types } from 'mongoose';
 import { DB_TYPE } from 'src/database/database.const';
+import { GroupQueryDto } from './dto/group-query.dto';
 import { toObjectId } from 'src/common/utils/database.util';
+
+interface GroupQuery {
+	cursor?: { $lt: Types.ObjectId };
+	memberList?: Types.ObjectId;
+	name?: { $regex: string; $options: string };
+}
 
 @Injectable()
 export class GroupRepository {
@@ -13,11 +20,21 @@ export class GroupRepository {
 	) {}
 
 	/**
-	 * 내가 속한 Group 목록 조회
+	 * Group 목록 조회
 	 */
-	async findAllBelongedGroupById(memberId: string) {
+	async findGroupList(memberId: Types.ObjectId, query: GroupQueryDto) {
+		const { cursor, limit, is_mine, name } = query;
+
+		const filter: GroupQuery = {};
+
+		if (cursor) filter.cursor = { $lt: toObjectId(cursor) };
+		if (is_mine) filter.memberList = memberId;
+		if (name) filter.name = { $regex: name, $options: 'i' };
+
 		return this.groupModel
-			.find({ memberList: toObjectId(memberId) })
+			.find(filter)
+			.sort({ _id: -1 })
+			.limit(limit)
 			.populate([
 				{
 					path: 'admin',
@@ -25,6 +42,21 @@ export class GroupRepository {
 					select: 'nickname profileImg',
 				},
 			]);
+	}
+
+	/**
+	 * Group 전체 개수 동기화를 위한 남은 개수 조회
+	 */
+	async findLeftCount(memberId: Types.ObjectId, query: GroupQueryDto) {
+		const { cursor, is_mine, name } = query;
+
+		const filter: GroupQuery = {};
+
+		if (cursor) filter.cursor = { $lt: toObjectId(cursor) };
+		if (is_mine) filter.memberList = memberId;
+		if (name) filter.name = { $regex: name, $options: 'i' };
+
+		return this.groupModel.countDocuments(filter);
 	}
 
 	/**

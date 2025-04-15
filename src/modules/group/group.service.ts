@@ -16,6 +16,7 @@ import { GroupQuizbookRepository } from './group-quizbook/group-quizbook.reposit
 import { ChatRoomRepository } from '../chat/repository/chat-room.repository';
 import { ReadStatusRepository } from '../chat/repository/read-status.repository';
 import { ChatRoomType } from '../chat/schema/chat-room.schema';
+import { GroupQueryDto } from './dto/group-query.dto';
 
 @Injectable()
 export class GroupService {
@@ -28,39 +29,56 @@ export class GroupService {
 		private readonly readStatusRepository: ReadStatusRepository,
 	) {}
 
-	async getAllBelongedGroup(userId: string) {
-		const groupList =
-			await this.groupRepository.findAllBelongedGroupById(userId);
-
-		// 그룹 정보를 변환
-		const transformedGroups = await Promise.all(
-			groupList.map((group) => {
-				const {
-					memberList,
-					applyingUserList,
-					groupQuizbookList,
-					createdAt,
-					updatedAt,
-					...filteredFields
-				} = group.toObject();
-
-				// 간단히 변수 사용 처리
-				void applyingUserList;
-				void groupQuizbookList;
-				void createdAt;
-				void updatedAt;
-
-				// memberCount 계산
-				const memberCount = memberList.length;
-
-				return {
-					...filteredFields,
-					memberCount,
-				};
-			}),
+	async getGroupList(userId: string, query: GroupQueryDto) {
+		const groupList = await this.groupRepository.findGroupList(
+			toObjectId(userId),
+			query,
 		);
 
-		return transformedGroups;
+		const leftCount = await this.groupRepository.findLeftCount(
+			toObjectId(userId),
+			query,
+		);
+
+		// 그룹 정보를 변환
+		const transformedGroups = groupList.map((group) => {
+			const {
+				memberList,
+				applyingUserList,
+				groupQuizbookList,
+				createdAt,
+				updatedAt,
+				...filteredFields
+			} = group.toObject();
+
+			// 간단히 변수 사용 처리
+			void applyingUserList;
+			void groupQuizbookList;
+			void createdAt;
+			void updatedAt;
+
+			// memberCount 계산
+			const memberCount = memberList.length;
+
+			// 소속 여부
+			const targetMemberList = memberList.map((user) => user.toString());
+			const indexOfUser = targetMemberList.indexOf(userId);
+
+			return {
+				...filteredFields,
+				memberCount,
+				is_mine: indexOfUser !== -1,
+			};
+		});
+
+		return {
+			list: transformedGroups,
+			nextCursor:
+				transformedGroups.length > 0
+					? transformedGroups[transformedGroups.length - 1]._id
+					: null,
+			leftCount: leftCount - transformedGroups.length,
+		};
 	}
 
 	async getGroupInfo(userId: string, groupId: string) {

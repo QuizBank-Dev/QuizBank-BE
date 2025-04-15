@@ -13,7 +13,7 @@ export class GroupQuizbookQueryDto {
 
 	@ApiProperty({
 		description: '불러올 항목 개수',
-		example: '2025-04-02',
+		example: 10,
 	})
 	@IsNotEmpty()
 	@IsNumber()
