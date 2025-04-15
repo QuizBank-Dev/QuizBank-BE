@@ -9,6 +9,7 @@ import { DatabaseModule } from 'src/database/database.module';
 import { AuthTokenModule } from '../auth/auth-token/auth-token.module';
 import { GroupQuizbookModule } from './group-quizbook/group-quizbook.module';
 import { ChatModule } from '../chat/chat.module';
+import { QuizbookModule } from '../quizbook/quizbook.module';
 
 @Module({
 	imports: [
