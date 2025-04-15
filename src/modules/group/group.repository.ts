@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Group } from './schema/group.schema';
 import { ClientSession, FilterQuery, Model } from 'mongoose';
 import { DB_TYPE } from 'src/database/database.const';
+import { toObjectId } from 'src/common/utils/database.util';
 
 @Injectable()
 export class GroupRepository {
@@ -75,5 +76,17 @@ export class GroupRepository {
 	 */
 	async delete(groupId: string, session?: ClientSession) {
 		return this.groupModel.findByIdAndDelete(groupId, { session });
+	}
+
+	/**
+	 * Group 조회
+	 */
+	async findOneById(groupId: string, userId: string) {
+		return await this.groupModel
+			.findOne({
+				_id: groupId,
+				memberList: { $in: [toObjectId(userId)] },
+			})
+			.lean();
 	}
 }
