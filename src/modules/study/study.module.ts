@@ -12,6 +12,8 @@ import { StudyRepository } from './study.repository';
 import { QuizbookModule } from '../quizbook/quizbook.module';
 import { DatabaseModule } from 'src/database/database.module';
 import { LikeModule } from '../like/like.module';
+import { StudyLogModule } from '../study-log/study-log.module';
+import { GroupModule } from '../group/group.module';
 
 @Module({
 	imports: [
@@ -24,6 +26,8 @@ import { LikeModule } from '../like/like.module';
 		),
 		forwardRef(() => QuizbookModule),
 		forwardRef(() => LikeModule),
+		forwardRef(() => StudyLogModule),
+		forwardRef(() => GroupModule),
 		DatabaseModule,
 	],
 	controllers: [StudyController],

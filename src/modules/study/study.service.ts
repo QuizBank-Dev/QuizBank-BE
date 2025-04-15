@@ -1,14 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { StudyRepository } from './study.repository';
 import { SubmitStudyDto } from './dto/submit-study.dto';
-import { QuizbookRepository } from '../quizbook/quizbook.repository';
 import { Types } from 'mongoose';
 import { Quiz, QuizType } from '../quiz/schema/quiz.schema';
 import { DatabaseService } from 'src/database/database.service';
 import { QuizRecord, RoleType } from './schema/quiz-record.schema';
 import { toObjectId } from 'src/common/utils/database.util';
+import { QuizbookRepository } from '../quizbook/quizbook.repository';
 import { LikeRepository } from '../like/like.repository';
-import { Quizbook } from '../quizbook/schema/quizbook.schema';
+import { StudyLogRepository } from '../study-log/study-log.repository';
+import { PaginationRequestDto } from 'src/common/dto/pagination.dto';
+import { GroupRepository } from '../group/group.repository';
 
 @Injectable()
 export class StudyService {
@@ -16,6 +18,8 @@ export class StudyService {
 		private readonly studyRepo: StudyRepository,
 		private readonly quizbookRepo: QuizbookRepository,
 		private readonly likeRepo: LikeRepository,
+		private readonly studyLogRepo: StudyLogRepository,
+		private readonly groupRepo: GroupRepository,
 		private readonly databaseService: DatabaseService,
 	) {}
 
@@ -48,24 +52,33 @@ export class StudyService {
 				);
 
 			// 3. 새로운 QuizRecord 생성
-			for (const { quizId, answer } of answerList) {
-				const quiz = quizbook.quizList.find(
-					(q) => (q._id as Types.ObjectId).toString() === quizId,
-				) as Quiz;
-				if (!quiz) continue;
+			for (const quiz of quizbook.quizList as Quiz[]) {
+				const quizId = (quiz._id as Types.ObjectId).toString();
+
+				const userAnswer = answerList.find(
+					(a) => a.quizId === quizId,
+				)?.answer;
 
 				let score = 0;
-				// OX, 객관식인 경우
-				if (
-					[QuizType.OX, QuizType.MULTIPLE_CHOICE].includes(quiz.type)
-				) {
-					score =
-						quiz.answer === answer
-							? this.getXpByType(quiz.type)
-							: 0;
+
+				if (userAnswer !== undefined) {
+					// OX, 객관식
+					if (
+						[QuizType.OX, QuizType.MULTIPLE_CHOICE].includes(
+							quiz.type,
+						)
+					) {
+						score =
+							quiz.answer === userAnswer
+								? this.getXpByType(quiz.type)
+								: 0;
+					} else {
+						// 주관식, 서술형
+						score = await this.gradeWithAI(quiz, userAnswer);
+					}
 				} else {
-					// 주관식, 서술형인 경우
-					score = await this.gradeWithAI(quiz, answer);
+					// 제출 X
+					score = 0;
 				}
 
 				totalScore += score;
@@ -73,10 +86,11 @@ export class StudyService {
 				const quizRecord = await this.studyRepo.createQuizRecord(
 					{
 						role: RoleType.USER,
-						answer,
+						answer: userAnswer ? userAnswer : ' ',
 						score,
 						quiz: quiz._id as Types.ObjectId,
 						owner: toObjectId(userId),
+						type: quiz.type,
 					},
 					session,
 				);
@@ -122,6 +136,7 @@ export class StudyService {
 			}
 
 			// 6. 사용자의 Study 기록 추가
+			await this.studyLogRepo.upsert(quizRecordList.length, userId);
 		});
 	}
 
@@ -139,35 +154,134 @@ export class StudyService {
 			);
 
 		// 2. 사용자의 Like 리스트 조회
-		const likeDocument = await this.likeRepo.findByOwner(userId);
-		const likedQuizList = new Set(
-			likeDocument?.quizList.map((id) =>
-				(id as Types.ObjectId).toString(),
-			) ?? [],
+		const likedSet = new Set(
+			await this.likeRepo.findQuizLikeIdListByOwner(userId),
 		);
 
 		// 3. 응답 가공
-		const quizRecordList = (
-			quizbookRecord.quizRecordList as QuizRecord[]
-		).map((quizRecord) => ({
-			_id: quizbookRecord._id,
-			quizId: (quizRecord.quiz as Partial<Quiz>)._id,
-			question: (quizRecord.quiz as Partial<Quiz>).question,
-			type: (quizRecord.quiz as Partial<Quiz>).type,
-			score: quizRecord.score,
-			isLiked: likedQuizList.has(
-				(
-					(quizRecord.quiz as Partial<Quiz>)._id as Types.ObjectId
-				).toString(),
-			),
-		}));
+		const quizList = (quizbookRecord.quizRecordList as QuizRecord[]).map(
+			(quizRecord) => ({
+				_id: (quizRecord.quiz as Partial<Quiz>)._id,
+				question: (quizRecord.quiz as Partial<Quiz>).question,
+				type: (quizRecord.quiz as Partial<Quiz>).type,
+				score: quizRecord.score,
+				isLiked: likedSet.has(
+					(
+						(quizRecord.quiz as Partial<Quiz>)._id as Types.ObjectId
+					).toString(),
+				),
+			}),
+		);
 
 		return {
 			quizbook: quizbookRecord.quizbook,
-			quizRecordList,
+			quizList,
 			createdAt: quizbookRecord.createdAt,
 			updatedAt: quizbookRecord.updatedAt,
 		};
+	}
+
+	/**
+	 * 특정 Quiz에 대한 사용자들 답안 조회
+	 */
+	async getQuizRecordOfAnswerList(
+		dto: PaginationRequestDto,
+		quizId: string,
+		userId: string,
+	) {
+		// 1. 사용자의 QuizRecord 조회
+		const quizRecord = await this.studyRepo.findQuizRecordByUser(
+			quizId,
+			userId,
+		);
+
+		// 2. 다른 사용자들의 QuizRecord 조회
+		const result = await this.studyRepo.findQuizRecordListWithPagination(
+			quizId,
+			userId,
+			dto,
+		);
+
+		//3. 응답 가공
+		const answerList = result.data.map((record) => ({
+			answer: record.answer,
+			score: record.score,
+			owner: record.owner,
+		}));
+
+		const data =
+			quizRecord && !dto.cursor
+				? [
+						{
+							answer: quizRecord.answer,
+							score: quizRecord.score,
+							owner: quizRecord.owner,
+						},
+						...answerList,
+					]
+				: answerList;
+
+		return {
+			data,
+			nextCursor: result.nextCursor,
+			totalCount: quizRecord ? result.totalCount + 1 : result.totalCount,
+		};
+	}
+
+	/**
+	 * 특정 Quiz에 대한 Group멤버들의 답안 조회
+	 */
+	async getQuizRecordOfAnswerListByGroup(
+		quizId: string,
+		groupId: string,
+		userId: string,
+	) {
+		const group = await this.groupRepo.findOneById(groupId, userId);
+		if (!group)
+			throw new NotFoundException(
+				`해당 ${groupId}의 Group이 존재하지 않거나 멤버가 아닙니다.`,
+			);
+
+		const result = await this.studyRepo.findQuizRecordListByUserList(
+			quizId,
+			userId,
+			group.memberList,
+		);
+
+		return result.map((record) => {
+			return {
+				answer: record.answer,
+				score: record.score,
+				owner: record.owner,
+			};
+		});
+	}
+
+	/**
+	 * 특정 Quizbook에 대한 Group멤버들의 점수 조회
+	 */
+	async getQuizRecordOfScoreListByGroup(
+		quizbookId: string,
+		groupId: string,
+		userId: string,
+	) {
+		const group = await this.groupRepo.findOneById(groupId, userId);
+		if (!group)
+			throw new NotFoundException(
+				`해당 ${groupId}의 Group이 존재하지 않거나 멤버가 아닙니다.`,
+			);
+
+		const result = await this.studyRepo.findQuizbookRecordListByUserList(
+			quizbookId,
+			group.memberList,
+		);
+
+		return result.map((record) => {
+			return {
+				score: record.score,
+				owner: record.owner,
+			};
+		});
 	}
 
 	/**
@@ -193,7 +307,6 @@ export class StudyService {
 	 */
 	private async gradeWithAI(quiz: Quiz, answer: string): Promise<number> {
 		// 추후 AI 채점 로직으로 대체
-		console.log(quiz.answer, answer);
 		return quiz.answer === answer ? 10 : 0;
 	}
 }

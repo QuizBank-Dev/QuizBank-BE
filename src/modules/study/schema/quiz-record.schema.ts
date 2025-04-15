@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Quiz } from 'src/modules/quiz/schema/quiz.schema';
+import { Quiz, QuizType } from 'src/modules/quiz/schema/quiz.schema';
 import { User } from 'src/modules/user/schema/user.schema';
 
 export enum RoleType {
@@ -15,6 +15,12 @@ export class QuizRecord extends Document {
 		enum: RoleType,
 	})
 	role: RoleType;
+
+	@Prop({
+		required: true,
+		enum: QuizType,
+	})
+	type: QuizType;
 
 	@Prop({
 		required: true,
