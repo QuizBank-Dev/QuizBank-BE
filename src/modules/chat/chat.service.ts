@@ -40,8 +40,9 @@ export class ChatService {
 		);
 
 		return {
-			chats,
-			nextCursor: chats.length > 0 ? chats[0].createdAt : null,
+			chats: chats.reverse(),
+			nextCursor:
+				chats.length > 0 ? chats[chats.length - 1].createdAt : null,
 		};
 	}
 

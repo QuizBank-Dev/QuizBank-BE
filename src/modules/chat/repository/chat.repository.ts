@@ -28,7 +28,7 @@ export class ChatRepository {
 
 		return this.chatModel
 			.find(query)
-			.sort({ createdAt: 1 })
+			.sort({ createdAt: -1 })
 			.limit(take)
 			.populate([
 				{

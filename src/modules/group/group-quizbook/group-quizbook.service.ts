@@ -7,6 +7,7 @@ import { GroupQuizbookRepository } from './group-quizbook.repository';
 import { DatabaseService } from 'src/database/database.service';
 import { GroupRepository } from '../group.repository';
 import { toObjectId } from 'src/common/utils/database.util';
+import { GroupQuizbookQueryDto } from './dto/group-quizbook-query.dto';
 
 @Injectable()
 export class GroupQuizbookService {
@@ -16,7 +17,11 @@ export class GroupQuizbookService {
 		private readonly groupRepository: GroupRepository,
 	) {}
 
-	async getAllGroupQuizbook(userId: string, groupId: string) {
+	async getGroupQuizbookList(
+		userId: string,
+		groupId: string,
+		query: GroupQuizbookQueryDto,
+	) {
 		const group = await this.groupRepository.findById(groupId);
 
 		if (!group)
@@ -32,10 +37,30 @@ export class GroupQuizbookService {
 		if (indexOfNewOwner === -1)
 			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
 
-		const groupQuizbookList =
-			await this.groupQuizbookRepository.findAllGroupQuizbook(groupId);
+		const { cursor, limit, done } = query;
 
-		return groupQuizbookList;
+		const groupQuizbookList =
+			await this.groupQuizbookRepository.findGroupQuizbookList(
+				toObjectId(groupId),
+				new Date(cursor),
+				limit,
+				done,
+			);
+
+		const leftCount = await this.groupQuizbookRepository.findLeftCount(
+			toObjectId(groupId),
+			new Date(cursor),
+			done,
+		);
+
+		return {
+			list: groupQuizbookList,
+			nextCursor:
+				groupQuizbookList.length > 0
+					? groupQuizbookList[groupQuizbookList.length - 1].endedAt
+					: null,
+			leftCount: leftCount - groupQuizbookList.length,
+		};
 	}
 
 	async postCreateGroupQuizbook(
@@ -55,11 +80,15 @@ export class GroupQuizbookService {
 			if (group.admin._id.toString() !== userId)
 				throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
 
+			// endDate의 시간 부분을 23:59:59.999로 설정
+			const endedAt = new Date(endDate);
+			endedAt.setHours(23, 59, 59, 999);
+
 			// 그룹 선정 문제집 생성
 			const data = {
 				group: toObjectId(groupId),
 				quizbook: toObjectId(quizbookId),
-				endedAt: endDate,
+				endedAt,
 			};
 			const newGroupQuizbook = await this.groupQuizbookRepository.create(
 				data,
@@ -93,8 +122,12 @@ export class GroupQuizbookService {
 		if (group.admin._id.toString() !== userId)
 			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
 
+		// endDate의 시간 부분을 23:59:59.999로 설정
+		const endedAt = new Date(endDate);
+		endedAt.setHours(23, 59, 59, 999);
+
 		await this.groupQuizbookRepository.update(
-			{ endedAt: endDate },
+			{ endedAt },
 			groupId,
 			quizbookId,
 		);

@@ -1,10 +1,18 @@
-export const allBelongedGroupExample = {
-	_id: '65e8a5d6fc13ae5e7f000002',
-	name: '서울 강남 cs 공부 스터디',
-	description: '서울에 사는 컴공 취준생들의 cs 공부 스터디 그룹입니다.',
-	admin: {},
-	memberCount: '7',
-	imminentQuizbook: {},
+export const GroupListExample = {
+	list: [
+		{
+			_id: '65e8a5d6fc13ae5e7f000002',
+			name: '서울 강남 cs 공부 스터디',
+			description:
+				'서울에 사는 컴공 취준생들의 cs 공부 스터디 그룹입니다.',
+			admin: {},
+			chatRoom: '65e8a5d6fc13ae5e7f000002',
+			memberCount: '7',
+			is_mine: true,
+		},
+	],
+	nextCursor: '65e8a5d6fc13ae5e7f000002',
+	leftCount: 24,
 };
 
 export const GroupInfoExample = {
@@ -13,7 +21,7 @@ export const GroupInfoExample = {
 	description: '서울에 사는 컴공 취준생들의 cs 공부 스터디 그룹입니다.',
 	admin: {},
 	memberList: [{}],
-	imminentQuizbook: {},
+	applyingUserList: [{}],
 	chatRoom: '65e8a5d6fc13ae5e7f000002',
 	createdAt: '2025-03-30',
 };

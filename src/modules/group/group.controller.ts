@@ -7,34 +7,37 @@ import {
 	Param,
 	Patch,
 	Post,
+	Query,
 } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiBaseResponse } from 'src/common/decorators/base-response.decorator';
 import {
-	allBelongedGroupExample,
 	GroupIdExample,
 	GroupInfoExample,
 	GroupInviteUrlExample,
+	GroupListExample,
 } from './group.example';
 import { UserId } from 'src/common/decorators/user-id.decorator';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateOwnerDto } from './dto/update-owner.dto';
 import { CreateGroupMemberDto } from './dto/create-group-member.dto';
+import { RespondApplicationDto } from './dto/patch-respond-application.dto';
+import { GroupQueryDto } from './dto/group-query.dto';
 
 @Controller({ path: 'group', version: '1' })
 @ApiTags('Group')
 export class GroupController {
 	constructor(private readonly groupService: GroupService) {}
 
-	@Get('me')
+	@Get()
 	@ApiOperation({
-		summary: '내가 속한 Group 목록 조회',
-		description: '내가 속한 Group 목록을 조회합니다.',
+		summary: 'Group 목록 조회',
+		description: 'Group 목록을 조회합니다.',
 	})
-	@ApiBaseResponse(HttpStatus.OK, '조회 성공', [allBelongedGroupExample])
-	getAllBelongedGroup(@UserId() userId: string) {
-		return this.groupService.getAllBelongedGroup(userId);
+	@ApiBaseResponse(HttpStatus.OK, '조회 성공', GroupListExample)
+	getGroupList(@UserId() userId: string, @Query() query: GroupQueryDto) {
+		return this.groupService.getGroupList(userId, query);
 	}
 
 	@Get(':groupId')
@@ -82,6 +85,37 @@ export class GroupController {
 		@Param('groupId') groupId: string,
 	) {
 		await this.groupService.deleteGroup(userId, groupId);
+	}
+
+	@Patch(':groupId/application')
+	@ApiOperation({
+		summary: 'Group 가입 요청',
+		description: 'Group 가입을 요청합니다.',
+	})
+	@ApiBaseResponse(HttpStatus.OK, '요청 성공')
+	async patchGroupApplying(
+		@UserId() userId: string,
+		@Param('groupId') groupId: string,
+	) {
+		await this.groupService.patchGroupApplying(userId, groupId);
+	}
+
+	@Patch(':groupId/application-response')
+	@ApiOperation({
+		summary: 'Group 가입 요청 처리(수락 또는 거절)',
+		description: 'Group 가입 요청을 수락 또는 거절 처리합니다.',
+	})
+	@ApiBaseResponse(HttpStatus.OK, '처리 성공')
+	async patchRespondToApplication(
+		@UserId() userId: string,
+		@Param('groupId') groupId: string,
+		@Body() request: RespondApplicationDto,
+	) {
+		await this.groupService.patchRespondToApplication(
+			userId,
+			groupId,
+			request.accepted,
+		);
 	}
 
 	@Get(':groupId/invitation')
