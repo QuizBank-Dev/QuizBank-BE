@@ -41,6 +41,9 @@ export class Quizbook extends Document {
 	@Prop({ default: 0 })
 	reviewScore: number;
 
+	@Prop({ default: 0 })
+	reviewRating: number;
+
 	@Prop({
 		type: Types.ObjectId,
 		ref: 'User',

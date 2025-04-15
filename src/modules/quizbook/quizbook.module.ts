@@ -7,6 +7,8 @@ import { DB_TYPE } from 'src/database/database.const';
 import { QuizbookRepository } from './quizbook.repository';
 import { QuizModule } from '../quiz/quiz.module';
 import { DatabaseModule } from 'src/database/database.module';
+import { LikeModule } from '../like/like.module';
+import { StudyModule } from '../study/study.module';
 
 @Module({
 	imports: [
@@ -15,6 +17,8 @@ import { DatabaseModule } from 'src/database/database.module';
 			DB_TYPE.DEFAULT,
 		),
 		forwardRef(() => QuizModule),
+		forwardRef(() => LikeModule),
+		forwardRef(() => StudyModule),
 		DatabaseModule,
 	],
 	controllers: [QuizbookController],
