@@ -4,6 +4,8 @@ import { Review } from './schema/review.schema';
 import { DB_TYPE } from 'src/database/database.const';
 import { ClientSession, isValidObjectId, Model } from 'mongoose';
 import { toObjectId } from 'src/common/utils/database.util';
+import { PaginationRequestDto } from 'src/common/dto/pagination.dto';
+import { pagination } from 'src/common/utils/pagination.util';
 
 @Injectable()
 export class ReviewRepository {
@@ -23,33 +25,48 @@ export class ReviewRepository {
 	 * 특정 Quizbook의 모든 Review 조회
 	 * (비로그인 사용자)
 	 */
-	async findAll(quizbookId: string) {
-		return this.reviewModel
-			.find({ quizbook: toObjectId(quizbookId) })
-			.sort({ createdAt: -1 })
-			.populate({
+	async findListWithPagination(
+		quizbookId: string,
+		{ cursor, limit }: PaginationRequestDto,
+	) {
+		return pagination({
+			model: this.reviewModel,
+			cursor,
+			limit,
+			filter: { quizbook: toObjectId(quizbookId) },
+			populate: {
 				path: 'author',
 				model: 'User',
 				select: 'nickname profileImg',
-			});
+			},
+			sortOption: { _id: -1 },
+		});
 	}
 
 	/**
 	 * 특정 Quizbook의 모든 Review 조회
 	 * (사용자 제외)
 	 */
-	async findAllWithoutUser(quizbookId: string, userId: string) {
-		return this.reviewModel
-			.find({
+	async findListWithoutUserWithPagination(
+		quizbookId: string,
+		userId: string,
+		{ cursor, limit }: PaginationRequestDto,
+	) {
+		return pagination({
+			model: this.reviewModel,
+			filter: {
 				quizbook: toObjectId(quizbookId),
 				author: { $ne: toObjectId(userId) },
-			})
-			.sort({ createdAt: -1 })
-			.populate({
+			},
+			cursor,
+			limit,
+			sortOption: { _id: -1 },
+			populate: {
 				path: 'author',
 				model: 'User',
 				select: 'nickname profileImg',
-			});
+			},
+		});
 	}
 
 	/**

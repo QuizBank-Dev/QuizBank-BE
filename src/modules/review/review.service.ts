@@ -1,7 +1,5 @@
 import {
 	ConflictException,
-	forwardRef,
-	Inject,
 	Injectable,
 	NotFoundException,
 } from '@nestjs/common';
@@ -12,12 +10,12 @@ import { QuizbookRepository } from '../quizbook/quizbook.repository';
 import { ReviewRepository } from './review.repository';
 import { DatabaseService } from 'src/database/database.service';
 import { toObjectId } from 'src/common/utils/database.util';
+import { PaginationRequestDto } from 'src/common/dto/pagination.dto';
 
 @Injectable()
 export class ReviewService {
 	constructor(
 		private readonly databaseService: DatabaseService,
-		@Inject(forwardRef(() => QuizbookRepository))
 		private readonly quizbookRepo: QuizbookRepository,
 		private readonly reviewRepo: ReviewRepository,
 	) {}
@@ -43,24 +41,41 @@ export class ReviewService {
 				author: toObjectId(userId),
 			});
 
-			// 3. Quizbook의 Review 관련 필드 업데이트
+			// 3. 기존 Quizbook 정보 조회
+			const quizbook = await this.quizbookRepo.findById(dto.quizbookId);
+
+			if (!quizbook)
+				throw new NotFoundException(
+					`해당 ${dto.quizbookId} Quizbook을 찾을 수 없습니다.`,
+				);
+
+			const reviewCount = quizbook.reviewCount + 1;
+			const reviewScore = quizbook.reviewScore + review.score;
+			const reviewRating = parseFloat(
+				(reviewScore / reviewCount).toFixed(1),
+			);
+
+			// 4. Quizbook의 Review 관련 필드 업데이트
 			await this.quizbookRepo.updateStats(
 				{
-					$inc: {
-						reviewCount: +1,
-						reviewScore: +review.score,
+					$set: {
+						reviewCount,
+						reviewScore,
+						reviewRating,
 					},
 				},
 				dto.quizbookId,
 				session,
 			);
-
-			return review;
 		});
 	}
 
 	// 모든 Review 조회
-	async getReviewList(quizbookId: string, userId?: string) {
+	async getReviewList(
+		dto: PaginationRequestDto,
+		quizbookId: string,
+		userId?: string,
+	) {
 		// 1. Quizbook 유/무 확인
 		const existingQuizbook = await this.quizbookRepo.exists(quizbookId);
 
@@ -71,16 +86,31 @@ export class ReviewService {
 
 		// 2. 인증된 사용자인 경우
 		if (userId) {
-			const [userReview, otherReview] = await Promise.all([
+			const [userReview, pagedOthers] = await Promise.all([
 				this.reviewRepo.findByUser(quizbookId, userId),
-				this.reviewRepo.findAllWithoutUser(quizbookId, userId),
+				this.reviewRepo.findListWithoutUserWithPagination(
+					quizbookId,
+					userId,
+					dto,
+				),
 			]);
 
-			return userReview ? [userReview, ...otherReview] : otherReview;
+			const data =
+				userReview && !dto.cursor
+					? [userReview, ...pagedOthers.data]
+					: pagedOthers.data;
+
+			return {
+				data,
+				nextCursor: pagedOthers.nextCursor,
+				totalCount: userReview
+					? pagedOthers.totalCount + 1
+					: pagedOthers.totalCount,
+			};
 		}
 
 		// 3. 미인증인 경우
-		return this.reviewRepo.findAll(quizbookId);
+		return this.reviewRepo.findListWithPagination(quizbookId, dto);
 	}
 
 	// 특정 Review 수정
@@ -94,32 +124,41 @@ export class ReviewService {
 			);
 
 		const quizbookId = (review.quizbook as Types.ObjectId).toString();
-		const prevScore = review.score;
+
+		// 2. 기존 Quizbook 정보 조회
+		const quizbook = await this.quizbookRepo.findById(quizbookId);
+		if (!quizbook)
+			throw new NotFoundException(
+				`해당 ${quizbookId} Quizbook을 찾을 수 없습니다.`,
+			);
+
+		const scoreDiff =
+			dto.score !== undefined && dto.score !== null
+				? dto.score - review.score
+				: 0;
+		const reviewScore = quizbook.reviewScore + scoreDiff;
+		const reviewCount = quizbook.reviewCount;
+		const reviewRating =
+			reviewCount === 0
+				? 0
+				: parseFloat((reviewScore / reviewCount).toFixed(1));
 
 		// 트랜잭션 적용
 		return this.databaseService.runInDefaultTransaction(async (session) => {
-			// 2. Review 업데이트
-			const updatedReview = await this.reviewRepo.update(
-				dto,
-				reviewId,
-				userId,
-				session,
-			);
+			// 3. Review 업데이트
+			await this.reviewRepo.update(dto, reviewId, userId, session);
 
-			// 3. Quizbook의 Review 관련 필드 업데이트
-			const scoreDiff =
-				dto.score !== undefined && dto.score !== null
-					? dto.score - prevScore
-					: 0;
+			// 4. Quizbook의 Review 관련 필드 업데이트
 			await this.quizbookRepo.updateStats(
 				{
-					$inc: { reviewScore: scoreDiff },
+					$set: {
+						reviewScore,
+						reviewRating,
+					},
 				},
 				quizbookId,
 				session,
 			);
-
-			return updatedReview;
 		});
 	}
 
@@ -133,6 +172,22 @@ export class ReviewService {
 				`해당 ${reviewId} Review를 찾을 수 없거나 author이 아닙니다.`,
 			);
 
+		// 2. 기존 Quizbook 정보 조회
+		const quizbookId = (review.quizbook as Types.ObjectId).toString();
+		const quizbook = await this.quizbookRepo.findById(quizbookId);
+
+		if (!quizbook)
+			throw new NotFoundException(
+				`해당 ${quizbookId} Quizbook을 찾을 수 없습니다.`,
+			);
+
+		const reviewCount = quizbook.reviewCount - 1;
+		const reviewScore = quizbook.reviewScore - review.score;
+		const reviewRating =
+			reviewCount === 0
+				? 0
+				: parseFloat((reviewScore / reviewCount).toFixed(1));
+
 		// 트랜잭션 적용
 		return this.databaseService.runInDefaultTransaction(async (session) => {
 			// 2. Review 삭제
@@ -141,9 +196,10 @@ export class ReviewService {
 			// 3. Quizbook의 Review 관련 필드 업데이트
 			await this.quizbookRepo.updateStats(
 				{
-					$inc: {
-						reviewCount: -1,
-						reviewScore: -review.score,
+					$set: {
+						reviewCount,
+						reviewScore,
+						reviewRating,
 					},
 				},
 				(review.quizbook as Types.ObjectId).toString(),
