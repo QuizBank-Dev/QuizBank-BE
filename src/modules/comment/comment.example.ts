@@ -1,35 +1,79 @@
-export const commentBaseExample = {
-	_id: '67e6f592d6648a01149e94f1',
-	depth: 0,
-	content: '이 문제 좀 이상하지 않나요?',
-	quiz: '67e5ab5f60f22ad560ddac5b',
-	replies: [],
-	author: '67e2e20e5872c849d5dd4b86',
+export const updateCommentEx = {
+	_id: '67fe3f484d188f97d2aec4cf',
+	content: 'Comment 수정 테스트',
+	quiz: '67fdc5ac1e49a2871aeb6651',
+	author: '67fe18f8bb486fc72e9a8004',
+	createdAt: '2025-04-15T11:13:12.456Z',
+	updatedAt: '2025-04-15T11:23:01.730Z',
+	__v: 0,
 };
 
-export const commentPreviewExample = {
-	...commentBaseExample,
-	author: {
-		profileImg: '',
-		_id: '67e2e20e5872c849d5dd4b86',
-		nickname: 'test계정',
-	},
-};
-
-export const commentDetailExample = {
-	...commentBaseExample,
-	replies: [
+export const getCommentListEx = {
+	data: [
 		{
-			_id: '67e6f592d6648a01149e94f2',
-			depth: 1,
-			content: '그러게요. 제 생각도 그렇습니다.',
-			quiz: '67e5ab5f60f22ad560ddac5b',
-			replies: [],
+			_id: '67fdc72a1e49a2871aeb66cd',
+			content: 'Comment 수정 테스트',
+			quiz: '67fdc5ac1e49a2871aeb6651',
 			author: {
-				profileImg: '',
-				_id: '67e2e20e5872c849d5dd4b87',
-				nickname: 'test계정(2)',
+				_id: '67e2e20e5872c849d5dd4b86',
+				nickname: 'test계정',
 			},
+			createdAt: '2025-04-15T02:40:42.805Z',
+			updatedAt: '2025-04-15T02:41:30.812Z',
+			__v: 0,
+			recommentCount: 6,
 		},
 	],
+	nextCursor: null,
+	totalCount: 1,
+};
+
+export const getMyCommentEx = {
+	data: [
+		{
+			_id: '67fe3f484d188f97d2aec4cf',
+			content: '대댓글 테스트7',
+			quiz: '67fdc5ac1e49a2871aeb6651',
+			author: '67fe18f8bb486fc72e9a8004',
+			createdAt: '2025-04-15T11:13:12.456Z',
+			updatedAt: '2025-04-15T11:13:12.456Z',
+			__v: 0,
+		},
+	],
+	nextCursor: null,
+	totalCount: 1,
+};
+
+export const getCommentDetailEx = {
+	comment: {
+		_id: '67fdc72a1e49a2871aeb66cd',
+		content: 'Comment 수정 테스트',
+		quiz: '67fdc5ac1e49a2871aeb6651',
+		author: {
+			_id: '67e2e20e5872c849d5dd4b86',
+			nickname: 'test계정',
+		},
+		createdAt: '2025-04-15T02:40:42.805Z',
+		updatedAt: '2025-04-15T02:41:30.812Z',
+		__v: 0,
+	},
+	recomment: {
+		data: [
+			{
+				_id: '67fdc8c61e49a2871aeb670f',
+				parent: '67fdc72a1e49a2871aeb66cd',
+				content: '대댓글 테스트6',
+				quiz: '67fdc5ac1e49a2871aeb6651',
+				author: {
+					_id: '67e2e20e5872c849d5dd4b86',
+					nickname: 'test계정',
+				},
+				createdAt: '2025-04-15T02:47:34.588Z',
+				updatedAt: '2025-04-15T02:47:34.588Z',
+				__v: 0,
+			},
+		],
+		nextCursor: null,
+		totalCount: 1,
+	},
 };

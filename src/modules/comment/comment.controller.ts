@@ -15,10 +15,12 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { ApiOperation } from '@nestjs/swagger';
 import { ApiBaseResponse } from 'src/common/decorators/base-response.decorator';
 import {
-	commentBaseExample,
-	commentDetailExample,
-	commentPreviewExample,
+	getCommentDetailEx,
+	getCommentListEx,
+	getMyCommentEx,
+	updateCommentEx,
 } from './comment.example';
+import { PaginationRequestDto } from 'src/common/dto/pagination.dto';
 
 @Controller({
 	path: 'comment',
@@ -35,21 +37,24 @@ export class CommentController {
 		description:
 			'특정 Quiz에 대한 Comment를 생성합니다. (commentId 전달시 ReComment로 인식)',
 	})
-	@ApiBaseResponse(201, '생성 성공', commentBaseExample)
+	@ApiBaseResponse(201, '생성 성공')
 	createComment(@Body() dto: CreateCommentDto, @UserId() userId: string) {
 		return this.commentService.createComment(dto, userId);
 	}
 
-	// GET v1/comment?quizId
+	// GET v1/comment/quiz/:quizId
 	// 특정 Quiz에 대한 모든 Comment를 가져온다.
-	@Get()
+	@Get('quiz/:quizId')
 	@ApiOperation({
 		summary: 'Comment 조회',
 		description: '특정 Quiz에 대한 최상위 Comment를 가져옵니다.',
 	})
-	@ApiBaseResponse(200, '조회 성공', [commentPreviewExample])
-	getAllCommentByQuizId(@Query('quizId') quizId: string) {
-		return this.commentService.getCommentList(quizId);
+	@ApiBaseResponse(200, '조회 성공', getCommentListEx)
+	getCommentList(
+		@Query() dto: PaginationRequestDto,
+		@Param('quizId') quizId: string,
+	) {
+		return this.commentService.getCommentList(dto, quizId);
 	}
 
 	// GET v1/comment/me
@@ -59,22 +64,25 @@ export class CommentController {
 		summary: '사용자가 작성한 모든 Comment 조회',
 		description: '사용자가 작성한 모든 Comment를 가져옵니다.',
 	})
-	@ApiBaseResponse(200, '조회 성공', [commentPreviewExample])
-	getAllCommentByUserId(@UserId() userId: string) {
-		return this.commentService.getCommentListByUserId(userId);
+	@ApiBaseResponse(200, '조회 성공', getMyCommentEx)
+	getMyComment(@Query() dto: PaginationRequestDto, @UserId() userId: string) {
+		return this.commentService.getCommentListByUser(dto, userId);
 	}
 
 	// GET v1/comment/:commentId
-	// 특정 Comment의 상세정보(ReComment포함)를 가져온다.
+	// 특정 Comment의 상세정보(Recomment포함)를 가져온다.
 	@Get(':commentId')
 	@ApiOperation({
 		summary: '특정 Comment 상세정보 조회',
 		description:
-			'특정 Comment의 상세정보를 가져옵니다. (replies 정보 포함)',
+			'특정 Comment의 상세정보를 가져옵니다. (recomment 정보 포함)',
 	})
-	@ApiBaseResponse(200, '조회 성공', commentDetailExample)
-	getCommentById(@Param('commentId') commentId: string) {
-		return this.commentService.getCommentDetail(commentId);
+	@ApiBaseResponse(200, '조회 성공', getCommentDetailEx)
+	getCommentDetail(
+		@Query() dto: PaginationRequestDto,
+		@Param('commentId') commentId: string,
+	) {
+		return this.commentService.getCommentDetail(dto, commentId);
 	}
 
 	// PATCH v1/comment/:commentId
@@ -84,7 +92,7 @@ export class CommentController {
 		summary: 'Comment 수정',
 		description: '특정 Comment를 수정합니다.',
 	})
-	@ApiBaseResponse(200, '수정 성공', commentBaseExample)
+	@ApiBaseResponse(200, '수정 성공', updateCommentEx)
 	updateComment(
 		@Param('commentId') commentId: string,
 		@Body() dto: UpdateCommentDto,
@@ -99,7 +107,7 @@ export class CommentController {
 	@ApiOperation({
 		summary: 'Comment 삭제',
 		description:
-			'특정 Comment를 삭제합니다. (replies ? Soft Delete : Hard Delete)',
+			'특정 Comment를 삭제합니다. (recomment ? Soft Delete : Hard Delete)',
 	})
 	@ApiBaseResponse(200, '삭제 성공')
 	deleteComment(
