@@ -1,17 +1,28 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Like, LikeSchema } from './schema/like.schema';
 import { DB_TYPE } from 'src/database/database.const';
 import { LikeController } from './like.controller';
 import { LikeService } from './like.service';
 import { LikeRepository } from './like.repository';
+import {
+	QuizbookLike,
+	QuizbookLikeSchema,
+} from './schema/quizbook-like.schema';
+import { QuizLike, QuizLikeSchema } from './schema/quiz-like.schema';
+import { QuizbookModule } from '../quizbook/quizbook.module';
+import { QuizModule } from '../quiz/quiz.module';
 
 @Module({
 	imports: [
 		MongooseModule.forFeature(
-			[{ name: Like.name, schema: LikeSchema }],
+			[
+				{ name: QuizbookLike.name, schema: QuizbookLikeSchema },
+				{ name: QuizLike.name, schema: QuizLikeSchema },
+			],
 			DB_TYPE.DEFAULT,
 		),
+		forwardRef(() => QuizbookModule),
+		forwardRef(() => QuizModule),
 	],
 	controllers: [LikeController],
 	providers: [LikeService, LikeRepository],
