@@ -2,7 +2,7 @@ import { Controller, Get, Param } from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiBaseResponse } from 'src/common/decorators/base-response.decorator';
-import { quizBaseExample } from './quiz.example';
+import { quizBaseEx } from './quiz.example';
 
 @Controller({
 	path: 'quiz',
@@ -19,7 +19,7 @@ export class QuizController {
 		summary: 'Quiz 조회',
 		description: '특정 Quiz를 가져옵니다.',
 	})
-	@ApiBaseResponse(200, '조회 성공', quizBaseExample)
+	@ApiBaseResponse(200, '조회 성공', quizBaseEx)
 	getQuizById(@Param('quizId') quizId: string) {
 		return this.quizService.getQuizDetail(quizId);
 	}
