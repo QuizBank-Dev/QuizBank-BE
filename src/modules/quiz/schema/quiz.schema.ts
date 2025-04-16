@@ -23,6 +23,18 @@ export class Quiz extends Document {
 		type: [String],
 	})
 	optionList?: string[];
+
+	@Prop({
+		type: [String],
+		default: [],
+	})
+	similarList: string[];
+
+	@Prop({
+		type: [String],
+		default: [],
+	})
+	wrongList: string[];
 }
 
 export const QuizSchema = SchemaFactory.createForClass(Quiz);
