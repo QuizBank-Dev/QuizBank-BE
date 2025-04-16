@@ -12,12 +12,6 @@ export enum RoleType {
 export class QuizRecord extends Document {
 	@Prop({
 		required: true,
-		enum: RoleType,
-	})
-	role: RoleType;
-
-	@Prop({
-		required: true,
 		enum: QuizType,
 	})
 	type: QuizType;
