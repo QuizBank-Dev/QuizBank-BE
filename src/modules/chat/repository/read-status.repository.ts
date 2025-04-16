@@ -64,9 +64,13 @@ export class ReadStatusRepository {
 	/**
 	 * 특정 그룹원의 ReadStatus 삭제
 	 */
-	async delete(userId: Types.ObjectId, session?: ClientSession) {
+	async delete(
+		userId: Types.ObjectId,
+		chatRoomId: Types.ObjectId,
+		session?: ClientSession,
+	) {
 		return this.readStatusModel.findOneAndDelete(
-			{ member: userId },
+			{ member: userId, chatRoom: chatRoomId },
 			{ session },
 		);
 	}
