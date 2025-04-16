@@ -22,7 +22,7 @@ jobs:
                   stage: main
                   yaml: |
                       name: quizbank-be
-                      app: node@16
+                      app: node@22
                       options:
                         env:
                           - name: ENV
@@ -49,6 +49,22 @@ jobs:
                             secret: MAILER_PASS
                           - name: INVITE_TOKEN_SECRET
                             secret: INVITE_TOKEN_SECRET
+                          - name: CLOUDFLARE_R2_ACCESS_KEY
+                            secret: CLOUDFLARE_R2_ACCESS_KEY
+                          - name: CLOUDFLARE_R2_SECRET_KEY
+                            secret: CLOUDFLARE_R2_SECRET_KEY
+                          - name: CLOUDFLARE_R2_ENDPOINT
+                            secret: CLOUDFLARE_R2_ENDPOINT
+                          - name: CLOUDFLARE_R2_BUCKET
+                            secret: CLOUDFLARE_R2_BUCKET
+                          - name: CLOUDFLARE_R2_REGION
+                            secret: CLOUDFLARE_R2_REGION
+                          - name: CLOUDFLARE_R2_PUBLIC_URL
+                            secret: CLOUDFLARE_R2_PUBLIC_URL
+                          - name: OAUTH_GITHUB_CLIENT_ID
+                            secret: OAUTH_GITHUB_CLIENT_ID
+                          - name: OAUTH_GITHUB_CLIENT_SECRET
+                            secret: OAUTH_GITHUB_CLIENT_SECRET
                         ports: 3000
                         build: pnpm build
                         start: pnpm start:prod
