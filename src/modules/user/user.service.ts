@@ -33,22 +33,15 @@ export class UserService {
 	}
 
 	/**
-	 * 유저의 정보, 학습 현황, 해당 유저가 만든 문제집 목록 조회
+	 * 다른 유저의 정보 조회
 	 * @param userId
 	 */
-	async getUserAndStudy(userId: string) {
+	async getOtherUser(userId: string) {
 		const user = await this.userRepository.findById(userId);
 
 		if (!user) {
 			throw new NotFoundException('해당 유저를 찾을 수 없습니다.');
 		}
-
-		// 엔드포인트가 따로 파진 관계로 주석 처리 했습니다.
-		// TODO userId로 해당 유저의 quizbook, record 가져오는 서비스
-		// const [quizbook, record] = await Promise.all([
-		// 	new Promise<string[]>((resolve) => resolve([])),
-		// 	new Promise<string[]>((resolve) => resolve([])),
-		// ]);
 
 		return {
 			_id: user._id,
@@ -57,9 +50,6 @@ export class UserService {
 			introduce: user.introduce,
 			experience: user.experience,
 			follower: user.follower,
-			// 엔드포인트가 따로 파진 관계로 주석 처리 했습니다.
-			// quizbook,
-			// record,
 		};
 	}
 

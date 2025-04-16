@@ -35,12 +35,11 @@ export class UserController {
 	@Get(':id')
 	@ApiOperation({
 		summary: '다른 사용자 정보',
-		description:
-			'다른 사용자의 정보, 학습현황, 문제집리스트(일부)를 가져옵니다.',
+		description: '다른 사용자의 정보를 가져옵니다.',
 	})
 	@ApiBaseResponse(200, '조회 성공', otherExample)
 	async other(@Param('id') id: string) {
-		return await this.userService.getUserAndStudy(id);
+		return await this.userService.getOtherUser(id);
 	}
 
 	@Patch('me')
