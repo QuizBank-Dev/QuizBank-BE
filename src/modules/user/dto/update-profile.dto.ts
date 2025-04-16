@@ -1,5 +1,6 @@
 import { IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Express } from 'express';
 
 export class UpdateProfileDto {
 	@ApiProperty({
@@ -25,5 +26,5 @@ export class UpdateProfileDto {
 		format: 'binary',
 	})
 	@IsOptional()
-	profileImg?: File;
+	profileImg?: Express.Multer.File;
 }
