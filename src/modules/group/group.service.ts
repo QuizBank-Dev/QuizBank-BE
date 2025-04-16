@@ -436,6 +436,7 @@ export class GroupService {
 			// 해당 유저의 ReadStatus 삭제
 			const deletedReadStatus = await this.readStatusRepository.delete(
 				toObjectId(userId),
+				group.chatRoom,
 				session,
 			);
 			if (!deletedReadStatus)
@@ -475,6 +476,7 @@ export class GroupService {
 			// 해당 유저의 ReadStatus 삭제
 			const deletedReadStatus = await this.readStatusRepository.delete(
 				toObjectId(memberId),
+				group.chatRoom,
 				session,
 			);
 			if (!deletedReadStatus)
