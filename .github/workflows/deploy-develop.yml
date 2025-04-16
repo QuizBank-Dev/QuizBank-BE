@@ -22,7 +22,7 @@ jobs:
                   stage: main
                   yaml: |
                       name: quizbank-be
-                      app: node@16
+                      app: node@22
                       options:
                         env:
                           - name: ENV
