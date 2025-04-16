@@ -51,12 +51,12 @@ export class FollowController {
 		description: '타겟 사용자를 팔로우 취소합니다.',
 	})
 	@ApiBaseResponse(200, '취소 성공')
-	removeFollow(
+	async removeFollow(
 		@UserId() userId: string,
 		@Param('targetId', IsObjectIdPipe) targetId: string,
 		@Query() { type }: RemoveFollowQueryDto,
 	) {
-		return this.followService.removeFollow(
+		await this.followService.removeFollow(
 			userId,
 			targetId,
 			type || FollowType.FOLLOWER,

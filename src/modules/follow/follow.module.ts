@@ -7,5 +7,6 @@ import { UserModule } from '../user/user.module';
 	imports: [UserModule],
 	controllers: [FollowController],
 	providers: [FollowService],
+	exports: [FollowService],
 })
 export class FollowModule {}
