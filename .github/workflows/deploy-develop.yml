@@ -65,6 +65,10 @@ jobs:
                             secret: OAUTH_GITHUB_CLIENT_ID
                           - name: OAUTH_GITHUB_CLIENT_SECRET
                             secret: OAUTH_GITHUB_CLIENT_SECRET
+                          - name: GEMINI_API_URL
+                            secret: GEMINI_API_URL
+                          - name: GEMINI_API_KEY
+                            secret: GEMINI_API_KEY
                         ports: 3000
                         build: pnpm build
                         start: pnpm start:prod
