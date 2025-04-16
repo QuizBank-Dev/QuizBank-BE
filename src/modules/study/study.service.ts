@@ -4,7 +4,7 @@ import { SubmitStudyDto } from './dto/submit-study.dto';
 import { ClientSession, Types } from 'mongoose';
 import { Quiz, QuizType } from '../quiz/schema/quiz.schema';
 import { DatabaseService } from 'src/database/database.service';
-import { QuizRecord, RoleType } from './schema/quiz-record.schema';
+import { QuizRecord } from './schema/quiz-record.schema';
 import { toObjectId } from 'src/common/utils/database.util';
 import { QuizbookRepository } from '../quizbook/quizbook.repository';
 import { LikeRepository } from '../like/like.repository';
