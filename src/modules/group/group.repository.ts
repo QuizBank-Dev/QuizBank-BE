@@ -8,7 +8,7 @@ import { toObjectId } from 'src/common/utils/database.util';
 
 interface GroupQuery {
 	cursor?: { $lt: Types.ObjectId };
-	memberList?: Types.ObjectId;
+	memberList?: { $in: [Types.ObjectId] };
 	name?: { $regex: string; $options: string };
 }
 
@@ -28,7 +28,7 @@ export class GroupRepository {
 		const filter: GroupQuery = {};
 
 		if (cursor) filter.cursor = { $lt: toObjectId(cursor) };
-		if (is_mine) filter.memberList = memberId;
+		if (is_mine) filter.memberList = { $in: [memberId] };
 		if (name) filter.name = { $regex: name, $options: 'i' };
 
 		return this.groupModel
@@ -53,7 +53,7 @@ export class GroupRepository {
 		const filter: GroupQuery = {};
 
 		if (cursor) filter.cursor = { $lt: toObjectId(cursor) };
-		if (is_mine) filter.memberList = memberId;
+		if (is_mine) filter.memberList = { $in: [memberId] };
 		if (name) filter.name = { $regex: name, $options: 'i' };
 
 		return this.groupModel.countDocuments(filter);
