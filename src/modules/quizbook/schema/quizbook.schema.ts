@@ -35,6 +35,9 @@ export class Quizbook extends Document {
 	@Prop({ default: 0 })
 	solvedScore: number;
 
+	@Prop({ required: true })
+	totalScore: number;
+
 	@Prop({ default: 0 })
 	reviewCount: number;
 
