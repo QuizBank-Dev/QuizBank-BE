@@ -14,6 +14,8 @@ import { DatabaseModule } from 'src/database/database.module';
 import { LikeModule } from '../like/like.module';
 import { StudyLogModule } from '../study-log/study-log.module';
 import { GroupModule } from '../group/group.module';
+import { AIModule } from '../ai/ai.module';
+import { QuizModule } from '../quiz/quiz.module';
 
 @Module({
 	imports: [
@@ -24,10 +26,12 @@ import { GroupModule } from '../group/group.module';
 			],
 			DB_TYPE.DEFAULT,
 		),
+		forwardRef(() => QuizModule),
 		forwardRef(() => QuizbookModule),
 		forwardRef(() => LikeModule),
 		forwardRef(() => StudyLogModule),
 		forwardRef(() => GroupModule),
+		forwardRef(() => AIModule),
 		DatabaseModule,
 	],
 	controllers: [StudyController],

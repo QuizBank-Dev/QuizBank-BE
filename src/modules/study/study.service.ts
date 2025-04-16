@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { StudyRepository } from './study.repository';
 import { SubmitStudyDto } from './dto/submit-study.dto';
-import { Types } from 'mongoose';
+import { ClientSession, Types } from 'mongoose';
 import { Quiz, QuizType } from '../quiz/schema/quiz.schema';
 import { DatabaseService } from 'src/database/database.service';
 import { QuizRecord, RoleType } from './schema/quiz-record.schema';
@@ -11,15 +11,21 @@ import { LikeRepository } from '../like/like.repository';
 import { StudyLogRepository } from '../study-log/study-log.repository';
 import { PaginationRequestDto } from 'src/common/dto/pagination.dto';
 import { GroupRepository } from '../group/group.repository';
+import { getXpByType, isCorrect, isWrong } from './utils/study.utils';
+import { AIService } from '../ai/ai.service';
+import { QuizRepository } from '../quiz/quiz.repository';
+import { CategoryType } from '../quizbook/schema/quizbook.schema';
 
 @Injectable()
 export class StudyService {
 	constructor(
 		private readonly studyRepo: StudyRepository,
+		private readonly quizRepo: QuizRepository,
 		private readonly quizbookRepo: QuizbookRepository,
 		private readonly likeRepo: LikeRepository,
 		private readonly studyLogRepo: StudyLogRepository,
 		private readonly groupRepo: GroupRepository,
+		private readonly aiService: AIService,
 		private readonly databaseService: DatabaseService,
 	) {}
 
@@ -55,38 +61,24 @@ export class StudyService {
 			for (const quiz of quizbook.quizList as Quiz[]) {
 				const quizId = (quiz._id as Types.ObjectId).toString();
 
-				const userAnswer = answerList.find(
+				const answer = answerList.find(
 					(a) => a.quizId === quizId,
 				)?.answer;
 
-				let score = 0;
-
-				if (userAnswer !== undefined) {
-					// OX, 객관식
-					if (
-						[QuizType.OX, QuizType.MULTIPLE_CHOICE].includes(
-							quiz.type,
+				const score = answer
+					? await this.calculateScore(
+							quiz,
+							quizbook.category,
+							answer,
+							session,
 						)
-					) {
-						score =
-							quiz.answer === userAnswer
-								? this.getXpByType(quiz.type)
-								: 0;
-					} else {
-						// 주관식, 서술형
-						score = await this.gradeWithAI(quiz, userAnswer);
-					}
-				} else {
-					// 제출 X
-					score = 0;
-				}
+					: 0;
 
 				totalScore += score;
 
 				const quizRecord = await this.studyRepo.createQuizRecord(
 					{
-						role: RoleType.USER,
-						answer: userAnswer ? userAnswer : ' ',
+						answer: answer ?? ' ',
 						score,
 						quiz: quiz._id as Types.ObjectId,
 						owner: toObjectId(userId),
@@ -285,28 +277,59 @@ export class StudyService {
 	}
 
 	/**
-	 * Quiz 타입별 xp 변환 메서드
+	 * 답안 채점 메서드
+	 * @param quiz Quiz 모델
+	 * @param category Quizbook 카테고리
+	 * @param answer 사용자 답안
+	 * @param session DB 세션
+	 * @returns number 점수
 	 */
-	private getXpByType(type: QuizType): number {
-		switch (type) {
-			case QuizType.OX:
-				return 5;
-			case QuizType.MULTIPLE_CHOICE:
-				return 10;
-			case QuizType.SHORT_ANSWER:
-				return 15;
-			case QuizType.LONG_ANSWER:
-				return 20;
-			default:
-				return 0;
+	private async calculateScore(
+		quiz: Quiz,
+		category: CategoryType,
+		answer: string,
+		session: ClientSession,
+	) {
+		// OX && 객관식
+		if ([QuizType.OX, QuizType.MULTIPLE_CHOICE].includes(quiz.type)) {
+			return quiz.answer === answer ? getXpByType(quiz.type) : 0;
 		}
-	}
 
-	/**
-	 * AI 채점 메서드
-	 */
-	private async gradeWithAI(quiz: Quiz, answer: string): Promise<number> {
-		// 추후 AI 채점 로직으로 대체
-		return quiz.answer === answer ? 10 : 0;
+		// 주관식
+		if (QuizType.SHORT_ANSWER === quiz.type) {
+			// 1. 모범답안 및 유사답안 확인
+			if (isCorrect(quiz, answer)) return getXpByType(quiz.type);
+
+			// 2. 오답안 확인
+			if (isWrong(quiz, answer)) return 0;
+
+			// 3. AI 채점
+			const score = await this.aiService.gradeWithAI(
+				quiz,
+				category,
+				answer,
+			);
+
+			// 4. 정답 여부 확인
+			const xp = getXpByType(quiz.type);
+
+			if (score === xp)
+				await this.quizRepo.updateSimilarList(
+					(quiz._id as Types.ObjectId).toString(),
+					answer,
+					session,
+				);
+			else
+				await this.quizRepo.updateWrongList(
+					(quiz._id as Types.ObjectId).toString(),
+					answer,
+					session,
+				);
+
+			return score;
+		}
+
+		// 서술형
+		return this.aiService.gradeWithAI(quiz, category, answer);
 	}
 }
