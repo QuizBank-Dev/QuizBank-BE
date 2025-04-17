@@ -14,4 +14,9 @@ export class StudyLogService {
 	async findYearlyStuyLogByUser(userId: string, offset: number = 0) {
 		return this.studyLogRepo.findYearly(userId, offset);
 	}
+
+	// 사용자의 StudyLog 제거
+	async deleteStudyLog(userId: string) {
+		return this.studyLogRepo.deleteLog(userId);
+	}
 }

@@ -93,7 +93,7 @@ export class FollowService {
 		}
 
 		// 구독 취소 처리
-		await Promise.all([
+		return await Promise.all([
 			this.userRepository.update(userId, {
 				$pull: {
 					[type]: targetId,
