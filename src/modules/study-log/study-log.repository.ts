@@ -77,4 +77,12 @@ export class StudyLogRepository {
 			.sort({ date: 1 })
 			.lean();
 	}
+
+	/**
+	 * 특정 user의 study log 제거
+	 * @param userId
+	 */
+	async deleteLog(userId: string) {
+		await this.studyLogModel.deleteMany({ owner: toObjectId(userId) });
+	}
 }
