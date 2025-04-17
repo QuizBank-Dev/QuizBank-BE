@@ -24,4 +24,38 @@ export class QuizRepository {
 	async findById(quizId: string) {
 		return this.quizModel.findById(quizId);
 	}
+
+	/**
+	 * 특정 Quiz의 WrongList 업데이트
+	 */
+	async updateWrongList(
+		quizId: string,
+		answer: string,
+		session?: ClientSession,
+	) {
+		return this.quizModel.findByIdAndUpdate(
+			quizId,
+			{
+				$addToSet: { wrongList: answer },
+			},
+			{ new: true, session },
+		);
+	}
+
+	/**
+	 * 특정 Quiz의 SimilarList 업데이트
+	 */
+	async updateSimilarList(
+		quizId: string,
+		answer: string,
+		session?: ClientSession,
+	) {
+		return this.quizModel.findByIdAndUpdate(
+			quizId,
+			{
+				$addToSet: { similarList: answer },
+			},
+			{ new: true, session },
+		);
+	}
 }

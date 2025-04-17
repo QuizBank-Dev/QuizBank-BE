@@ -35,4 +35,10 @@ export const envKeys = {
 			SECRET: 'OAUTH_GITHUB_CLIENT_SECRET',
 		},
 	},
+	AI: {
+		GEMINI: {
+			KEY: 'GEMINI_API_KEY',
+			URL: 'GEMINI_API_URL',
+		},
+	},
 };

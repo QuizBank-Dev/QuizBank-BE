@@ -22,6 +22,7 @@ import { UploadModule } from './modules/upload/upload.module';
 import { CategoryModule } from './modules/category/category.module';
 import { FollowModule } from './modules/follow/follow.module';
 import { ChatModule } from './modules/chat/chat.module';
+import { AIModule } from './modules/ai/ai.module';
 
 @Module({
 	imports: [
@@ -44,6 +45,7 @@ import { ChatModule } from './modules/chat/chat.module';
 		CategoryModule,
 		FollowModule,
 		ChatModule,
+		AIModule,
 	],
 	providers: [
 		{

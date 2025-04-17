@@ -44,5 +44,5 @@ export class CreateQuizDto {
 	@IsArray()
 	@ArrayMaxSize(4)
 	@ArrayMinSize(4)
-	options?: string[];
+	optionList?: string[];
 }

@@ -9,6 +9,7 @@ import { QuizModule } from '../quiz/quiz.module';
 import { DatabaseModule } from 'src/database/database.module';
 import { LikeModule } from '../like/like.module';
 import { StudyModule } from '../study/study.module';
+import { AIModule } from '../ai/ai.module';
 
 @Module({
 	imports: [
@@ -19,6 +20,7 @@ import { StudyModule } from '../study/study.module';
 		forwardRef(() => QuizModule),
 		forwardRef(() => LikeModule),
 		forwardRef(() => StudyModule),
+		forwardRef(() => AIModule),
 		DatabaseModule,
 	],
 	controllers: [QuizbookController],

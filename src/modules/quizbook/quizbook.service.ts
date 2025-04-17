@@ -10,6 +10,9 @@ import { toObjectId } from 'src/common/utils/database.util';
 import { LikeRepository } from '../like/like.repository';
 import { StudyRepository } from '../study/study.repository';
 import { PaginationRequestDto } from 'src/common/dto/pagination.dto';
+import { QuizType } from '../quiz/schema/quiz.schema';
+import { AIService } from '../ai/ai.service';
+import { getXpByType } from '../study/utils/study.utils';
 
 @Injectable()
 export class QuizbookService {
@@ -18,6 +21,7 @@ export class QuizbookService {
 		private readonly quizbookRepo: QuizbookRepository,
 		private readonly likeRepo: LikeRepository,
 		private readonly studyRepo: StudyRepository,
+		private readonly aiService: AIService,
 		private readonly databaseService: DatabaseService,
 	) {}
 	// Quizbook 생성
@@ -26,7 +30,26 @@ export class QuizbookService {
 		return this.databaseService.runInDefaultTransaction(async (session) => {
 			// 1. Quiz 생성
 			const quizList = await Promise.all(
-				dto.quizList.map((data) => this.quizRepo.create(data, session)),
+				dto.quizList.map(async (data) => {
+					if (data.type === QuizType.LONG_ANSWER) {
+						data.answer =
+							await this.aiService.checkModelAnswerWithAI(
+								dto.category,
+								data.question,
+								data.answer,
+							);
+
+						console.log(data.answer);
+					}
+					const quiz = await this.quizRepo.create(data, session);
+
+					return quiz;
+				}),
+			);
+
+			const totalScore = quizList.reduce(
+				(acc, val) => acc + getXpByType(val.type),
+				0,
 			);
 
 			// 2. Quizbook 생성
@@ -34,6 +57,7 @@ export class QuizbookService {
 				{
 					...dto,
 					quizList: quizList.map((q) => toObjectId(q._id as string)),
+					totalScore,
 					author: toObjectId(userId),
 				},
 				session,
