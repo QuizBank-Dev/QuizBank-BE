@@ -11,6 +11,12 @@ import { AuthToken } from './auth.types';
 import { ConfigService } from '@nestjs/config';
 import { envKeys } from '../../config/env.const';
 import { OAuthLoginDto } from '../user/dto/oauth-login.dto';
+import { FollowService } from '../follow/follow.service';
+import { GroupService } from '../group/group.service';
+import { UserService } from '../user/user.service';
+import { FollowType } from '../follow/dto/follow-query.dto';
+import { Types } from 'mongoose';
+import { StudyLogRepository } from '../study-log/study-log.repository';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +24,10 @@ export class AuthService {
 		private readonly configService: ConfigService,
 		private readonly authTokenService: AuthTokenService,
 		private readonly userRepository: UserRepository,
+		private readonly studyLogRepository: StudyLogRepository,
+		private readonly userService: UserService,
+		private readonly followService: FollowService,
+		private readonly groupService: GroupService,
 	) {}
 
 	/**
@@ -93,6 +103,51 @@ export class AuthService {
 	 * @param id 해당 사용자의 아이디
 	 */
 	async withdraw(id: string) {
+		// 1. 팔로워 / 팔로잉 삭제
+		const { follower, following } = await this.followService.getAllFollower(
+			id,
+			FollowType.ALL,
+		);
+		await Promise.all([
+			...follower!.map(async ({ _id }) =>
+				this.followService.removeFollow(
+					id,
+					(_id as Types.ObjectId).toString(),
+					FollowType.FOLLOWER,
+				),
+			),
+			...following!.map(async ({ _id }) =>
+				this.followService.removeFollow(
+					id,
+					(_id as Types.ObjectId).toString(),
+					FollowType.FOLLOWING,
+				),
+			),
+		]);
+
+		// 2. 닉네임, 프로필사진 수정
+		await this.userService.updateProfile(id, {
+			nickname: '탈퇴한사용자',
+		});
+		await this.userService.deleteProfileImg(id);
+
+		// 3. 그룹 탈퇴
+		const groups = (
+			await this.groupService.getGroupList(id, {
+				limit: Number.MAX_VALUE,
+				is_mine: true,
+			})
+		).list;
+		await Promise.all(
+			groups.map(async ({ _id }) =>
+				this.groupService.deleteGroupWithdraw(id, _id as string),
+			),
+		);
+
+		// 4. 학습 기록 제거
+		await this.studyLogRepository.deleteLog(id);
+
+		// 5. 최종적으로 탈퇴 처리
 		await this.userRepository.delete(id);
 	}
 

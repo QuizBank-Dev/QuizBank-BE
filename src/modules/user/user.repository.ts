@@ -68,7 +68,6 @@ export class UserRepository {
 	 * @param id
 	 */
 	async delete(id: string) {
-		// TODO 삭제로직 수정
 		return this.userModel.findByIdAndUpdate(id, { deletedAt: new Date() });
 	}
 }
