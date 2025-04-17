@@ -16,7 +16,7 @@ import { GroupService } from '../group/group.service';
 import { UserService } from '../user/user.service';
 import { FollowType } from '../follow/dto/follow-query.dto';
 import { Types } from 'mongoose';
-import { StudyLogRepository } from '../study-log/study-log.repository';
+import { StudyLogService } from '../study-log/study-log.service';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +24,7 @@ export class AuthService {
 		private readonly configService: ConfigService,
 		private readonly authTokenService: AuthTokenService,
 		private readonly userRepository: UserRepository,
-		private readonly studyLogRepository: StudyLogRepository,
+		private readonly studyLogService: StudyLogService,
 		private readonly userService: UserService,
 		private readonly followService: FollowService,
 		private readonly groupService: GroupService,
@@ -145,7 +145,7 @@ export class AuthService {
 		);
 
 		// 4. 학습 기록 제거
-		await this.studyLogRepository.deleteLog(id);
+		await this.studyLogService.deleteStudyLog(id);
 
 		// 5. 최종적으로 탈퇴 처리
 		await this.userRepository.delete(id);
