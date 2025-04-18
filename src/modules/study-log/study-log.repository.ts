@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DB_TYPE } from 'src/database/database.const';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import * as moment from 'moment-timezone';
 import { toObjectId } from 'src/common/utils/database.util';
 import { StudyLog } from './schema/study-log.schema';
@@ -16,7 +16,7 @@ export class StudyLogRepository {
 	/**
 	 * StudyLog 생성 또는 업데이트
 	 */
-	async upsert(solvedCount: number, userId: string) {
+	async upsert(solvedCount: number, userId: string, session?: ClientSession) {
 		const today = moment().tz('Asia/Seoul').format('YYYY-MM-DD');
 
 		return this.studyLogModel.updateOne(
@@ -25,7 +25,7 @@ export class StudyLogRepository {
 				$inc: { solvedCount },
 				$setOnInsert: { createdAt: new Date() },
 			},
-			{ upsert: true, new: true },
+			{ upsert: true, new: true, session },
 		);
 	}
 

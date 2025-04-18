@@ -15,6 +15,7 @@ import { getXpByType, isCorrect, isWrong } from './utils/study.utils';
 import { AIService } from '../ai/ai.service';
 import { QuizRepository } from '../quiz/quiz.repository';
 import { CategoryType } from '../quizbook/schema/quizbook.schema';
+import { UserRepository } from '../user/user.repository';
 
 @Injectable()
 export class StudyService {
@@ -25,6 +26,7 @@ export class StudyService {
 		private readonly likeRepo: LikeRepository,
 		private readonly studyLogRepo: StudyLogRepository,
 		private readonly groupRepo: GroupRepository,
+		private readonly userRepo: UserRepository,
 		private readonly aiService: AIService,
 		private readonly databaseService: DatabaseService,
 	) {}
@@ -128,7 +130,18 @@ export class StudyService {
 			}
 
 			// 6. 사용자의 Study 기록 추가
-			await this.studyLogRepo.upsert(quizRecordList.length, userId);
+			await this.studyLogRepo.upsert(
+				quizRecordList.length,
+				userId,
+				session,
+			);
+
+			// 7. 사용자의 experience 증가
+			await this.userRepo.update(
+				userId,
+				{ $inc: { experience: totalScore } },
+				session,
+			);
 		});
 	}
 
