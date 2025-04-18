@@ -29,15 +29,15 @@ export class GroupService {
 		private readonly readStatusRepository: ReadStatusRepository,
 	) {}
 
-	async getGroupList(userId: string, query: GroupQueryDto) {
+	async getMyGroupList(userId: string, query: GroupQueryDto) {
 		const groupList = await this.groupRepository.findGroupList(
-			toObjectId(userId),
 			query,
+			toObjectId(userId),
 		);
 
 		const leftCount = await this.groupRepository.findLeftCount(
-			toObjectId(userId),
 			query,
+			toObjectId(userId),
 		);
 
 		// 그룹 정보를 변환

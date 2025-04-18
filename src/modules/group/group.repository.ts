@@ -22,13 +22,13 @@ export class GroupRepository {
 	/**
 	 * Group 목록 조회
 	 */
-	async findGroupList(memberId: Types.ObjectId, query: GroupQueryDto) {
-		const { cursor, limit, is_mine, name } = query;
+	async findGroupList(query: GroupQueryDto, memberId?: Types.ObjectId) {
+		const { cursor, limit, name } = query;
 
 		const filter: GroupQuery = {};
 
 		if (cursor) filter.cursor = { $lt: toObjectId(cursor) };
-		if (is_mine) filter.memberList = { $in: [memberId] };
+		if (memberId) filter.memberList = { $in: [memberId] };
 		if (name) filter.name = { $regex: name, $options: 'i' };
 
 		return this.groupModel
@@ -47,13 +47,13 @@ export class GroupRepository {
 	/**
 	 * Group 전체 개수 동기화를 위한 남은 개수 조회
 	 */
-	async findLeftCount(memberId: Types.ObjectId, query: GroupQueryDto) {
-		const { cursor, is_mine, name } = query;
+	async findLeftCount(query: GroupQueryDto, memberId?: Types.ObjectId) {
+		const { cursor, name } = query;
 
 		const filter: GroupQuery = {};
 
 		if (cursor) filter.cursor = { $lt: toObjectId(cursor) };
-		if (is_mine) filter.memberList = { $in: [memberId] };
+		if (memberId) filter.memberList = { $in: [memberId] };
 		if (name) filter.name = { $regex: name, $options: 'i' };
 
 		return this.groupModel.countDocuments(filter);

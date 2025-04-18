@@ -30,14 +30,14 @@ import { GroupQueryDto } from './dto/group-query.dto';
 export class GroupController {
 	constructor(private readonly groupService: GroupService) {}
 
-	@Get()
+	@Get('my')
 	@ApiOperation({
-		summary: 'Group 목록 조회',
-		description: 'Group 목록을 조회합니다.',
+		summary: '나의 Group 목록 조회',
+		description: '나의 Group 목록을 조회합니다.',
 	})
 	@ApiBaseResponse(HttpStatus.OK, '조회 성공', GroupListExample)
-	getGroupList(@UserId() userId: string, @Query() query: GroupQueryDto) {
-		return this.groupService.getGroupList(userId, query);
+	getMyGroupList(@UserId() userId: string, @Query() query: GroupQueryDto) {
+		return this.groupService.getMyGroupList(userId, query);
 	}
 
 	@Get(':groupId')
