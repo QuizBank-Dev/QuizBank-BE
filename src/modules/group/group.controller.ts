@@ -17,6 +17,7 @@ import {
 	GroupInfoExample,
 	GroupInviteUrlExample,
 	GroupListExample,
+	MyGroupListExample,
 } from './group.example';
 import { UserId } from 'src/common/decorators/user-id.decorator';
 import { CreateGroupDto } from './dto/create-group.dto';
@@ -24,20 +25,32 @@ import { UpdateOwnerDto } from './dto/update-owner.dto';
 import { CreateGroupMemberDto } from './dto/create-group-member.dto';
 import { RespondApplicationDto } from './dto/patch-respond-application.dto';
 import { GroupQueryDto } from './dto/group-query.dto';
+import { Public } from '../auth/decorator/public.decorator';
 
 @Controller({ path: 'group', version: '1' })
 @ApiTags('Group')
 export class GroupController {
 	constructor(private readonly groupService: GroupService) {}
 
+	@Public()
 	@Get()
 	@ApiOperation({
-		summary: 'Group 목록 조회',
-		description: 'Group 목록을 조회합니다.',
+		summary: '모든 Group 목록 조회',
+		description: '모든 Group 목록을 조회합니다.',
 	})
 	@ApiBaseResponse(HttpStatus.OK, '조회 성공', GroupListExample)
-	getGroupList(@UserId() userId: string, @Query() query: GroupQueryDto) {
-		return this.groupService.getGroupList(userId, query);
+	getGroupList(@Query() query: GroupQueryDto) {
+		return this.groupService.getGroupList(query);
+	}
+
+	@Get('my')
+	@ApiOperation({
+		summary: '나의 Group 목록 조회',
+		description: '나의 Group 목록을 조회합니다.',
+	})
+	@ApiBaseResponse(HttpStatus.OK, '조회 성공', MyGroupListExample)
+	getMyGroupList(@UserId() userId: string, @Query() query: GroupQueryDto) {
+		return this.groupService.getMyGroupList(userId, query);
 	}
 
 	@Get(':groupId')

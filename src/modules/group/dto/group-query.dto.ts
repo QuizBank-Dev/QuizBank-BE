@@ -27,15 +27,6 @@ export class GroupQueryDto {
 	limit: number;
 
 	@ApiProperty({
-		description: '그룹 소속 여부',
-		example: true,
-	})
-	@IsNotEmpty()
-	@IsBoolean()
-	@Transform(({ value }) => Boolean(value))
-	is_mine: boolean;
-
-	@ApiProperty({
 		description: 'Group 제목 검색',
 		example: '서울',
 	})

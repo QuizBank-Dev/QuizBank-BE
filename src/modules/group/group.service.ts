@@ -29,15 +29,58 @@ export class GroupService {
 		private readonly readStatusRepository: ReadStatusRepository,
 	) {}
 
-	async getGroupList(userId: string, query: GroupQueryDto) {
+	async getGroupList(query: GroupQueryDto) {
+		const groupList = await this.groupRepository.findGroupList(query);
+
+		const leftCount = await this.groupRepository.findLeftCount(query);
+
+		// 그룹 정보를 변환
+		const transformedGroups = groupList.map((group) => {
+			const {
+				memberList,
+				applyingUserList,
+				groupQuizbookList,
+				createdAt,
+				updatedAt,
+				chatRoom,
+				...filteredFields
+			} = group.toObject();
+
+			// 간단히 변수 사용 처리
+			void applyingUserList;
+			void groupQuizbookList;
+			void createdAt;
+			void updatedAt;
+			void chatRoom;
+
+			// memberCount 계산
+			const memberCount = memberList.length;
+
+			return {
+				...filteredFields,
+				memberCount,
+			};
+		});
+
+		return {
+			list: transformedGroups,
+			nextCursor:
+				transformedGroups.length > 0
+					? transformedGroups[transformedGroups.length - 1]._id
+					: null,
+			leftCount: leftCount - transformedGroups.length,
+		};
+	}
+
+	async getMyGroupList(userId: string, query: GroupQueryDto) {
 		const groupList = await this.groupRepository.findGroupList(
-			toObjectId(userId),
 			query,
+			toObjectId(userId),
 		);
 
 		const leftCount = await this.groupRepository.findLeftCount(
-			toObjectId(userId),
 			query,
+			toObjectId(userId),
 		);
 
 		// 그룹 정보를 변환
@@ -60,14 +103,9 @@ export class GroupService {
 			// memberCount 계산
 			const memberCount = memberList.length;
 
-			// 소속 여부
-			const targetMemberList = memberList.map((user) => user.toString());
-			const indexOfUser = targetMemberList.indexOf(userId);
-
 			return {
 				...filteredFields,
 				memberCount,
-				is_mine: indexOfUser !== -1,
 			};
 		});
 
