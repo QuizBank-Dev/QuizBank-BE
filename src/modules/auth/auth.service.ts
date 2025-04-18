@@ -133,9 +133,8 @@ export class AuthService {
 
 		// 3. 그룹 탈퇴
 		const groups = (
-			await this.groupService.getGroupList(id, {
+			await this.groupService.getMyGroupList(id, {
 				limit: Number.MAX_VALUE,
-				is_mine: true,
 			})
 		).list;
 		await Promise.all(
