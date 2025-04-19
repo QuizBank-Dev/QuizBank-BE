@@ -16,6 +16,7 @@ import { StudyLogModule } from '../study-log/study-log.module';
 import { GroupModule } from '../group/group.module';
 import { AIModule } from '../ai/ai.module';
 import { QuizModule } from '../quiz/quiz.module';
+import { UserModule } from '../user/user.module';
 
 @Module({
 	imports: [
@@ -32,6 +33,7 @@ import { QuizModule } from '../quiz/quiz.module';
 		forwardRef(() => StudyLogModule),
 		forwardRef(() => GroupModule),
 		forwardRef(() => AIModule),
+		forwardRef(() => UserModule),
 		DatabaseModule,
 	],
 	controllers: [StudyController],
