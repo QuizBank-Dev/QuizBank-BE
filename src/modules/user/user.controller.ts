@@ -16,20 +16,22 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UserService } from './user.service';
 import { ApiBaseResponse } from '../../common/decorators/base-response.decorator';
 import { meExample, otherExample } from './user.example';
+import { Public } from '../auth/decorator/public.decorator';
 
 @Controller({ path: 'user', version: '1' })
 @ApiTags('User')
 export class UserController {
 	constructor(private readonly userService: UserService) {}
 
+	@Public()
 	@Get('me')
 	@ApiOperation({
 		summary: '내 정보',
 		description: '현재 로그인한 사용자의 정보를 가져옵니다.',
 	})
 	@ApiBaseResponse(200, '조회 성공', meExample)
-	async me(@UserId() userId: string) {
-		return await this.userService.getUser(userId);
+	async me(@UserId(true) userId: string) {
+		return userId ? await this.userService.getUser(userId) : null;
 	}
 
 	@Get(':id')
