@@ -82,7 +82,6 @@ export class GroupRepository {
 			{
 				path: 'groupQuizbookList',
 				model: 'GroupQuizbook',
-				select: 'quizbook',
 			},
 		]);
 	}
