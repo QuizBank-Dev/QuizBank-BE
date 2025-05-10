@@ -79,6 +79,10 @@ export class GroupRepository {
 				model: 'User',
 				select: 'nickname profileImg email',
 			},
+			{
+				path: 'groupQuizbookList',
+				model: 'GroupQuizbook',
+			},
 		]);
 	}
 
