@@ -71,24 +71,24 @@ export class GroupQuizbookService {
 		quizbookId: string,
 		endDate: Date,
 	) {
-		await this.databaseService.runInDefaultTransaction(async (session) => {
-			const group = await this.groupRepository.findById(groupId);
+		const group = await this.groupRepository.findById(groupId);
 
-			if (!group)
-				throw new NotFoundException(
-					`해당 ${groupId} Group을 찾을 수 없습니다.`,
-				);
-
-			if (group.admin._id.toString() !== userId)
-				throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
-
-			const targetGroupQuizbookList = group.groupQuizbookList.map(
-				(data: GroupQuizbook) => data.quizbook.toString(),
+		if (!group)
+			throw new NotFoundException(
+				`해당 ${groupId} Group을 찾을 수 없습니다.`,
 			);
-			const index = targetGroupQuizbookList.indexOf(quizbookId);
+
+		if (group.admin._id.toString() !== userId)
+			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
+
+    const targetGroupQuizbookList = group.groupQuizbookList.map(
+		  (data: GroupQuizbook) => data.quizbook.toString(),
+		);
+		const index = targetGroupQuizbookList.indexOf(quizbookId);
 			if (index !== -1)
 				throw new ConflictException(`이미 선정된 문제집입니다.`);
-
+      
+		await this.databaseService.runInDefaultTransaction(async (session) => {
 			// endDate의 시간 부분을 23:59:59.999로 설정
 			const endedAt = new Date(endDate);
 			endedAt.setHours(23, 59, 59, 999);
@@ -147,17 +147,17 @@ export class GroupQuizbookService {
 		groupId: string,
 		quizbookId: string,
 	) {
+		const group = await this.groupRepository.findById(groupId);
+
+		if (!group)
+			throw new NotFoundException(
+				`해당 ${groupId} Group을 찾을 수 없습니다.`,
+			);
+
+		if (group.admin._id.toString() !== userId)
+			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
+
 		await this.databaseService.runInDefaultTransaction(async (session) => {
-			const group = await this.groupRepository.findById(groupId);
-
-			if (!group)
-				throw new NotFoundException(
-					`해당 ${groupId} Group을 찾을 수 없습니다.`,
-				);
-
-			if (group.admin._id.toString() !== userId)
-				throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
-
 			const deletedGroupQuizbook =
 				await this.groupQuizbookRepository.delete(
 					groupId,
@@ -165,16 +165,12 @@ export class GroupQuizbookService {
 					session,
 				);
 
-			if (!deletedGroupQuizbook)
-				throw new NotFoundException(
-					'Group의 해당 선정 문제집을 찾을 수 없습니다.',
+			if (deletedGroupQuizbook)
+				await this.groupRepository.update(
+					{ $pull: { groupQuizbookList: deletedGroupQuizbook._id } },
+					groupId,
+					session,
 				);
-
-			await this.groupRepository.update(
-				{ $pull: { groupQuizbookList: deletedGroupQuizbook._id } },
-				groupId,
-				session,
-			);
 		});
 	}
 }
