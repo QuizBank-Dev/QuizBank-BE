@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { GroupQuizbook } from '../group-quizbook/schema/group-quizbook.schema';
 
 @Schema({ timestamps: true })
 export class Group extends Document {
@@ -28,7 +29,7 @@ export class Group extends Document {
 		type: [{ type: Types.ObjectId, ref: 'GroupQuizbook' }],
 		default: [],
 	})
-	groupQuizbookList: Types.ObjectId[];
+	groupQuizbookList: (Types.ObjectId | GroupQuizbook)[];
 
 	@Prop({ type: Types.ObjectId, ref: 'ChatRoom', required: true })
 	chatRoom: Types.ObjectId;
