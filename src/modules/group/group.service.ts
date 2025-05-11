@@ -263,7 +263,7 @@ export class GroupService {
 
 		await this.groupRepository.update(
 			{
-				$addToSet: { applyingUserList: userId },
+				$addToSet: { applyingUserList: toObjectId(userId) },
 			},
 			groupId,
 		);
@@ -298,12 +298,12 @@ export class GroupService {
 		let filter: FilterQuery<Group>;
 		if (accepted) {
 			filter = {
-				$pull: { applyingUserList: memberId },
-				$addToSet: { memberList: memberId },
+				$pull: { applyingUserList: toObjectId(memberId) },
+				$addToSet: { memberList: toObjectId(memberId) },
 			};
 		} else {
 			filter = {
-				$pull: { applyingUserList: memberId },
+				$pull: { applyingUserList: toObjectId(memberId) },
 			};
 		}
 		await this.groupRepository.update(filter, groupId);
@@ -362,7 +362,7 @@ export class GroupService {
 		await this.databaseService.runInDefaultTransaction(async (session) => {
 			await this.groupRepository.update(
 				{
-					$addToSet: { memberList: userId }, // 중복 없이 배열에 userId 추가
+					$addToSet: { memberList: toObjectId(userId) }, // 중복 없이 배열에 userId 추가
 				},
 				groupId,
 				session,
@@ -371,7 +371,7 @@ export class GroupService {
 			// 그룹의 ChatRoom에 그룹원 추가
 			await this.chatRoomRepository.update(
 				{
-					$addToSet: { memberList: userId }, // 중복 없이 배열에 userId 추가
+					$addToSet: { memberList: toObjectId(userId) }, // 중복 없이 배열에 userId 추가
 				},
 				group.chatRoom,
 				session,
@@ -419,7 +419,7 @@ export class GroupService {
 		await this.groupRepository.update(
 			{
 				admin: toObjectId(memberId),
-				memberList: targetMemberList,
+				memberList: targetMemberList.map((data) => toObjectId(data)),
 			},
 			groupId,
 		);
@@ -456,10 +456,10 @@ export class GroupService {
 			if (group.admin._id.toString() === userId) {
 				data = {
 					admin: group.memberList[1]._id,
-					$pull: { memberList: userId },
+					$pull: { memberList: toObjectId(userId) },
 				};
 			} else {
-				data = { $pull: { memberList: userId } };
+				data = { $pull: { memberList: toObjectId(userId) } };
 			}
 
 			await this.groupRepository.update(data, groupId, session);
@@ -474,7 +474,7 @@ export class GroupService {
 			// 그룹의 ChatRoom에 그룹원 삭제
 			await this.chatRoomRepository.update(
 				{
-					$pull: { memberList: userId },
+					$pull: { memberList: toObjectId(userId) },
 				},
 				group.chatRoom,
 				session,
@@ -495,7 +495,7 @@ export class GroupService {
 
 		await this.databaseService.runInDefaultTransaction(async (session) => {
 			await this.groupRepository.update(
-				{ $pull: { memberList: memberId } },
+				{ $pull: { memberList: toObjectId(memberId) } },
 				groupId,
 				session,
 			);
@@ -510,7 +510,7 @@ export class GroupService {
 			// 그룹의 ChatRoom에 그룹원 삭제
 			await this.chatRoomRepository.update(
 				{
-					$pull: { memberList: memberId },
+					$pull: { memberList: toObjectId(memberId) },
 				},
 				group.chatRoom,
 				session,
