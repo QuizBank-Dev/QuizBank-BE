@@ -17,6 +17,7 @@ import { ChatRoomRepository } from '../chat/repository/chat-room.repository';
 import { ReadStatusRepository } from '../chat/repository/read-status.repository';
 import { ChatRoomType } from '../chat/schema/chat-room.schema';
 import { GroupQueryDto } from './dto/group-query.dto';
+import { GroupQuizbook } from './group-quizbook/schema/group-quizbook.schema';
 
 @Injectable()
 export class GroupService {
@@ -219,12 +220,14 @@ export class GroupService {
 
 		await this.databaseService.runInDefaultTransaction(async (session) => {
 			await Promise.all(
-				group.groupQuizbookList.map(async (groupQuizbook) => {
-					await this.groupQuizbookRepository.deleteById(
-						groupQuizbook.toString(),
-						session,
-					);
-				}),
+				(group.groupQuizbookList as GroupQuizbook[]).map(
+					async (groupQuizbook) => {
+						await this.groupQuizbookRepository.deleteById(
+							(groupQuizbook._id as Types.ObjectId).toString(),
+							session,
+						);
+					},
+				),
 			);
 
 			// 그룹원들의 ReadStatus 제거
