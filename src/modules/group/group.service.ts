@@ -18,6 +18,8 @@ import { ReadStatusRepository } from '../chat/repository/read-status.repository'
 import { ChatRoomType } from '../chat/schema/chat-room.schema';
 import { GroupQueryDto } from './dto/group-query.dto';
 import { GroupQuizbook } from './group-quizbook/schema/group-quizbook.schema';
+import { ConfigService } from '@nestjs/config';
+import { envKeys } from 'src/config/env.const';
 
 @Injectable()
 export class GroupService {
@@ -28,6 +30,7 @@ export class GroupService {
 		private readonly groupQuizbookRepository: GroupQuizbookRepository,
 		private readonly chatRoomRepository: ChatRoomRepository,
 		private readonly readStatusRepository: ReadStatusRepository,
+		private readonly configService: ConfigService,
 	) {}
 
 	async getGroupList(query: GroupQueryDto) {
@@ -324,8 +327,14 @@ export class GroupService {
 				{ groupId },
 			);
 
-		// 추후 url 수정 필요.
-		return { url: `http://localhost:3000/auth/login?token=${token}` };
+		const isDev = this.configService.get<string>(envKeys.ENV) === 'dev';
+		const clientUrl = this.configService.get<string>(
+			isDev ? envKeys.CLIENT.LOCAL : envKeys.CLIENT.PROD,
+		);
+
+		return {
+			url: `${clientUrl}/login?token=${token}`,
+		};
 	}
 
 	async postCreateGroupMember(userId: string, token: string) {
