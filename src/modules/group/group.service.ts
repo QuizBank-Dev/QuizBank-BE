@@ -272,6 +272,7 @@ export class GroupService {
 	async patchRespondToApplication(
 		userId: string,
 		groupId: string,
+		memberId: string,
 		accepted: boolean,
 	) {
 		const group = await this.groupRepository.findById(groupId);
@@ -281,25 +282,28 @@ export class GroupService {
 				`해당 ${groupId} Group을 찾을 수 없습니다.`,
 			);
 
+		if (group.admin._id.toString() !== userId)
+			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
+
 		const targetApplyingUserList = group.applyingUserList.map((user) =>
 			user._id.toString(),
 		);
-		const indexOfApplyingUser = targetApplyingUserList.indexOf(userId);
+		const indexOfApplyingUser = targetApplyingUserList.indexOf(memberId);
 
 		if (indexOfApplyingUser === -1)
 			throw new NotFoundException(
-				`해당 ${userId} 사용자는 그룹에 가입 요청을 하지 않았습니다.`,
+				`해당 ${memberId} 사용자는 그룹에 가입 요청을 하지 않았습니다.`,
 			);
 
 		let filter: FilterQuery<Group>;
 		if (accepted) {
 			filter = {
-				$pull: { applyingUserList: userId },
-				$addToSet: { memberList: userId },
+				$pull: { applyingUserList: memberId },
+				$addToSet: { memberList: memberId },
 			};
 		} else {
 			filter = {
-				$pull: { applyingUserList: userId },
+				$pull: { applyingUserList: memberId },
 			};
 		}
 		await this.groupRepository.update(filter, groupId);

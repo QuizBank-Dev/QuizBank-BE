@@ -113,7 +113,7 @@ export class GroupController {
 		await this.groupService.patchGroupApplying(userId, groupId);
 	}
 
-	@Patch(':groupId/application-response')
+	@Patch(':groupId/application/:memberId/response')
 	@ApiOperation({
 		summary: 'Group 가입 요청 처리(수락 또는 거절)',
 		description: 'Group 가입 요청을 수락 또는 거절 처리합니다.',
@@ -122,11 +122,13 @@ export class GroupController {
 	async patchRespondToApplication(
 		@UserId() userId: string,
 		@Param('groupId') groupId: string,
+		@Param('memberId') memberId: string,
 		@Body() request: RespondApplicationDto,
 	) {
 		await this.groupService.patchRespondToApplication(
 			userId,
 			groupId,
+			memberId,
 			request.accepted,
 		);
 	}
