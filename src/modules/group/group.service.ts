@@ -306,7 +306,31 @@ export class GroupService {
 				$pull: { applyingUserList: toObjectId(memberId) },
 			};
 		}
-		await this.groupRepository.update(filter, groupId);
+
+		await this.databaseService.runInDefaultTransaction(async (session) => {
+			await this.groupRepository.update(filter, groupId, session);
+
+			if (accepted) {
+				// 새 그룹원의 ReadStatus 생성
+				await this.readStatusRepository.create(
+					{
+						chatRoom: group.chatRoom,
+						lastTimestamp: new Date(),
+						member: toObjectId(memberId),
+					},
+					session,
+				);
+
+				// 새 그룹원을 ChatRoom member에 추가
+				await this.chatRoomRepository.update(
+					{
+						$addToSet: { memberList: toObjectId(memberId) },
+					},
+					group.chatRoom,
+					session,
+				);
+			}
+		});
 	}
 
 	async getInviteUrl(userId: string, groupId: string) {
@@ -359,10 +383,19 @@ export class GroupService {
 				`해당 ${groupId} Group을 찾을 수 없습니다.`,
 			);
 
+		// 이미 그룹원인지 확인
+		const targetMemberList = group.memberList.map((user) =>
+			user._id.toString(),
+		);
+		const indexOfNewOwner = targetMemberList.indexOf(userId);
+
+		if (indexOfNewOwner !== -1) return;
+
 		await this.databaseService.runInDefaultTransaction(async (session) => {
 			await this.groupRepository.update(
 				{
 					$addToSet: { memberList: toObjectId(userId) }, // 중복 없이 배열에 userId 추가
+					$pull: { applyingUserList: toObjectId(userId) },
 				},
 				groupId,
 				session,
