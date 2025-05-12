@@ -1,9 +1,4 @@
 export const getStudyResultEx = {
-	quizbook: {
-		_id: '67fdc5ac1e49a2871aeb6657',
-		title: '면접 대비 CS 문제집',
-		category: '웹 개발',
-	},
 	quizList: [
 		{
 			_id: '67fdc5ac1e49a2871aeb6651',
