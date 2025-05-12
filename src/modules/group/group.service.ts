@@ -17,6 +17,9 @@ import { ChatRoomRepository } from '../chat/repository/chat-room.repository';
 import { ReadStatusRepository } from '../chat/repository/read-status.repository';
 import { ChatRoomType } from '../chat/schema/chat-room.schema';
 import { GroupQueryDto } from './dto/group-query.dto';
+import { GroupQuizbook } from './group-quizbook/schema/group-quizbook.schema';
+import { ConfigService } from '@nestjs/config';
+import { envKeys } from 'src/config/env.const';
 
 @Injectable()
 export class GroupService {
@@ -27,6 +30,7 @@ export class GroupService {
 		private readonly groupQuizbookRepository: GroupQuizbookRepository,
 		private readonly chatRoomRepository: ChatRoomRepository,
 		private readonly readStatusRepository: ReadStatusRepository,
+		private readonly configService: ConfigService,
 	) {}
 
 	async getGroupList(query: GroupQueryDto) {
@@ -219,12 +223,14 @@ export class GroupService {
 
 		await this.databaseService.runInDefaultTransaction(async (session) => {
 			await Promise.all(
-				group.groupQuizbookList.map(async (groupQuizbook) => {
-					await this.groupQuizbookRepository.deleteById(
-						groupQuizbook.toString(),
-						session,
-					);
-				}),
+				(group.groupQuizbookList as GroupQuizbook[]).map(
+					async (groupQuizbook) => {
+						await this.groupQuizbookRepository.deleteById(
+							(groupQuizbook._id as Types.ObjectId).toString(),
+							session,
+						);
+					},
+				),
 			);
 
 			// 그룹원들의 ReadStatus 제거
@@ -257,7 +263,7 @@ export class GroupService {
 
 		await this.groupRepository.update(
 			{
-				$addToSet: { applyingUserList: userId },
+				$addToSet: { applyingUserList: toObjectId(userId) },
 			},
 			groupId,
 		);
@@ -266,6 +272,7 @@ export class GroupService {
 	async patchRespondToApplication(
 		userId: string,
 		groupId: string,
+		memberId: string,
 		accepted: boolean,
 	) {
 		const group = await this.groupRepository.findById(groupId);
@@ -275,28 +282,55 @@ export class GroupService {
 				`해당 ${groupId} Group을 찾을 수 없습니다.`,
 			);
 
+		if (group.admin._id.toString() !== userId)
+			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
+
 		const targetApplyingUserList = group.applyingUserList.map((user) =>
 			user._id.toString(),
 		);
-		const indexOfApplyingUser = targetApplyingUserList.indexOf(userId);
+		const indexOfApplyingUser = targetApplyingUserList.indexOf(memberId);
 
 		if (indexOfApplyingUser === -1)
 			throw new NotFoundException(
-				`해당 ${userId} 사용자는 그룹에 가입 요청을 하지 않았습니다.`,
+				`해당 ${memberId} 사용자는 그룹에 가입 요청을 하지 않았습니다.`,
 			);
 
 		let filter: FilterQuery<Group>;
 		if (accepted) {
 			filter = {
-				$pull: { applyingUserList: userId },
-				$addToSet: { memberList: userId },
+				$pull: { applyingUserList: toObjectId(memberId) },
+				$addToSet: { memberList: toObjectId(memberId) },
 			};
 		} else {
 			filter = {
-				$pull: { applyingUserList: userId },
+				$pull: { applyingUserList: toObjectId(memberId) },
 			};
 		}
-		await this.groupRepository.update(filter, groupId);
+
+		await this.databaseService.runInDefaultTransaction(async (session) => {
+			await this.groupRepository.update(filter, groupId, session);
+
+			if (accepted) {
+				// 새 그룹원의 ReadStatus 생성
+				await this.readStatusRepository.create(
+					{
+						chatRoom: group.chatRoom,
+						lastTimestamp: new Date(),
+						member: toObjectId(memberId),
+					},
+					session,
+				);
+
+				// 새 그룹원을 ChatRoom member에 추가
+				await this.chatRoomRepository.update(
+					{
+						$addToSet: { memberList: toObjectId(memberId) },
+					},
+					group.chatRoom,
+					session,
+				);
+			}
+		});
 	}
 
 	async getInviteUrl(userId: string, groupId: string) {
@@ -321,8 +355,14 @@ export class GroupService {
 				{ groupId },
 			);
 
-		// 추후 url 수정 필요.
-		return { url: `http://localhost:3000/auth/login?token=${token}` };
+		const isDev = this.configService.get<string>(envKeys.ENV) === 'dev';
+		const clientUrl = this.configService.get<string>(
+			isDev ? envKeys.CLIENT.LOCAL : envKeys.CLIENT.PROD,
+		);
+
+		return {
+			url: `${clientUrl}/login?token=${token}`,
+		};
 	}
 
 	async postCreateGroupMember(userId: string, token: string) {
@@ -343,10 +383,19 @@ export class GroupService {
 				`해당 ${groupId} Group을 찾을 수 없습니다.`,
 			);
 
+		// 이미 그룹원인지 확인
+		const targetMemberList = group.memberList.map((user) =>
+			user._id.toString(),
+		);
+		const indexOfNewOwner = targetMemberList.indexOf(userId);
+
+		if (indexOfNewOwner !== -1) return;
+
 		await this.databaseService.runInDefaultTransaction(async (session) => {
 			await this.groupRepository.update(
 				{
-					$addToSet: { memberList: userId }, // 중복 없이 배열에 userId 추가
+					$addToSet: { memberList: toObjectId(userId) }, // 중복 없이 배열에 userId 추가
+					$pull: { applyingUserList: toObjectId(userId) },
 				},
 				groupId,
 				session,
@@ -355,7 +404,7 @@ export class GroupService {
 			// 그룹의 ChatRoom에 그룹원 추가
 			await this.chatRoomRepository.update(
 				{
-					$addToSet: { memberList: userId }, // 중복 없이 배열에 userId 추가
+					$addToSet: { memberList: toObjectId(userId) }, // 중복 없이 배열에 userId 추가
 				},
 				group.chatRoom,
 				session,
@@ -403,7 +452,7 @@ export class GroupService {
 		await this.groupRepository.update(
 			{
 				admin: toObjectId(memberId),
-				memberList: targetMemberList,
+				memberList: targetMemberList.map((data) => toObjectId(data)),
 			},
 			groupId,
 		);
@@ -440,10 +489,10 @@ export class GroupService {
 			if (group.admin._id.toString() === userId) {
 				data = {
 					admin: group.memberList[1]._id,
-					$pull: { memberList: userId },
+					$pull: { memberList: toObjectId(userId) },
 				};
 			} else {
-				data = { $pull: { memberList: userId } };
+				data = { $pull: { memberList: toObjectId(userId) } };
 			}
 
 			await this.groupRepository.update(data, groupId, session);
@@ -458,7 +507,7 @@ export class GroupService {
 			// 그룹의 ChatRoom에 그룹원 삭제
 			await this.chatRoomRepository.update(
 				{
-					$pull: { memberList: userId },
+					$pull: { memberList: toObjectId(userId) },
 				},
 				group.chatRoom,
 				session,
@@ -479,7 +528,7 @@ export class GroupService {
 
 		await this.databaseService.runInDefaultTransaction(async (session) => {
 			await this.groupRepository.update(
-				{ $pull: { memberList: memberId } },
+				{ $pull: { memberList: toObjectId(memberId) } },
 				groupId,
 				session,
 			);
@@ -494,7 +543,7 @@ export class GroupService {
 			// 그룹의 ChatRoom에 그룹원 삭제
 			await this.chatRoomRepository.update(
 				{
-					$pull: { memberList: memberId },
+					$pull: { memberList: toObjectId(memberId) },
 				},
 				group.chatRoom,
 				session,

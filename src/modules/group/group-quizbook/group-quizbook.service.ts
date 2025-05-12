@@ -81,13 +81,13 @@ export class GroupQuizbookService {
 		if (group.admin._id.toString() !== userId)
 			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
 
-    const targetGroupQuizbookList = group.groupQuizbookList.map(
-		  (data: GroupQuizbook) => data.quizbook.toString(),
+		const targetGroupQuizbookList = group.groupQuizbookList.map(
+			(data: GroupQuizbook) => data.quizbook.toString(),
 		);
 		const index = targetGroupQuizbookList.indexOf(quizbookId);
-			if (index !== -1)
-				throw new ConflictException(`이미 선정된 문제집입니다.`);
-      
+		if (index !== -1)
+			throw new ConflictException(`이미 선정된 문제집입니다.`);
+
 		await this.databaseService.runInDefaultTransaction(async (session) => {
 			// endDate의 시간 부분을 23:59:59.999로 설정
 			const endedAt = new Date(endDate);
