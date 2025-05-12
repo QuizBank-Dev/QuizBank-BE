@@ -21,6 +21,7 @@ import { DatabaseService } from './database.service';
 				logger: Logger,
 			) => ({
 				uri: configService.get<string>(envKeys.DB.DEFAULT_URI),
+				autoIndex: true,
 				onConnectionCreate: (connection: Connection) => {
 					connection.on('connected', () =>
 						logger.info('✅ Default DB Connected.'),
