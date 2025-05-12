@@ -50,33 +50,10 @@ export const getQuizRecordOfAnswerListEx = {
 	totalCount: 2,
 };
 
-export const getQuizRecordOfAnswerListInGroupEx = {
-	memberList: ['62ae18f8bb486fc72e9a8004', '68be18f8bb486fc72e9a8004'],
-	scoreList: [
-		{
-			score: 40,
-			answer: '블라블라블라블라',
-			owner: {
-				_id: '67fe18f8bb486fc72e9a8004',
-				nickname: 'test2계정',
-				profileImg: '',
-			},
-		},
-		{
-			score: 40,
-			answer: '블라블라블라블라',
-			owner: {
-				_id: '67e2e20e5872c849d5dd4b86',
-				nickname: 'test계정',
-				profileImg: '',
-			},
-		},
-	],
-};
-
-export const getQuizbookRecordOfScoreListEx = [
+export const getQuizRecordOfAnswerListInGroupEx = [
 	{
 		score: 40,
+		answer: '블라블라블라블라',
 		owner: {
 			_id: '67fe18f8bb486fc72e9a8004',
 			nickname: 'test2계정',
@@ -85,6 +62,7 @@ export const getQuizbookRecordOfScoreListEx = [
 	},
 	{
 		score: 40,
+		answer: '블라블라블라블라',
 		owner: {
 			_id: '67e2e20e5872c849d5dd4b86',
 			nickname: 'test계정',
@@ -92,3 +70,25 @@ export const getQuizbookRecordOfScoreListEx = [
 		},
 	},
 ];
+
+export const getQuizbookRecordOfScoreListEx = {
+	memberList: ['62ae18f8bb486fc72e9a8004', '68be18f8bb486fc72e9a8004'],
+	scoreList: [
+		{
+			score: 40,
+			owner: {
+				_id: '67fe18f8bb486fc72e9a8004',
+				nickname: 'test2계정',
+				profileImg: '',
+			},
+		},
+		{
+			score: 40,
+			owner: {
+				_id: '67e2e20e5872c849d5dd4b86',
+				nickname: 'test계정',
+				profileImg: '',
+			},
+		},
+	],
+};
