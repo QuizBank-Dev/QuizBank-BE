@@ -66,3 +66,11 @@ export const getQuizbookWithDetailEx = {
 	isLiked: true,
 	isStudied: false,
 };
+
+export const getQuizbookWithMetaDataEx = {
+	_id: '67fdc5c21e49a2871aeb665d',
+	title: '면접 대비 CS 문제집',
+	description: '면접 대비하는 문제입니다.',
+	category: '웹 개발',
+	totalScore: 35,
+};

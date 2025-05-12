@@ -15,7 +15,11 @@ import { Public } from '../auth/decorator/public.decorator';
 import { UserId } from 'src/common/decorators/user-id.decorator';
 import { GetQuizbookListDto } from './dto/get-quizbook-list.dto';
 import { PaginationRequestDto } from 'src/common/dto/pagination.dto';
-import { getQuizbookListEx, getQuizbookWithDetailEx } from './quizbook.example';
+import {
+	getQuizbookListEx,
+	getQuizbookWithDetailEx,
+	getQuizbookWithMetaDataEx,
+} from './quizbook.example';
 
 @Controller({
 	path: 'quizbook',
@@ -103,6 +107,7 @@ export class QuizbookController {
 		summary: '특정 Quizbook의 메타데이터 조회',
 		description: '레이아웃 구성에 필요한 Quizbook의 최소 메타데이터 조회',
 	})
+	@ApiBaseResponse(200, '조회 성공', getQuizbookWithMetaDataEx)
 	getQuizbookWithMetaData(@Param('quizbookId') quizbookId: string) {
 		return this.quizbookService.getQuizbookWithMetaData(quizbookId);
 	}

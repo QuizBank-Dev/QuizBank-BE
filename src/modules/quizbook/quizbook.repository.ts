@@ -172,7 +172,7 @@ export class QuizbookRepository {
 	async findQuizbookWithMetaData(quizbookId: string) {
 		return this.quizbookModel
 			.findById(quizbookId)
-			.select('title category description')
+			.select('title category description totalScore')
 			.lean();
 	}
 }
