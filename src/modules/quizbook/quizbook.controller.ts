@@ -17,8 +17,9 @@ import { GetQuizbookListDto } from './dto/get-quizbook-list.dto';
 import { PaginationRequestDto } from 'src/common/dto/pagination.dto';
 import {
 	getQuizbookListEx,
-	getQuizbookWithDetailEx,
-	getQuizbookWithMetaDataEx,
+	getQuizbookMetaDataEx,
+	getQuizbookStatesEx,
+	getQuizbookUserFlagsEx,
 } from './quizbook.example';
 
 @Controller({
@@ -85,30 +86,43 @@ export class QuizbookController {
 		return this.quizbookService.getQuizbookListByUser(dto, authorId);
 	}
 
-	// GET v1/quizbook/:quizbookId
-	@Public()
-	@Get(':quizbookId')
-	@ApiOperation({
-		summary: '특정 Quizbook 상세정보 조회',
-		description: '[Quizbook 상세 페이지]에 필요한 Quizbook의 상세정보',
-	})
-	@ApiBaseResponse(200, '조회 성공', getQuizbookWithDetailEx)
-	getQuizbookWithDetail(
-		@Param('quizbookId') quizbookId: string,
-		@UserId(true) userId?: string,
-	) {
-		return this.quizbookService.getQuizbookWithDetail(quizbookId, userId);
-	}
-
 	// GET v1/quizbook/:quizbookId/meta-data
 	@Public()
-	@Get(':quizbookId')
+	@Get(':quizbookId/meta-data')
 	@ApiOperation({
-		summary: '특정 Quizbook의 메타데이터 조회',
-		description: '레이아웃 구성에 필요한 Quizbook의 최소 메타데이터 조회',
+		summary: '특정 Quizbook의 메타 데이터 조회',
+		description:
+			'특정 Quizbook의 title, category, description, totalScore, quizbookList, author 조회',
 	})
-	@ApiBaseResponse(200, '조회 성공', getQuizbookWithMetaDataEx)
-	getQuizbookWithMetaData(@Param('quizbookId') quizbookId: string) {
-		return this.quizbookService.getQuizbookWithMetaData(quizbookId);
+	@ApiBaseResponse(200, '조회 성공', getQuizbookMetaDataEx)
+	getQuizbookhMetaData(@Param('quizbookId') quizbookId: string) {
+		return this.quizbookService.getQuizbookMetaData(quizbookId);
+	}
+
+	// GET v1/quizbook/:quizbookId/user-flags
+	@Get(':quizbookId/user-flags')
+	@ApiOperation({
+		summary: '특정 Quizbook의 사용자 Flags 조회',
+		description: '특정 Quizbook의 isStudied, isLiked 조회',
+	})
+	@ApiBaseResponse(200, '조회 성공', getQuizbookUserFlagsEx)
+	getQuizbookUserFlags(
+		@Param('quizbookId') quizbookId: string,
+		@UserId() userId: string,
+	) {
+		return this.quizbookService.getQuizbookUserFlags(quizbookId, userId);
+	}
+
+	// GET v1/quizbook/:quizbookId/states
+	@Public()
+	@Get(':quizbookId/states')
+	@ApiOperation({
+		summary: '특정 Quizbook의 통계 States 조회',
+		description:
+			'특정 Quizbook의 solvedCount, solvedScore, totalScore, reviewCount, reviewScore, reviewRating, createdAt, updatedAt 조회',
+	})
+	@ApiBaseResponse(200, '조회 성공', getQuizbookStatesEx)
+	getQuizbookStates(@Param('quizbookId') quizbookId: string) {
+		return this.quizbookService.getQuizbookStates(quizbookId);
 	}
 }
