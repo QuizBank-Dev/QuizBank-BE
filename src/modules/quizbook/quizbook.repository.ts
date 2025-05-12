@@ -90,28 +90,6 @@ export class QuizbookRepository {
 
 	/**
 	 * 특정 Quizbook 상세 조회
-	 * populate: quizList, author
-	 */
-	async findByIdWithQuizAndAuthor(quizbookId: string) {
-		return this.quizbookModel
-			.findById(quizbookId)
-			.populate([
-				{
-					path: 'quizList',
-					model: 'Quiz',
-					select: 'type question optionList',
-				},
-				{
-					path: 'author',
-					model: 'User',
-					select: 'nickname profileImg',
-				},
-			])
-			.lean();
-	}
-
-	/**
-	 * 특정 Quizbook 상세 조회
 	 * populate: quizList
 	 */
 	async findByIdWithQuiz(quizbookId: string) {
@@ -164,5 +142,39 @@ export class QuizbookRepository {
 			sortOption: { _id: -1 },
 			limit,
 		});
+	}
+
+	/**
+	 * 특정 Quizbook의 메타데이터 조회
+	 */
+	async findQuizbookWithMetaData(quizbookId: string) {
+		return this.quizbookModel
+			.findById(quizbookId)
+			.select('title category description totalScore author quizList')
+			.populate([
+				{
+					path: 'quizList',
+					model: 'Quiz',
+					select: 'type question answer optionList',
+				},
+				{
+					path: 'author',
+					model: 'User',
+					select: 'nickname profileImg',
+				},
+			])
+			.lean();
+	}
+
+	/**
+	 * 특정 Quizbook의 통계 필드 조회
+	 */
+	async findQuizbookWithStates(quizbookId: string) {
+		return this.quizbookModel
+			.findById(quizbookId)
+			.select(
+				'solvedCount solvedScore totalScore reviewCount reviewScore reviewRating createdAt updatedAt',
+			)
+			.lean();
 	}
 }

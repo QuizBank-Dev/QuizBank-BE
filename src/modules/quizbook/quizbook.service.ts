@@ -85,21 +85,6 @@ export class QuizbookService {
 		};
 	}
 
-	// 특정 Quizbook 상세 조회
-	async getQuizbookWithDetail(quizbookId: string, userId?: string) {
-		const quizbook =
-			await this.quizbookRepo.findByIdWithQuizAndAuthor(quizbookId);
-
-		if (!quizbook)
-			throw new NotFoundException(
-				`해당 ${quizbookId} Quizbook을 찾을 수 없습니다.`,
-			);
-
-		if (!userId) return this.addUserFlagsToQuizbook(quizbook);
-
-		return this.addUserFlagsToQuizbook(quizbook, userId);
-	}
-
 	// 특정 사용자가 작성한 모든 Quizbook 조회
 	async getQuizbookListByUser(dto: PaginationRequestDto, userId: string) {
 		const quizbookList =
@@ -116,7 +101,7 @@ export class QuizbookService {
 
 	// isLiked, isStudied 필드 추가 메서드
 	async addUserFlagsToQuizbook(
-		data: Quizbook | Quizbook[],
+		data: Partial<Quizbook> | Partial<Quizbook>[],
 		userId?: string,
 		options?: { likedIdList?: string[]; studiedIdList?: string[] },
 	) {
@@ -172,5 +157,30 @@ export class QuizbookService {
 		});
 
 		return isArray ? result : result[0];
+	}
+
+	// 특정 Quizbook의 메타데이터 조회
+	async getQuizbookMetaData(quizbookId: string) {
+		return this.quizbookRepo.findQuizbookWithMetaData(quizbookId);
+	}
+
+	// 특정 Quizbook의 isLiked, isStudied 상태 조회
+	async getQuizbookUserFlags(quizbookId: string, userId: string) {
+		const exists = await this.quizbookRepo.exists(quizbookId);
+
+		if (!exists)
+			throw new NotFoundException(
+				`해당 ${quizbookId} Quizbook을 찾을 수 없습니다.`,
+			);
+
+		return this.addUserFlagsToQuizbook(
+			{ _id: toObjectId(quizbookId) },
+			userId,
+		);
+	}
+
+	// 특정 Quizbook의 통계 데이터 조회
+	async getQuizbookStates(quizbookId: string) {
+		return this.quizbookRepo.findQuizbookWithStates(quizbookId);
 	}
 }

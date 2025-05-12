@@ -281,12 +281,15 @@ export class StudyService {
 			group.memberList,
 		);
 
-		return result.map((record) => {
-			return {
-				score: record.score,
-				owner: record.owner,
-			};
-		});
+		return {
+			meberList: group.memberList,
+			scoreList: result.map((record) => {
+				return {
+					score: record.score,
+					owner: record.owner,
+				};
+			}),
+		};
 	}
 
 	/**

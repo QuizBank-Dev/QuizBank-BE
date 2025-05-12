@@ -115,23 +115,16 @@ export class StudyRepository {
 				quizbook: toObjectId(quizbookId),
 				owner: toObjectId(userId),
 			})
-			.populate([
-				{
-					path: 'quizRecordList',
-					model: 'QuizRecord',
-					select: 'answer score quiz',
-					populate: {
-						path: 'quiz',
-						model: 'Quiz',
-						select: 'question type',
-					},
+			.populate({
+				path: 'quizRecordList',
+				model: 'QuizRecord',
+				select: 'answer score quiz',
+				populate: {
+					path: 'quiz',
+					model: 'Quiz',
+					select: 'question type',
 				},
-				{
-					path: 'quizbook',
-					model: 'Quizbook',
-					select: 'title category',
-				},
-			])
+			})
 			.lean();
 	}
 

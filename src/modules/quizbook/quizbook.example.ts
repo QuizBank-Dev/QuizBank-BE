@@ -12,6 +12,7 @@ export const getQuizbookListEx = {
 			],
 			solvedCount: 3,
 			solvedScore: 40,
+			totalScore: 60,
 			reviewCount: 1,
 			reviewScore: 4,
 			reviewRating: 4,
@@ -30,37 +31,44 @@ export const getQuizbookListEx = {
 	totalCount: 1,
 };
 
-export const getQuizbookWithDetailEx = {
-	_id: '67fdc5c21e49a2871aeb665d',
-	title: '면접 대비 CS 문제집',
-	description: '면접 대비하는 문제입니다.',
+export const getQuizbookMetaDataEx = {
+	_id: '68003e7b56ae18a5b75151d1',
+	title: '면접 대비 웹 개발 문제집',
+	description:
+		'웹 개발 면접에서 자주 나오는 필수 개념들을 복습하기 위한 문제집입니다.',
 	category: '웹 개발',
 	quizList: [
 		{
-			_id: '67fdc5c21e49a2871aeb6659',
+			_id: '68003e7b56ae18a5b75151cf',
 			type: '주관식',
-			question: 'test',
-			optionList: [],
-		},
-		{
-			_id: '67fdc5c21e49a2871aeb665a',
-			type: '서술형',
-			question: 'test',
+			question:
+				'다음 설명에 해당하는 용어는 무엇인가요? 연결 지향적이고 신뢰성이 높은 전송 프로토콜로, 패킷 순서 보장과 오류 제어 기능을 제공합니다.',
+			answer: 'TCP',
 			optionList: [],
 		},
 	],
-	solvedCount: 0,
-	solvedScore: 0,
-	reviewCount: 1,
-	reviewScore: 1,
-	reviewRating: 1,
+	totalScore: 15,
 	author: {
-		_id: '67e2e20e5872c849d5dd4b86',
-		nickname: 'test계정',
+		_id: '67fe18f8bb486fc72e9a8004',
+		nickname: 'test2계정',
+		profileImg: '',
 	},
-	createdAt: '2025-04-15T02:34:42.134Z',
-	updatedAt: '2025-04-15T02:39:29.532Z',
-	__v: 0,
-	isLiked: true,
-	isStudied: false,
+};
+
+export const getQuizbookUserFlagsEx = {
+	_id: '68003e7b56ae18a5b75151d1',
+	isLiked: false,
+	isStudied: true,
+};
+
+export const getQuizbookStatesEx = {
+	_id: '68003e7b56ae18a5b75151d1',
+	solvedCount: 1,
+	solvedScore: 15,
+	totalScore: 15,
+	reviewCount: 0,
+	reviewScore: 0,
+	reviewRating: 0,
+	createdAt: '2025-04-16T23:34:19.300Z',
+	updatedAt: '2025-05-12T10:16:07.769Z',
 };

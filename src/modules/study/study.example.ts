@@ -1,9 +1,4 @@
 export const getStudyResultEx = {
-	quizbook: {
-		_id: '67fdc5ac1e49a2871aeb6657',
-		title: '면접 대비 CS 문제집',
-		category: '웹 개발',
-	},
 	quizList: [
 		{
 			_id: '67fdc5ac1e49a2871aeb6651',
@@ -76,21 +71,24 @@ export const getQuizRecordOfAnswerListInGroupEx = [
 	},
 ];
 
-export const getQuizbookRecordOfScoreListEx = [
-	{
-		score: 40,
-		owner: {
-			_id: '67fe18f8bb486fc72e9a8004',
-			nickname: 'test2계정',
-			profileImg: '',
+export const getQuizbookRecordOfScoreListEx = {
+	memberList: ['62ae18f8bb486fc72e9a8004', '68be18f8bb486fc72e9a8004'],
+	scoreList: [
+		{
+			score: 40,
+			owner: {
+				_id: '67fe18f8bb486fc72e9a8004',
+				nickname: 'test2계정',
+				profileImg: '',
+			},
 		},
-	},
-	{
-		score: 40,
-		owner: {
-			_id: '67e2e20e5872c849d5dd4b86',
-			nickname: 'test계정',
-			profileImg: '',
+		{
+			score: 40,
+			owner: {
+				_id: '67e2e20e5872c849d5dd4b86',
+				nickname: 'test계정',
+				profileImg: '',
+			},
 		},
-	},
-];
+	],
+};

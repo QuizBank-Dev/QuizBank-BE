@@ -15,7 +15,12 @@ import { Public } from '../auth/decorator/public.decorator';
 import { UserId } from 'src/common/decorators/user-id.decorator';
 import { GetQuizbookListDto } from './dto/get-quizbook-list.dto';
 import { PaginationRequestDto } from 'src/common/dto/pagination.dto';
-import { getQuizbookListEx, getQuizbookWithDetailEx } from './quizbook.example';
+import {
+	getQuizbookListEx,
+	getQuizbookMetaDataEx,
+	getQuizbookStatesEx,
+	getQuizbookUserFlagsEx,
+} from './quizbook.example';
 
 @Controller({
 	path: 'quizbook',
@@ -81,18 +86,43 @@ export class QuizbookController {
 		return this.quizbookService.getQuizbookListByUser(dto, authorId);
 	}
 
-	// GET v1/quizbook/:quizbookId
+	// GET v1/quizbook/:quizbookId/meta-data
 	@Public()
-	@Get(':quizbookId')
+	@Get(':quizbookId/meta-data')
 	@ApiOperation({
-		summary: '특정 Quizbook 상세정보 조회',
-		description: '[Quizbook 상세 페이지]에 필요한 Quizbook의 상세정보',
+		summary: '특정 Quizbook의 메타 데이터 조회',
+		description:
+			'특정 Quizbook의 title, category, description, totalScore, quizbookList, author 조회',
 	})
-	@ApiBaseResponse(200, '조회 성공', getQuizbookWithDetailEx)
-	getQuizbookWithDetail(
+	@ApiBaseResponse(200, '조회 성공', getQuizbookMetaDataEx)
+	getQuizbookhMetaData(@Param('quizbookId') quizbookId: string) {
+		return this.quizbookService.getQuizbookMetaData(quizbookId);
+	}
+
+	// GET v1/quizbook/:quizbookId/user-flags
+	@Get(':quizbookId/user-flags')
+	@ApiOperation({
+		summary: '특정 Quizbook의 사용자 Flags 조회',
+		description: '특정 Quizbook의 isStudied, isLiked 조회',
+	})
+	@ApiBaseResponse(200, '조회 성공', getQuizbookUserFlagsEx)
+	getQuizbookUserFlags(
 		@Param('quizbookId') quizbookId: string,
-		@UserId(true) userId?: string,
+		@UserId() userId: string,
 	) {
-		return this.quizbookService.getQuizbookWithDetail(quizbookId, userId);
+		return this.quizbookService.getQuizbookUserFlags(quizbookId, userId);
+	}
+
+	// GET v1/quizbook/:quizbookId/states
+	@Public()
+	@Get(':quizbookId/states')
+	@ApiOperation({
+		summary: '특정 Quizbook의 통계 States 조회',
+		description:
+			'특정 Quizbook의 solvedCount, solvedScore, totalScore, reviewCount, reviewScore, reviewRating, createdAt, updatedAt 조회',
+	})
+	@ApiBaseResponse(200, '조회 성공', getQuizbookStatesEx)
+	getQuizbookStates(@Param('quizbookId') quizbookId: string) {
+		return this.quizbookService.getQuizbookStates(quizbookId);
 	}
 }

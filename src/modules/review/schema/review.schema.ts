@@ -36,3 +36,7 @@ export class Review extends Document {
 }
 
 export const ReviewSchema = SchemaFactory.createForClass(Review);
+
+ReviewSchema.index({ quizbook: 1, author: 1 });
+ReviewSchema.index({ quizbook: 1 });
+ReviewSchema.index({ author: 1 });
