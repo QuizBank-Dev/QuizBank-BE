@@ -165,4 +165,14 @@ export class QuizbookRepository {
 			limit,
 		});
 	}
+
+	/**
+	 * 특정 Quizbook의 최소 메타데이터 조회
+	 */
+	async findQuizbookWithMetaData(quizbookId: string) {
+		return this.quizbookModel
+			.findById(quizbookId)
+			.select('title category description')
+			.lean();
+	}
 }

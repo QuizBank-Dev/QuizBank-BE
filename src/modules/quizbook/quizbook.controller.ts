@@ -95,4 +95,15 @@ export class QuizbookController {
 	) {
 		return this.quizbookService.getQuizbookWithDetail(quizbookId, userId);
 	}
+
+	// GET v1/quizbook/:quizbookId/meta-data
+	@Public()
+	@Get(':quizbookId')
+	@ApiOperation({
+		summary: '특정 Quizbook의 메타데이터 조회',
+		description: '레이아웃 구성에 필요한 Quizbook의 최소 메타데이터 조회',
+	})
+	getQuizbookWithMetaData(@Param('quizbookId') quizbookId: string) {
+		return this.quizbookService.getQuizbookWithMetaData(quizbookId);
+	}
 }

@@ -173,4 +173,9 @@ export class QuizbookService {
 
 		return isArray ? result : result[0];
 	}
+
+	// 특정 Quizbook 최소 메타데이터 조회
+	async getQuizbookWithMetaData(quizbookId: string) {
+		return this.quizbookRepo.findQuizbookWithMetaData(quizbookId);
+	}
 }
