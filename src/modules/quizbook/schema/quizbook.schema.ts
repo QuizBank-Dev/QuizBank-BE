@@ -56,3 +56,7 @@ export class Quizbook extends Document {
 }
 
 export const QuizbookSchema = SchemaFactory.createForClass(Quizbook);
+
+QuizbookSchema.index({ author: 1, _id: -1 });
+QuizbookSchema.index({ category: 1, _id: -1 });
+QuizbookSchema.index({ category: 1, reviewRating: -1, _id: -1 });

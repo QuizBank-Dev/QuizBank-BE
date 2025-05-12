@@ -19,3 +19,5 @@ export class StudyLog extends Document {
 }
 
 export const StudyLogSchema = SchemaFactory.createForClass(StudyLog);
+
+StudyLogSchema.index({ owner: 1, date: 1 });

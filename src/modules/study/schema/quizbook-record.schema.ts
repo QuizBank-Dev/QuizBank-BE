@@ -40,3 +40,5 @@ export class QuizbookRecord extends Document {
 
 export const QuizbookRecordSchema =
 	SchemaFactory.createForClass(QuizbookRecord);
+
+QuizbookRecordSchema.index({ owner: 1, quizbookId: 1 });
