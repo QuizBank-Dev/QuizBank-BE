@@ -33,6 +33,7 @@ export class ChatService {
 			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
 
 		const { cursor, take } = query;
+
 		const chats = await this.chatRepository.findList(
 			toObjectId(chatRoomId),
 			cursor ? new Date(cursor) : new Date(),
@@ -41,8 +42,7 @@ export class ChatService {
 
 		return {
 			chats: chats.reverse(),
-			nextCursor:
-				chats.length > 0 ? chats[chats.length - 1].createdAt : null,
+			nextCursor: chats.length > 0 ? chats[0].createdAt : null,
 		};
 	}
 
@@ -77,8 +77,6 @@ export class ChatService {
 	}
 
 	async patchReadStatus(userId: string, chatRoomId: string) {
-		const now = new Date();
-
 		const chatRoom = await this.chatRoomRepository.findById(chatRoomId);
 
 		if (!chatRoom)
@@ -88,6 +86,8 @@ export class ChatService {
 
 		if (!chatRoom.memberList.map((id) => id.toString()).includes(userId))
 			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
+
+		const now = new Date();
 
 		// readStatus 갱신 로직
 		await this.readStatusRepository.update(
