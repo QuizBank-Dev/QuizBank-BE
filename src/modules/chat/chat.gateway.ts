@@ -20,7 +20,6 @@ import { ChatRepository } from './repository/chat.repository';
 import { toObjectId } from 'src/common/utils/database.util';
 import { ReadStatusRepository } from './repository/read-status.repository';
 import { UserRepository } from '../user/user.repository';
-import { Types } from 'mongoose';
 
 interface AuthenticatedSocket extends Socket {
 	data: {
@@ -115,6 +114,11 @@ export class ChatGateway
 		const { chatRoomId, content } = data;
 		const userId = socket.data.user.userId;
 
+		// 내 정보 조회
+		const myInfo = await this.userRepository.findById(userId);
+		if (!myInfo)
+			throw new WsException(`해당 ${userId} 유저를 찾을 수 없습니다.`);
+
 		// chat 생성 로직
 		const newChat = await this.chatRepository.create({
 			chatRoom: toObjectId(chatRoomId),
@@ -122,18 +126,21 @@ export class ChatGateway
 			content,
 		});
 
-		// 내 정보 조회
-		const myInfo = await this.userRepository.findById(userId);
-		if (!myInfo)
-			throw new WsException(`해당 ${userId} 유저를 찾을 수 없습니다.`);
+		// readStatus 갱신 로직
+		const now = new Date();
+		await this.readStatusRepository.update(
+			{ lastTimestamp: now },
+			toObjectId(userId),
+			toObjectId(chatRoomId),
+		);
 
 		socket.to(chatRoomId).emit('receive_chat', {
-			...newChat,
-			sender: {
-				_id: myInfo._id,
-				nickname: myInfo.nickname,
-				profileImg: myInfo.profileImg,
-			},
+			_id: newChat._id,
+			chatRoom: chatRoomId,
+			sender: myInfo._id,
+			content: content,
+			createdAt: newChat.createdAt,
+			updatedAt: newChat.updatedAt,
 		});
 	}
 }

@@ -26,21 +26,11 @@ export class ChatRepository {
 			query.createdAt = { $lt: cursor };
 		}
 
-		return this.chatModel
-			.find(query)
-			.sort({ createdAt: -1 })
-			.limit(take)
-			.populate([
-				{
-					path: 'sender',
-					model: 'User',
-					select: 'nickname profileImg',
-				},
-			]);
+		return this.chatModel.find(query).sort({ createdAt: -1 }).limit(take);
 	}
 
 	/**
-	 * 채팅 내역 조회
+	 * 안읽은 채팅 내역 조회
 	 */
 	async findUnreadList(chatRoom: Types.ObjectId, date: Date) {
 		return this.chatModel.find({ chatRoom, createdAt: { $gt: date } });
