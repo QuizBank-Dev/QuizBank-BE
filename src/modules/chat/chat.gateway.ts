@@ -105,6 +105,16 @@ export class ChatGateway
 		}
 	}
 
+	@SubscribeMessage('leave_chat')
+	async handleLeaveChat(
+		@ConnectedSocket() socket: AuthenticatedSocket,
+		@MessageBody() chatRoomIds: string[],
+	) {
+		for (const chatRoomId of chatRoomIds) {
+			await socket.leave(chatRoomId);
+		}
+	}
+
 	@SubscribeMessage('send_chat')
 	async handleSendChat(
 		@ConnectedSocket() socket: AuthenticatedSocket,
