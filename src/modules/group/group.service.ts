@@ -20,6 +20,7 @@ import { GroupQueryDto } from './dto/group-query.dto';
 import { GroupQuizbook } from './group-quizbook/schema/group-quizbook.schema';
 import { ConfigService } from '@nestjs/config';
 import { envKeys } from 'src/config/env.const';
+import { ChatService } from '../chat/chat.service';
 
 @Injectable()
 export class GroupService {
@@ -31,6 +32,7 @@ export class GroupService {
 		private readonly chatRoomRepository: ChatRoomRepository,
 		private readonly readStatusRepository: ReadStatusRepository,
 		private readonly configService: ConfigService,
+		private readonly chatService: ChatService,
 	) {}
 
 	async getGroupList(query: GroupQueryDto) {
@@ -88,30 +90,40 @@ export class GroupService {
 		);
 
 		// 그룹 정보를 변환
-		const transformedGroups = groupList.map((group) => {
-			const {
-				memberList,
-				applyingUserList,
-				groupQuizbookList,
-				createdAt,
-				updatedAt,
-				...filteredFields
-			} = group.toObject();
+		const transformedGroups = await Promise.all(
+			groupList.map(async (group) => {
+				const {
+					memberList,
+					applyingUserList,
+					groupQuizbookList,
+					createdAt,
+					updatedAt,
+					...filteredFields
+				} = group.toObject();
 
-			// 간단히 변수 사용 처리
-			void applyingUserList;
-			void groupQuizbookList;
-			void createdAt;
-			void updatedAt;
+				// 간단히 변수 사용 처리
+				void applyingUserList;
+				void groupQuizbookList;
+				void createdAt;
+				void updatedAt;
 
-			// memberCount 계산
-			const memberCount = memberList.length;
+				// memberCount 계산
+				const memberCount = memberList.length;
 
-			return {
-				...filteredFields,
-				memberCount,
-			};
-		});
+				// 안읽은 채팅 메세지 개수 계산
+				const { count: unreadMessageCount } =
+					await this.chatService.getGroupChatUnreadCount(
+						userId,
+						group.chatRoom.toString(),
+					);
+
+				return {
+					...filteredFields,
+					memberCount,
+					unreadMessageCount,
+				};
+			}),
+		);
 
 		return {
 			list: transformedGroups,
