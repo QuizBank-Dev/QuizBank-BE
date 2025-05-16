@@ -67,6 +67,8 @@ export class ReviewService {
 				dto.quizbookId,
 				session,
 			);
+
+			return review;
 		});
 	}
 

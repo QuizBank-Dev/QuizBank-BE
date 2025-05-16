@@ -1,3 +1,13 @@
+export const createCommentEx = {
+	_id: '67fe3f484d188f97d2aec4cf',
+	content: 'Comment 생성 테스트',
+	quiz: '67fdc5ac1e49a2871aeb6651',
+	author: '67fe18f8bb486fc72e9a8004',
+	createdAt: '2025-04-15T11:13:12.456Z',
+	updatedAt: '2025-04-15T11:23:01.730Z',
+	__v: 0,
+};
+
 export const updateCommentEx = {
 	_id: '67fe3f484d188f97d2aec4cf',
 	content: 'Comment 수정 테스트',

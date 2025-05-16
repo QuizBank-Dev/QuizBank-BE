@@ -30,12 +30,14 @@ export class CommentService {
 				`상위 ${dto.commentId} Comment를 찾을 수 없습니다.`,
 			);
 
-		await this.commentRepo.create({
+		const comment = await this.commentRepo.create({
 			parent: toObjectId(dto.commentId),
 			content: dto.content,
 			quiz: toObjectId(dto.quizId),
 			author: toObjectId(userId),
 		});
+
+		return comment;
 	}
 
 	// 특정 Quiz에 대한 모든 최상위 Comment 조회

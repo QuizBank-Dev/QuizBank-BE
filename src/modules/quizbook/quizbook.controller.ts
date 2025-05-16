@@ -20,6 +20,7 @@ import {
 	getQuizbookMetaDataEx,
 	getQuizbookStatesEx,
 	getQuizbookUserFlagsEx,
+	createQuizbookEx,
 } from './quizbook.example';
 
 @Controller({
@@ -36,7 +37,7 @@ export class QuizbookController {
 		summary: 'Quizbook 생성',
 		description: 'Quizbook 생성',
 	})
-	@ApiBaseResponse(201, '생성 성공')
+	@ApiBaseResponse(201, '생성 성공', createQuizbookEx)
 	createQuizbook(@Body() dto: CreateQuizbookDto, @UserId() userId: string) {
 		return this.quizbookService.createQuizbook(dto, userId);
 	}
