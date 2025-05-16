@@ -84,10 +84,7 @@ export class CommentService {
 				dto,
 			);
 
-		return {
-			comment,
-			recomment: recommentList,
-		};
+		return recommentList;
 	}
 
 	// 사용자가 작성한 모든 Comment 조회
