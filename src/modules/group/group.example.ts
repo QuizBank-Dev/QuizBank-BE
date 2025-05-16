@@ -23,6 +23,7 @@ export const MyGroupListExample = {
 			admin: {},
 			chatRoom: '65e8a5d6fc13ae5e7f000002',
 			memberCount: '7',
+			unreadMessageCount: 10,
 		},
 	],
 	nextCursor: '65e8a5d6fc13ae5e7f000002',

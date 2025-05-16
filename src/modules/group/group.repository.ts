@@ -7,7 +7,7 @@ import { GroupQueryDto } from './dto/group-query.dto';
 import { toObjectId } from 'src/common/utils/database.util';
 
 interface GroupQuery {
-	cursor?: { $lt: Types.ObjectId };
+	_id?: { $lt: Types.ObjectId };
 	memberList?: { $in: [Types.ObjectId] };
 	name?: { $regex: string; $options: string };
 }
@@ -27,7 +27,7 @@ export class GroupRepository {
 
 		const filter: GroupQuery = {};
 
-		if (cursor) filter.cursor = { $lt: toObjectId(cursor) };
+		if (cursor) filter._id = { $lt: toObjectId(cursor) };
 		if (memberId) filter.memberList = { $in: [memberId] };
 		if (name) filter.name = { $regex: name, $options: 'i' };
 
@@ -52,7 +52,7 @@ export class GroupRepository {
 
 		const filter: GroupQuery = {};
 
-		if (cursor) filter.cursor = { $lt: toObjectId(cursor) };
+		if (cursor) filter._id = { $lt: toObjectId(cursor) };
 		if (memberId) filter.memberList = { $in: [memberId] };
 		if (name) filter.name = { $regex: name, $options: 'i' };
 
