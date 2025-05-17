@@ -15,6 +15,7 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { ApiOperation } from '@nestjs/swagger';
 import { ApiBaseResponse } from 'src/common/decorators/base-response.decorator';
 import {
+	createCommentEx,
 	getCommentDetailEx,
 	getCommentListEx,
 	getMyCommentEx,
@@ -37,7 +38,7 @@ export class CommentController {
 		description:
 			'특정 Quiz에 대한 Comment를 생성합니다. (commentId 전달시 ReComment로 인식)',
 	})
-	@ApiBaseResponse(201, '생성 성공')
+	@ApiBaseResponse(201, '생성 성공', createCommentEx)
 	createComment(@Body() dto: CreateCommentDto, @UserId() userId: string) {
 		return this.commentService.createComment(dto, userId);
 	}

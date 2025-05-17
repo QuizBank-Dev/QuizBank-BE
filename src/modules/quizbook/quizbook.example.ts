@@ -1,3 +1,25 @@
+export const createQuizbookEx = {
+	_id: '67fdc5ac1e49a2871aeb6657',
+	title: '면접 대비 CS 문제집',
+	description: '면접 대비하는 문제입니다.',
+	category: '웹 개발',
+	quizList: [
+		'67fdc5ac1e49a2871aeb6651',
+		'67fdc5ac1e49a2871aeb6652',
+		'67fdc5ac1e49a2871aeb6653',
+	],
+	solvedCount: 0,
+	solvedScore: 0,
+	totalScore: 60,
+	reviewCount: 0,
+	reviewScore: 0,
+	reviewRating: 0,
+	author: '67e2e20e5872c849d5dd4b86',
+	createdAt: '2025-04-15T02:34:20.113Z',
+	updatedAt: '2025-04-15T08:24:44.912Z',
+	__v: 0,
+};
+
 export const getQuizbookListEx = {
 	data: [
 		{

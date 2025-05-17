@@ -16,7 +16,7 @@ import { ApiBaseResponse } from 'src/common/decorators/base-response.decorator';
 import { UserId } from 'src/common/decorators/user-id.decorator';
 import { Public } from '../auth/decorator/public.decorator';
 import { PaginationRequestDto } from 'src/common/dto/pagination.dto';
-import { getReviewListEx } from './review.example';
+import { createReviewEx, getReviewListEx } from './review.example';
 
 @Controller({
 	path: 'review',
@@ -33,7 +33,7 @@ export class ReviewController {
 		summary: 'Review 생성',
 		description: '특정 Quizbook에 대한 Review를 생성합니다.',
 	})
-	@ApiBaseResponse(201, '생성 성공')
+	@ApiBaseResponse(201, '생성 성공', createReviewEx)
 	createReview(@Body() dto: CreateReviewDto, @UserId() userId: string) {
 		return this.reviewService.createReview(dto, userId);
 	}

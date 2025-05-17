@@ -53,7 +53,7 @@ export class QuizbookService {
 			);
 
 			// 2. Quizbook 생성
-			await this.quizbookRepo.create(
+			const quizbook = await this.quizbookRepo.create(
 				{
 					...dto,
 					quizList: quizList.map((q) => toObjectId(q._id as string)),
@@ -62,6 +62,8 @@ export class QuizbookService {
 				},
 				session,
 			);
+
+			return quizbook;
 		});
 	}
 
