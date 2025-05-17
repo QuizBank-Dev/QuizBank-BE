@@ -39,20 +39,24 @@ export class GroupQuizbookService {
 		if (indexOfNewOwner === -1)
 			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
 
-		const { cursor, limit, done } = query;
+		const { standard, cursor, limit, status, sort } = query;
 
 		const groupQuizbookList =
 			await this.groupQuizbookRepository.findGroupQuizbookList(
 				toObjectId(groupId),
-				new Date(cursor),
+				new Date(standard),
 				limit,
-				done,
+				status,
+				sort,
+				cursor ? new Date(cursor) : undefined,
 			);
 
 		const leftCount = await this.groupQuizbookRepository.findLeftCount(
 			toObjectId(groupId),
-			new Date(cursor),
-			done,
+			new Date(standard),
+			status,
+			sort,
+			cursor ? new Date(cursor) : undefined,
 		);
 
 		return {
