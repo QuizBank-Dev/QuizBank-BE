@@ -1,15 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class GroupQuizbookQueryDto {
 	@ApiProperty({
-		description: '기준이 되는 Group 선정 문제집 마감일',
+		description: '조회 시간대',
 		example: '2025-04-02',
 	})
 	@IsNotEmpty()
 	@IsString()
-	cursor: string;
+	standard: string;
+
+	@ApiProperty({
+		description: '무한스크롤 커서가 되는 Group 선정 문제집 마감일',
+		example: '2025-04-02',
+	})
+	@IsOptional()
+	@IsString()
+	cursor?: string;
 
 	@ApiProperty({
 		description: '불러올 항목 개수',
@@ -21,11 +29,18 @@ export class GroupQuizbookQueryDto {
 	limit: number;
 
 	@ApiProperty({
-		description: '마감일 완료 여부',
-		example: true,
+		description: '마감 상태',
+		example: 'in-progress',
 	})
 	@IsNotEmpty()
-	@IsBoolean()
-	@Transform(({ value }) => Boolean(value))
-	done: boolean;
+	@IsString()
+	status: string;
+
+	@ApiProperty({
+		description: '정렬 방향',
+		example: 'increase',
+	})
+	@IsNotEmpty()
+	@IsString()
+	sort: string;
 }
