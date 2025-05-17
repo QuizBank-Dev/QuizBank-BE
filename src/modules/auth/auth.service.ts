@@ -204,11 +204,15 @@ export class AuthService {
 	) {
 		const { access_token, refresh_token } = cookies;
 
-		// 토큰 만료
-		await this.authTokenService.expireToken(access_token);
-		await this.authTokenService.expireToken(refresh_token);
-
 		response.clearCookie(AUTH_COOKIE_KEY.ACCESS);
 		response.clearCookie(AUTH_COOKIE_KEY.REFRESH);
+
+		// 토큰 만료
+		if (access_token) {
+			await this.authTokenService.expireToken(access_token);
+		}
+		if (refresh_token) {
+			await this.authTokenService.expireToken(refresh_token);
+		}
 	}
 }
