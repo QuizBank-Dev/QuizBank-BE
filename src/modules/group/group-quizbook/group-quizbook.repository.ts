@@ -7,7 +7,7 @@ import { toObjectId } from 'src/common/utils/database.util';
 
 interface GroupQuizbookListQuery {
 	group: Types.ObjectId;
-	endedAt?: { $lt: Date } | { $gt: Date };
+	endedAt?: { $lt?: Date; $gt?: Date };
 }
 
 @Injectable()
@@ -22,21 +22,37 @@ export class GroupQuizbookRepository {
 	 */
 	async findGroupQuizbookList(
 		group: Types.ObjectId,
-		cursor: Date,
+		standard: Date,
 		limit: number,
-		done: boolean,
+		status: string,
+		sort: string,
+		cursor?: Date,
 	) {
 		const query: GroupQuizbookListQuery = { group };
 
-		if (done) {
-			query.endedAt = { $lt: cursor };
+		if (status === 'in-progress') {
+			query.endedAt = { $gt: standard };
+			if (cursor) {
+				if (sort === 'increase') {
+					query.endedAt.$gt = cursor;
+				} else {
+					query.endedAt.$lt = cursor;
+				}
+			}
 		} else {
-			query.endedAt = { $gt: cursor };
+			query.endedAt = { $lt: standard };
+			if (cursor) {
+				if (sort === 'increase') {
+					query.endedAt.$gt = cursor;
+				} else {
+					query.endedAt.$lt = cursor;
+				}
+			}
 		}
 
 		return this.groupQuizbookModel
 			.find(query)
-			.sort({ endedAt: done ? -1 : 1 })
+			.sort({ endedAt: sort === 'increase' ? 1 : -1 })
 			.limit(limit)
 			.populate([
 				{
@@ -54,13 +70,33 @@ export class GroupQuizbookRepository {
 	/**
 	 * 특정 Group의 선정 문제집 전체 개수 동기화를 위한 남은 개수 조회
 	 */
-	async findLeftCount(group: Types.ObjectId, cursor: Date, done: boolean) {
+	async findLeftCount(
+		group: Types.ObjectId,
+		standard: Date,
+		status: string,
+		sort: string,
+		cursor?: Date,
+	) {
 		const query: GroupQuizbookListQuery = { group };
 
-		if (done) {
-			query.endedAt = { $lt: cursor };
+		if (status === 'in-progress') {
+			query.endedAt = { $gt: standard };
+			if (cursor) {
+				if (sort === 'increase') {
+					query.endedAt.$gt = cursor;
+				} else {
+					query.endedAt.$lt = cursor;
+				}
+			}
 		} else {
-			query.endedAt = { $gt: cursor };
+			query.endedAt = { $lt: standard };
+			if (cursor) {
+				if (sort === 'increase') {
+					query.endedAt.$gt = cursor;
+				} else {
+					query.endedAt.$lt = cursor;
+				}
+			}
 		}
 
 		return this.groupQuizbookModel.countDocuments(query);
