@@ -150,7 +150,9 @@ export class QuizbookRepository {
 	async findQuizbookWithMetaData(quizbookId: string) {
 		return this.quizbookModel
 			.findById(quizbookId)
-			.select('title category description totalScore author quizList')
+			.select(
+				'title category description totalScore author quizList createdAt',
+			)
 			.populate([
 				{
 					path: 'quizList',

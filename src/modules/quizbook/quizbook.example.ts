@@ -75,6 +75,7 @@ export const getQuizbookMetaDataEx = {
 		nickname: 'test2계정',
 		profileImg: '',
 	},
+	createdAt: '2025-04-15T02:34:20.113Z',
 };
 
 export const getQuizbookUserFlagsEx = {
