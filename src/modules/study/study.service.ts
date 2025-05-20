@@ -80,7 +80,7 @@ export class StudyService {
 
 				const quizRecord = await this.studyRepo.createQuizRecord(
 					{
-						answer: answer ?? ' ',
+						answer,
 						score,
 						quiz: quiz._id as Types.ObjectId,
 						owner: toObjectId(userId),
@@ -306,6 +306,8 @@ export class StudyService {
 		answer: string,
 		session: ClientSession,
 	) {
+		if (!answer.trim()) return 0;
+
 		// OX && 객관식
 		if ([QuizType.OX, QuizType.MULTIPLE_CHOICE].includes(quiz.type)) {
 			return quiz.answer === answer ? getXpByType(quiz.type) : 0;

@@ -17,7 +17,7 @@ export class QuizRecord extends Document {
 	type: QuizType;
 
 	@Prop({
-		required: true,
+		default: '',
 	})
 	answer: string;
 

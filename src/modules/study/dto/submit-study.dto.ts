@@ -22,7 +22,6 @@ export class QuizAnswerDto {
 		example: 'O(n log n)',
 	})
 	@IsString()
-	@IsNotEmpty()
 	answer: string;
 }
 
