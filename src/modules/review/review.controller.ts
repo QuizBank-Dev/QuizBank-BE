@@ -50,7 +50,7 @@ export class ReviewController {
 	getReviewList(
 		@Query() dto: PaginationRequestDto,
 		@Param('quizbookId') quizbookId: string,
-		@UserId() userId?: string,
+		@UserId(true) userId?: string,
 	) {
 		return this.reviewService.getReviewList(dto, quizbookId, userId);
 	}
