@@ -80,7 +80,7 @@ export class StudyService {
 
 				const quizRecord = await this.studyRepo.createQuizRecord(
 					{
-						answer: answer ?? ' ',
+						answer,
 						score,
 						quiz: quiz._id as Types.ObjectId,
 						owner: toObjectId(userId),
@@ -270,7 +270,7 @@ export class StudyService {
 		groupId: string,
 		userId: string,
 	) {
-		const group = await this.groupRepo.findOneById(groupId, userId);
+		const group = await this.groupRepo.findOneByIdWithUser(groupId, userId);
 		if (!group)
 			throw new NotFoundException(
 				`해당 ${groupId}의 Group이 존재하지 않거나 멤버가 아닙니다.`,
@@ -306,6 +306,8 @@ export class StudyService {
 		answer: string,
 		session: ClientSession,
 	) {
+		if (!answer.trim()) return 0;
+
 		// OX && 객관식
 		if ([QuizType.OX, QuizType.MULTIPLE_CHOICE].includes(quiz.type)) {
 			return quiz.answer === answer ? getXpByType(quiz.type) : 0;

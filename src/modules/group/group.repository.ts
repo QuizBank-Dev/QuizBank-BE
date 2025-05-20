@@ -122,4 +122,22 @@ export class GroupRepository {
 			})
 			.lean();
 	}
+
+	/**
+	 * Group 조회
+	 * memberList의 사용자 정보 포함
+	 */
+	async findOneByIdWithUser(groupId: string, userId: string) {
+		return await this.groupModel
+			.findOne({
+				_id: groupId,
+				memberList: { $in: [toObjectId(userId)] },
+			})
+			.populate({
+				path: 'memberList',
+				model: 'User',
+				select: 'nickname profileImg',
+			})
+			.lean();
+	}
 }

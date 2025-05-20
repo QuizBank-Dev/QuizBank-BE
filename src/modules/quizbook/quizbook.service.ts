@@ -38,8 +38,6 @@ export class QuizbookService {
 								data.question,
 								data.answer,
 							);
-
-						console.log(data.answer);
 					}
 					const quiz = await this.quizRepo.create(data, session);
 

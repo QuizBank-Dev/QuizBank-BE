@@ -72,7 +72,18 @@ export const getQuizRecordOfAnswerListInGroupEx = [
 ];
 
 export const getQuizbookRecordOfScoreListEx = {
-	memberList: ['62ae18f8bb486fc72e9a8004', '68be18f8bb486fc72e9a8004'],
+	memberList: [
+		{
+			_id: '67e2e20e5872c849d5dd4b86',
+			nickname: 'test계정',
+			profileImg: '',
+		},
+		{
+			_id: '67e2e20e5872c849d5dd4b86',
+			nickname: 'test계정',
+			profileImg: '',
+		},
+	],
 	scoreList: [
 		{
 			score: 40,
