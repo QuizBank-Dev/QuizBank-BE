@@ -270,7 +270,7 @@ export class StudyService {
 		groupId: string,
 		userId: string,
 	) {
-		const group = await this.groupRepo.findOneById(groupId, userId);
+		const group = await this.groupRepo.findOneByIdWithUser(groupId, userId);
 		if (!group)
 			throw new NotFoundException(
 				`해당 ${groupId}의 Group이 존재하지 않거나 멤버가 아닙니다.`,
