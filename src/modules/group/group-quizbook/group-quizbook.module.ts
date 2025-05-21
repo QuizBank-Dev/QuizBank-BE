@@ -10,6 +10,7 @@ import { DB_TYPE } from 'src/database/database.const';
 import { DatabaseModule } from 'src/database/database.module';
 import { GroupQuizbookRepository } from './group-quizbook.repository';
 import { GroupModule } from '../group.module';
+import { QuizbookModule } from 'src/modules/quizbook/quizbook.module';
 
 @Module({
 	imports: [
@@ -19,6 +20,7 @@ import { GroupModule } from '../group.module';
 		),
 		DatabaseModule,
 		forwardRef(() => GroupModule),
+		forwardRef(() => QuizbookModule),
 	],
 	controllers: [GroupQuizbookController],
 	providers: [GroupQuizbookService, GroupQuizbookRepository],

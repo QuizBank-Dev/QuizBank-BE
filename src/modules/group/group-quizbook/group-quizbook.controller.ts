@@ -13,7 +13,10 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GroupQuizbookService } from './group-quizbook.service';
 import { ApiBaseResponse } from 'src/common/decorators/base-response.decorator';
 import { UserId } from 'src/common/decorators/user-id.decorator';
-import { GroupQuizbookListExample } from './group-quizbook.example';
+import {
+	GroupQuizbookExample,
+	GroupQuizbookListExample,
+} from './group-quizbook.example';
 import { CreateGroupQuizbookDto } from './dto/create-group-quizbook.dto';
 import { GroupQuizbookQueryDto } from './dto/group-quizbook-query.dto';
 
@@ -37,6 +40,24 @@ export class GroupQuizbookController {
 			userId,
 			groupId,
 			query,
+		);
+	}
+
+	@Get(':quizbookId')
+	@ApiOperation({
+		summary: '특정 Group 선정 문제집 정보 조회',
+		description: '특정 Group 선정 문제집 정보를 조회합니다.',
+	})
+	@ApiBaseResponse(HttpStatus.OK, '조회 성공', GroupQuizbookExample)
+	getGroupQuizbook(
+		@UserId() userId: string,
+		@Param('groupId') groupId: string,
+		@Param('quizbookId') quizbookId: string,
+	) {
+		return this.groupQuizbookService.getGroupQuizbook(
+			userId,
+			groupId,
+			quizbookId,
 		);
 	}
 

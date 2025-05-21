@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { Quizbook } from 'src/modules/quizbook/schema/quizbook.schema';
 
 @Schema({ timestamps: true })
 export class GroupQuizbook extends Document {
@@ -7,7 +8,7 @@ export class GroupQuizbook extends Document {
 	group: Types.ObjectId;
 
 	@Prop({ type: Types.ObjectId, ref: 'Quizbook', required: true })
-	quizbook: Types.ObjectId;
+	quizbook: Types.ObjectId | Quizbook;
 
 	@Prop({
 		type: Date,
