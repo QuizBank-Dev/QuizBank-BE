@@ -180,7 +180,7 @@ export class StudyRepository {
 				quiz: toObjectId(quizId),
 				$and: [
 					{ owner: { $in: userList } },
-					{ owner: { $ne: toObjectId(userId) } },
+					// { owner: { $ne: toObjectId(userId) } },
 				],
 			})
 			.populate({
