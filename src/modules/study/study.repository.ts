@@ -186,7 +186,7 @@ export class StudyRepository {
 			.populate({
 				path: 'owner',
 				model: 'User',
-				select: 'nickname profileUrl',
+				select: 'nickname profileImg',
 			})
 			.sort({ score: -1, _id: -1 })
 			.lean();
@@ -207,7 +207,7 @@ export class StudyRepository {
 			.populate({
 				path: 'owner',
 				model: 'User',
-				select: 'nickname profileUrl',
+				select: 'nickname profileImg',
 			})
 			.sort({ score: -1, _id: -1 })
 			.lean();
