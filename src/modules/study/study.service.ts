@@ -16,7 +16,6 @@ import { AIService } from '../ai/ai.service';
 import { QuizRepository } from '../quiz/quiz.repository';
 import { CategoryType } from '../quizbook/schema/quizbook.schema';
 import { UserRepository } from '../user/user.repository';
-import { User } from '../user/schema/user.schema';
 
 @Injectable()
 export class StudyService {
