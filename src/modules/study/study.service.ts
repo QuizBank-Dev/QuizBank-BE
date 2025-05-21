@@ -16,6 +16,7 @@ import { AIService } from '../ai/ai.service';
 import { QuizRepository } from '../quiz/quiz.repository';
 import { CategoryType } from '../quizbook/schema/quizbook.schema';
 import { UserRepository } from '../user/user.repository';
+import { User } from '../user/schema/user.schema';
 
 @Injectable()
 export class StudyService {
@@ -276,13 +277,15 @@ export class StudyService {
 				`해당 ${groupId}의 Group이 존재하지 않거나 멤버가 아닙니다.`,
 			);
 
+		const memberList = group.memberList.map((member) => member._id);
+
 		const result = await this.studyRepo.findQuizbookRecordListByUserList(
 			quizbookId,
-			group.memberList,
+			memberList,
 		);
 
 		return {
-			meberList: group.memberList,
+			memberList: group.memberList,
 			scoreList: result.map((record) => {
 				return {
 					score: record.score,
