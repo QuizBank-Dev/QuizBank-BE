@@ -9,6 +9,7 @@ import { GitHubStrategy } from './strategy/github.strategy';
 import { FollowModule } from '../follow/follow.module';
 import { GroupModule } from '../group/group.module';
 import { StudyLogModule } from '../study-log/study-log.module';
+import { ResetPasswordModule } from './reset-password/reset-password.module';
 
 @Module({
 	imports: [
@@ -18,6 +19,7 @@ import { StudyLogModule } from '../study-log/study-log.module';
 		FollowModule,
 		GroupModule,
 		StudyLogModule,
+		ResetPasswordModule,
 	],
 	controllers: [AuthController],
 	providers: [AuthService, LocalStrategy, GitHubStrategy],
