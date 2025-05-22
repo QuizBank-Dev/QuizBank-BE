@@ -5,6 +5,7 @@ import {
 	Delete,
 	Get,
 	HttpCode,
+	Patch,
 	Post,
 	Req,
 	Res,
@@ -27,6 +28,7 @@ import { DynamicAuthGuard } from './guard/dynamic-auth.guard';
 import { OAuthLoginDto } from '../user/dto/oauth-login.dto';
 import { ProviderType } from '../user/schema/user.schema';
 import { ApiBaseResponse } from '../../common/decorators/base-response.decorator';
+import { ChangePasswordDto } from '../user/dto/change-password.dto';
 
 @Controller({ path: 'auth', version: '1' })
 @ApiTags('Auth')
@@ -87,6 +89,19 @@ export class AuthController {
 		@Res({ passthrough: true }) response: Response,
 	) {
 		await this.authService.clearAuthCookies(response, request.cookies);
+	}
+
+	@Patch('password')
+	@ApiOperation({
+		summary: '비밀번호 변경',
+		description: '비밀번호 변경입니다.',
+	})
+	@ApiBaseResponse(200, '비밀번호 변경 완료')
+	async changePassword(
+		@UserId() userId: string,
+		@Body() changePasswordDto: ChangePasswordDto,
+	) {
+		await this.authService.changePassword(userId, changePasswordDto);
 	}
 
 	@Delete('withdraw')
