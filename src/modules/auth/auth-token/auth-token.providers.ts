@@ -27,6 +27,12 @@ export const AuthTokenProviders: Provider[] = [
 					envKeys.SECURITY.INVITE_TOKEN_SECRET,
 				)!,
 			},
+			reset_password: {
+				expiry: AUTH_TOKEN_EXPIRY.RESET_PASSWORD,
+				secret: configService.get<string>(
+					envKeys.SECURITY.RESET_PASSWORD_TOKEN_SECRET,
+				)!,
+			},
 		}),
 		inject: [ConfigService],
 	},

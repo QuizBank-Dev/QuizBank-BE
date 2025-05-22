@@ -16,7 +16,7 @@ export class AuthTokenService {
 
 	/**
 	 * 토큰 검증
-	 * @param type 토큰 타입 (ACCESS | REFRESH | INVITE)
+	 * @param type 토큰 타입 (ACCESS | REFRESH | INVITE | RESET_PASSWORD)
 	 * @param token 토큰
 	 */
 	verifyToken<T extends object>(type: TokenType, token: string) {
@@ -27,7 +27,7 @@ export class AuthTokenService {
 
 	/**
 	 * 토큰 생성
-	 * @param type 토큰 타입 (ACCESS | REFRESH | INVITE)
+	 * @param type 토큰 타입 (ACCESS | REFRESH | INVITE | RESET_PASSWORD)
 	 * @param payload 토큰 payload
 	 */
 	generateToken<T extends object>(type: TokenType, payload: T) {
