@@ -64,7 +64,27 @@ export class GroupQuizbookRepository {
 						select: 'nickname profileImg',
 					},
 				},
-			]);
+			])
+			.lean();
+	}
+
+	/**
+	 * 특정 Group 선정 문제집 정보 조회
+	 */
+	async findGroupQuizbook(group: Types.ObjectId, quizbook: Types.ObjectId) {
+		return this.groupQuizbookModel.findOne({ group, quizbook }).populate([
+			{
+				path: 'quizbook',
+				model: 'Quizbook',
+				populate: [
+					{
+						path: 'quizList',
+						model: 'Quiz',
+						select: 'type question answer optionList',
+					},
+				],
+			},
+		]);
 	}
 
 	/**

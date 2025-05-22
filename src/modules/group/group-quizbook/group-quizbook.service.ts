@@ -10,6 +10,9 @@ import { GroupRepository } from '../group.repository';
 import { toObjectId } from 'src/common/utils/database.util';
 import { GroupQuizbookQueryDto } from './dto/group-quizbook-query.dto';
 import { GroupQuizbook } from './schema/group-quizbook.schema';
+import { QuizbookService } from 'src/modules/quizbook/quizbook.service';
+import { Quizbook } from 'src/modules/quizbook/schema/quizbook.schema';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class GroupQuizbookService {
@@ -17,6 +20,7 @@ export class GroupQuizbookService {
 		private readonly groupQuizbookRepository: GroupQuizbookRepository,
 		private readonly databaseService: DatabaseService,
 		private readonly groupRepository: GroupRepository,
+		private readonly quizbookService: QuizbookService,
 	) {}
 
 	async getGroupQuizbookList(
@@ -51,6 +55,20 @@ export class GroupQuizbookService {
 				cursor ? new Date(cursor) : undefined,
 			);
 
+		const resultGroupQuizbookList = await Promise.all(
+			groupQuizbookList.map(async (data: GroupQuizbook) => {
+				return {
+					_id: data._id,
+					group: data.group,
+					quizbook: await this.quizbookService.addUserFlagsToQuizbook(
+						data.quizbook as Quizbook,
+						userId,
+					),
+					endedAt: data.endedAt,
+				};
+			}),
+		);
+
 		const leftCount = await this.groupQuizbookRepository.findLeftCount(
 			toObjectId(groupId),
 			new Date(standard),
@@ -60,13 +78,49 @@ export class GroupQuizbookService {
 		);
 
 		return {
-			list: groupQuizbookList,
+			list: resultGroupQuizbookList,
 			nextCursor:
-				groupQuizbookList.length > 0
-					? groupQuizbookList[groupQuizbookList.length - 1].endedAt
+				resultGroupQuizbookList.length > 0
+					? resultGroupQuizbookList[
+							resultGroupQuizbookList.length - 1
+						].endedAt
 					: null,
-			leftCount: leftCount - groupQuizbookList.length,
+			leftCount: leftCount - resultGroupQuizbookList.length,
 		};
+	}
+
+	async getGroupQuizbook(
+		userId: string,
+		groupId: string,
+		quizbookId: string,
+	) {
+		const group = await this.groupRepository.findById(groupId);
+
+		if (!group)
+			throw new NotFoundException(
+				`해당 ${groupId} Group을 찾을 수 없습니다.`,
+			);
+
+		const targetMemberList = group.memberList.map((user) =>
+			user._id.toString(),
+		);
+		const indexOfNewOwner = targetMemberList.indexOf(userId);
+
+		if (indexOfNewOwner === -1)
+			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
+
+		const groupQuizbook =
+			await this.groupQuizbookRepository.findGroupQuizbook(
+				toObjectId(groupId),
+				toObjectId(quizbookId),
+			);
+
+		if (!groupQuizbook)
+			throw new NotFoundException(
+				`존재하지 않는 그룹 선정 문제집입니다.`,
+			);
+
+		return groupQuizbook;
 	}
 
 	async postCreateGroupQuizbook(
@@ -86,7 +140,8 @@ export class GroupQuizbookService {
 			throw new UnauthorizedException(`허가되지 않는 접근입니다.`);
 
 		const targetGroupQuizbookList = group.groupQuizbookList.map(
-			(data: GroupQuizbook) => data.quizbook.toString(),
+			(data: GroupQuizbook) =>
+				(data.quizbook as Types.ObjectId).toString(),
 		);
 		const index = targetGroupQuizbookList.indexOf(quizbookId);
 		if (index !== -1)
