@@ -373,7 +373,7 @@ export class GroupService {
 		);
 
 		return {
-			url: `${clientUrl}/login?token=${token}`,
+			url: `${clientUrl}/group/invitation?token=${token}`,
 		};
 	}
 
