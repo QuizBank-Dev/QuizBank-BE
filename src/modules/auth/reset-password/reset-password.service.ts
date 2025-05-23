@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import * as moment from 'moment';
@@ -12,6 +12,8 @@ import { AuthTokenService } from '../auth-token/auth-token.service';
 import { TokenType } from '../auth-token/auth-token.types';
 import { ResetPassword } from './schema/reset-password.schema';
 import { MAIL_CONTENT, MAIL_TITLE } from './reset-password.const';
+import { ConfirmResetPasswordDto } from './dto/confirm-reset-password.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class ResetPasswordService {
@@ -65,6 +67,46 @@ export class ResetPasswordService {
 				MAIL_CONTENT(`${this.clientUrl}/reset-password?token=${token}`),
 			);
 		}
+
+		return;
+	}
+
+	/**
+	 * 토큰을 가진 사용자가 유효한지 확인하고 초기화
+	 * @param token 비밀번호 초기화를 위해 발급된 토큰
+	 * @param newPassword 새로운 비밀번호
+	 */
+	async confirm({ token, newPassword }: ConfirmResetPasswordDto) {
+		const resetToken = await this.resetPasswordModel.findOne({
+			token,
+		});
+
+		// 토큰이 존재하지 않는 경우
+		if (!resetToken) {
+			throw new BadRequestException('유효하지 않거나 만료된 링크입니다.');
+		}
+		// 이미 사용된 토큰의 경우
+		if (resetToken.used) {
+			throw new BadRequestException('이미 사용된 링크입니다.');
+		}
+		// 토큰이 만료된 경우
+		if (moment().isAfter(resetToken.expiredAt)) {
+			throw new BadRequestException('링크가 만료되었습니다.');
+		}
+
+		// 비밀번호 변경 처리
+		const hashedPassword: string = await bcrypt.hash(
+			newPassword,
+			this.configService.get<number>(envKeys.SECURITY.HASH_ROUNDS)!,
+		);
+		await this.userRepository.update(resetToken.userId.toString(), {
+			password: hashedPassword,
+		});
+
+		// 사용 여부 변경
+		await this.resetPasswordModel.findByIdAndUpdate(resetToken._id, {
+			used: true,
+		});
 
 		return;
 	}

@@ -13,8 +13,7 @@ export class ResetPasswordController {
 	}
 
 	@Post('confirm')
-	confirm(@Body() confirmResetPasswordDto: ConfirmResetPasswordDto) {
-		console.log(confirmResetPasswordDto);
-		return {};
+	async confirm(@Body() confirmResetPasswordDto: ConfirmResetPasswordDto) {
+		return await this.resetPasswordService.confirm(confirmResetPasswordDto);
 	}
 }
