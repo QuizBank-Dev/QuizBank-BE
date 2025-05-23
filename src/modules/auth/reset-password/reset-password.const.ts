@@ -1,4 +1,4 @@
-export const MAIL_TITLE = '[Quizbank] 비밀번호 재설정';
+export const MAIL_TITLE = '[Quizbank] 비밀번호 재설정 안내';
 export const MAIL_CONTENT = (url: string) => `
 <div class="body" style="background-color: #F7F8FA;">
 <table cellspacing="0" cellpadding="0" border="0">
@@ -27,7 +27,7 @@ export const MAIL_CONTENT = (url: string) => `
 								<font style="font-size: 16px; line-height: 1.5; color: #271065;">
 									안녕하세요.<br>
 									해당 메일은 비밀번호 재설정을 위해 Quizbank에서 발송하는 메일입니다.<br>
-									새로운 비밀번호를 설정하려면 "새로운 비밀번호 설정" 버튼을 클릭해주세요.
+									비밀번호를 재설정하려면 "비밀번호 재설정" 버튼을 클릭해주세요.
 								</font>
 							</td>
 							<td width="32px"></td>
@@ -42,7 +42,7 @@ export const MAIL_CONTENT = (url: string) => `
 											<td width="32px"></td>
 											<td bgcolor="#8A43EF" style="border-radius: 8px;">
 												<a href="${url}" target="_blank" style="display: block; text-align: center; line-height: 3; font-size: 18px; color: #ffffff; text-decoration: none; font-weight: 700;">
-													새로운 비밀번호 설정
+													비밀번호 재설정
 												</a>
 											</td>
 											<td width="32px"></td>
