@@ -69,6 +69,8 @@ jobs:
                             secret: GEMINI_API_URL
                           - name: GEMINI_API_KEY
                             secret: GEMINI_API_KEY
+                          - name: RESET_PASSWORD_TOKEN_SECRET
+                            secret: RESET_PASSWORD_TOKEN_SECRET
                         ports: 3000
                         build: pnpm build
                         start: pnpm start:prod
