@@ -4,6 +4,7 @@ import { SubmitStudyDto } from './dto/submit-study.dto';
 import { UserId } from 'src/common/decorators/user-id.decorator';
 import { ApiBaseResponse } from 'src/common/decorators/base-response.decorator';
 import {
+	getQuizbookRecordListEx,
 	getQuizbookRecordOfScoreListEx,
 	getQuizRecordOfAnswerListEx,
 	getQuizRecordOfAnswerListInGroupEx,
@@ -11,6 +12,7 @@ import {
 } from './study.example';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GetQuizRecordOfAnswerList } from './dto/get-quiz-record-of-answer-list.dto';
+import { PaginationRequestDto } from 'src/common/dto/pagination.dto';
 
 @Controller({
 	path: 'study',
@@ -30,6 +32,20 @@ export class StudyController {
 	@ApiBaseResponse(201, '제출 성공')
 	submitStudy(@Body() dto: SubmitStudyDto, @UserId() userId: string) {
 		return this.studyService.submitStudy(dto, userId);
+	}
+
+	// GET v1/study/result
+	@Get('result')
+	@ApiOperation({
+		summary: '사용자 학습 결과 리스트 조회',
+		description: '사용자가 학습한 모든 결과를 조회합니다.',
+	})
+	@ApiBaseResponse(200, '조회 성공', getQuizbookRecordListEx)
+	getStudyResultList(
+		@UserId() userId: string,
+		@Query() dto: PaginationRequestDto,
+	) {
+		return this.studyService.getStudyResultList(dto, userId);
 	}
 
 	// GET v1/study/quizbook/:quizbookId/result
