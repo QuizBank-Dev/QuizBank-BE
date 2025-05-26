@@ -46,8 +46,8 @@ export class UserRepository {
 	/**
 	 * 유저 조회 (id)
 	 */
-	async findById(id: string) {
-		return this.userModel.findById(id);
+	async findById(id: string, projections?: ProjectionType<User>) {
+		return this.userModel.findById(id, projections);
 	}
 
 	/**

@@ -1,6 +1,12 @@
 import * as bcrypt from 'bcrypt';
 import { Response } from 'express';
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+	BadRequestException,
+	ConflictException,
+	Injectable,
+	NotFoundException,
+	UnauthorizedException,
+} from '@nestjs/common';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { AuthTokenService } from './auth-token/auth-token.service';
 import { UserRepository } from '../user/user.repository';
@@ -17,6 +23,7 @@ import { UserService } from '../user/user.service';
 import { FollowType } from '../follow/dto/follow-query.dto';
 import { Types } from 'mongoose';
 import { StudyLogService } from '../study-log/study-log.service';
+import { ChangePasswordDto } from '../user/dto/change-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -96,6 +103,49 @@ export class AuthService {
 		}
 
 		return this.generateToken({ userId: user._id });
+	}
+
+	/**
+	 * 비밀번호 변경
+	 * @param userId 변경할 유저의 아이디
+	 * @param password 기존 비밀번호
+	 * @param newPassword 변경할 비밀번호
+	 */
+	async changePassword(
+		userId: string,
+		{ password, newPassword }: ChangePasswordDto,
+	) {
+		const user = await this.userRepository.findById(userId, {
+			password: 1,
+		});
+
+		if (!user) {
+			throw new NotFoundException('사용자를 찾을 수 없습니다.');
+		}
+
+		// 기존 비밀번호가 올바르게 작성됐는지 확인
+		const isCompare = await bcrypt.compare(password, user.password);
+		if (!isCompare) {
+			throw new UnauthorizedException('비밀번호가 올바르지 않습니다.');
+		}
+
+		// 이전 비밀번호와 동일한지 확인
+		const isSame = await bcrypt.compare(newPassword, user.password);
+		if (isSame) {
+			throw new BadRequestException(
+				'새로운 비밀번호는 기존 비밀번호와 동일할 수 없습니다.',
+			);
+		}
+
+		const hashedPassword: string = await bcrypt.hash(
+			newPassword,
+			this.configService.get<number>(envKeys.SECURITY.HASH_ROUNDS)!,
+		);
+		await this.userRepository.update(userId, {
+			password: hashedPassword,
+		});
+
+		return true;
 	}
 
 	/**
