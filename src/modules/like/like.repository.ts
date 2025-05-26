@@ -127,6 +127,11 @@ export class LikeRepository {
 			populate: {
 				path: 'quizbook',
 				model: 'Quizbook',
+				populate: {
+					path: 'author',
+					model: 'User',
+					select: 'nickname profileImg',
+				},
 			},
 		});
 
