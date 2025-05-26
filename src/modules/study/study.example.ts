@@ -26,6 +26,41 @@ export const getStudyResultEx = {
 	updatedAt: '2025-04-15T08:24:44.877Z',
 };
 
+export const getQuizbookRecordListEx = {
+	data: [
+		{
+			quizbook: {
+				_id: '68303717243137e8fed8a2a0',
+				title: '알고리즘 문제집',
+				description: '퉁퉁',
+				category: '알고리즘',
+				quizList: ['68303717243137e8fed8a29e'],
+				solvedCount: 1,
+				solvedScore: 5,
+				totalScore: 5,
+				reviewCount: 0,
+				reviewScore: 0,
+				reviewRating: 0,
+				author: {
+					_id: '68149ad6ee14a9829e44135c',
+					nickname: 'Seokjun Yun',
+					profileImg:
+						'https://avatars.githubusercontent.com/u/57414420?v=4',
+				},
+				createdAt: '2025-05-23T08:51:35.145Z',
+				updatedAt: '2025-05-26T00:41:22.682Z',
+				__v: 0,
+			},
+			score: 5,
+			updatedAt: '2025-05-26T00:41:22.668Z',
+		},
+	],
+	nextCursor: {
+		_id: '682c8e04f480a6a411ce80f6',
+	},
+	totalCount: 9,
+};
+
 export const getQuizRecordOfAnswerListEx = {
 	data: [
 		{

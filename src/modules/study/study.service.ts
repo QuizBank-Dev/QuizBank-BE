@@ -145,6 +145,28 @@ export class StudyService {
 		});
 	}
 
+	// 모든 Study 결과 조회
+	async getStudyResultList(dto: PaginationRequestDto, userId: string) {
+		const studyRecordList = await this.studyRepo.findQuizbookRecordList(
+			userId,
+			dto,
+		);
+
+		const recordList = studyRecordList.data.map((record) => {
+			return {
+				quizbook: record.quizbook,
+				score: record.score,
+				updatedAt: record.updatedAt,
+			};
+		});
+
+		return {
+			data: recordList,
+			nextCursor: studyRecordList.nextCursor,
+			totalCount: studyRecordList.totalCount,
+		};
+	}
+
 	// Study 결과 조회
 	async getStudyResult(quizbookId: string, userId: string) {
 		// 1. QuizbookRecord 존재 유/무 확인

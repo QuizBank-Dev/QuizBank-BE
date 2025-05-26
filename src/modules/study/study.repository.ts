@@ -92,6 +92,33 @@ export class StudyRepository {
 	}
 
 	/**
+	 * QuizbookRecordList 조회
+	 */
+	async findQuizbookRecordList(
+		userId: string,
+		{ cursor, limit }: PaginationRequestDto,
+	) {
+		return pagination({
+			model: this.quizbookRecordModel,
+			filter: {
+				owner: toObjectId(userId),
+			},
+			cursor,
+			limit,
+			sortOption: { _id: -1 },
+			populate: {
+				path: 'quizbook',
+				model: 'Quizbook',
+				populate: {
+					path: 'author',
+					model: 'User',
+					select: 'nickname profileImg',
+				},
+			},
+		});
+	}
+
+	/**
 	 * QuizbookRecord 조회
 	 * (quizbook, user를 통한 조회)
 	 */
