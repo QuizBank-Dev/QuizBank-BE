@@ -13,6 +13,8 @@ import { PaginationRequestDto } from 'src/common/dto/pagination.dto';
 import { QuizType } from '../quiz/schema/quiz.schema';
 import { AIService } from '../ai/ai.service';
 import { getXpByType } from '../study/utils/study.utils';
+import { GroupRepository } from '../group/group.repository';
+import { GroupQuizbookRepository } from '../group/group-quizbook/group-quizbook.repository';
 
 @Injectable()
 export class QuizbookService {
@@ -21,6 +23,8 @@ export class QuizbookService {
 		private readonly quizbookRepo: QuizbookRepository,
 		private readonly likeRepo: LikeRepository,
 		private readonly studyRepo: StudyRepository,
+		private readonly groupRepo: GroupRepository,
+		private readonly groupQuizbookRepo: GroupQuizbookRepository,
 		private readonly aiService: AIService,
 		private readonly databaseService: DatabaseService,
 	) {}
@@ -182,5 +186,31 @@ export class QuizbookService {
 	// 특정 Quizbook의 통계 데이터 조회
 	async getQuizbookStates(quizbookId: string) {
 		return this.quizbookRepo.findQuizbookWithStates(quizbookId);
+	}
+
+	// 사용자의 Group 선정 Quizbook 리스트 조회
+	async getGroupQuizbookList(dto: PaginationRequestDto, userId: string) {
+		const groupList = await this.groupRepo.findGroupListDefault(userId);
+		const groupIdList = groupList.map(
+			(group) => group._id as Types.ObjectId,
+		);
+
+		const result =
+			await this.groupQuizbookRepo.findGroupQuizbookListUsingGroupIds(
+				groupIdList,
+				dto,
+			);
+
+		// 응답 가공
+		const quizbookList = result.data.map((quizbook) => ({
+			...quizbook.quizbook,
+			endedAt: quizbook.endedAt,
+		}));
+
+		return {
+			nextCursor: result.nextCursor,
+			totalCount: result.totalCount,
+			data: quizbookList,
+		};
 	}
 }

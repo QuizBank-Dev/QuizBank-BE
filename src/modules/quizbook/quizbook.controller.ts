@@ -21,6 +21,7 @@ import {
 	getQuizbookStatesEx,
 	getQuizbookUserFlagsEx,
 	createQuizbookEx,
+	getGroupQuizbookListEx,
 } from './quizbook.example';
 
 @Controller({
@@ -125,5 +126,19 @@ export class QuizbookController {
 	@ApiBaseResponse(200, '조회 성공', getQuizbookStatesEx)
 	getQuizbookStates(@Param('quizbookId') quizbookId: string) {
 		return this.quizbookService.getQuizbookStates(quizbookId);
+	}
+
+	// GET v1/quizbook/group
+	@Get('group')
+	@ApiOperation({
+		summary: '특정 사용자의 모든 Group 선정 Quizbook 조회',
+		description: '특정 사용자의 모든 Group 선정 Quizbook 조회',
+	})
+	@ApiBaseResponse(200, '조회 성공', getGroupQuizbookListEx)
+	getGroupQuizbookList(
+		@UserId() userId: string,
+		@Query() dto: PaginationRequestDto,
+	) {
+		return this.quizbookService.getGroupQuizbookList(dto, userId);
 	}
 }
