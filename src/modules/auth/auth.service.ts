@@ -42,8 +42,7 @@ export class AuthService {
 		this.env = configService.get(envKeys.ENV)!;
 		this.hostname = new URL(
 			this.env === 'prod'
-				? // TODO
-					'quizbank.store'
+				? configService.get(envKeys.CLIENT.PROD)!
 				: configService.get(envKeys.CLIENT.LOCAL)!,
 		).hostname;
 	}
