@@ -238,24 +238,18 @@ export class AuthService {
 		{ accessToken, refreshToken }: AuthToken,
 		response: Response,
 	) {
-		try {
-			response.cookie(AUTH_COOKIE_KEY.ACCESS, accessToken, {
-				...AUTH_COOKIE_OPTIONS.ACCESS,
-				domain: this.hostname,
-				sameSite: this.env === 'prod' ? 'none' : 'lax',
-				secure: this.env === 'prod',
-			});
-			response.cookie(AUTH_COOKIE_KEY.REFRESH, refreshToken, {
-				...AUTH_COOKIE_OPTIONS.REFRESH,
-				domain: this.hostname,
-				sameSite: this.env === 'prod' ? 'none' : 'lax',
-				secure: this.env === 'prod',
-			});
-		} catch (error) {
-			if (error instanceof Error) {
-				console.error(error.stack);
-			}
-		}
+		response.cookie(AUTH_COOKIE_KEY.ACCESS, accessToken, {
+			...AUTH_COOKIE_OPTIONS.ACCESS,
+			domain: this.hostname,
+			sameSite: this.env === 'prod' ? 'none' : 'lax',
+			secure: this.env === 'prod',
+		});
+		response.cookie(AUTH_COOKIE_KEY.REFRESH, refreshToken, {
+			...AUTH_COOKIE_OPTIONS.REFRESH,
+			domain: this.hostname,
+			sameSite: this.env === 'prod' ? 'none' : 'lax',
+			secure: this.env === 'prod',
+		});
 	}
 
 	/**
