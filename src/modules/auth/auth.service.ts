@@ -27,6 +27,9 @@ import { ChangePasswordDto } from '../user/dto/change-password.dto';
 
 @Injectable()
 export class AuthService {
+	private readonly env: string;
+	private readonly hostname: string;
+
 	constructor(
 		private readonly configService: ConfigService,
 		private readonly authTokenService: AuthTokenService,
@@ -35,7 +38,14 @@ export class AuthService {
 		private readonly userService: UserService,
 		private readonly followService: FollowService,
 		private readonly groupService: GroupService,
-	) {}
+	) {
+		this.env = configService.get(envKeys.ENV)!;
+		this.hostname = new URL(
+			this.env === 'prod'
+				? configService.get(envKeys.CLIENT.PROD)!
+				: configService.get(envKeys.CLIENT.LOCAL)!,
+		).hostname;
+	}
 
 	/**
 	 * 회원가입
@@ -228,16 +238,24 @@ export class AuthService {
 		{ accessToken, refreshToken }: AuthToken,
 		response: Response,
 	) {
-		response.cookie(
-			AUTH_COOKIE_KEY.ACCESS,
-			accessToken,
-			AUTH_COOKIE_OPTIONS.ACCESS,
-		);
-		response.cookie(
-			AUTH_COOKIE_KEY.REFRESH,
-			refreshToken,
-			AUTH_COOKIE_OPTIONS.REFRESH,
-		);
+		try {
+			response.cookie(AUTH_COOKIE_KEY.ACCESS, accessToken, {
+				...AUTH_COOKIE_OPTIONS.ACCESS,
+				domain: this.hostname,
+				sameSite: this.env === 'prod' ? 'none' : 'lax',
+				secure: this.env === 'prod',
+			});
+			response.cookie(AUTH_COOKIE_KEY.REFRESH, refreshToken, {
+				...AUTH_COOKIE_OPTIONS.REFRESH,
+				domain: this.hostname,
+				sameSite: this.env === 'prod' ? 'none' : 'lax',
+				secure: this.env === 'prod',
+			});
+		} catch (error) {
+			if (error instanceof Error) {
+				console.error(error.stack);
+			}
+		}
 	}
 
 	/**
