@@ -36,7 +36,7 @@ async function bootstrap() {
 	app.use(helmet());
 	app.use(cookieParser());
 	app.enableCors({
-		origin: prodUrl ? [localUrl, prodUrl] : [localUrl],
+		origin: prodUrl ? prodUrl : localUrl,
 		methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
 		credentials: true,
 	});
