@@ -40,10 +40,11 @@ export class AuthService {
 		private readonly groupService: GroupService,
 	) {
 		this.env = configService.get(envKeys.ENV)!;
-		this.hostname =
+		this.hostname = new URL(
 			this.env === 'prod'
 				? configService.get(envKeys.CLIENT.PROD)!
-				: configService.get(envKeys.CLIENT.LOCAL)!;
+				: configService.get(envKeys.CLIENT.LOCAL)!,
+		).hostname;
 	}
 
 	/**
