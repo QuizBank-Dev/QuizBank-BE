@@ -272,8 +272,16 @@ export class AuthService {
 	) {
 		const { access_token, refresh_token } = cookies;
 
-		response.clearCookie(AUTH_COOKIE_KEY.ACCESS);
-		response.clearCookie(AUTH_COOKIE_KEY.REFRESH);
+		response.clearCookie(AUTH_COOKIE_KEY.ACCESS, {
+			domain: this.hostname,
+			sameSite: this.env === 'prod' ? 'none' : 'lax',
+			secure: this.env === 'prod',
+		});
+		response.clearCookie(AUTH_COOKIE_KEY.REFRESH, {
+			domain: this.hostname,
+			sameSite: this.env === 'prod' ? 'none' : 'lax',
+			secure: this.env === 'prod',
+		});
 
 		// 토큰 만료
 		if (access_token) {
