@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Group } from './schema/group.schema';
-import { ClientSession, FilterQuery, Model, Types } from 'mongoose';
+import { ClientSession, FilterQuery, Model, ObjectId, Types } from 'mongoose';
 import { DB_TYPE } from 'src/database/database.const';
 import { GroupQueryDto } from './dto/group-query.dto';
 import { toObjectId } from 'src/common/utils/database.util';
@@ -137,6 +137,17 @@ export class GroupRepository {
 				path: 'memberList',
 				model: 'User',
 				select: 'nickname profileImg',
+			})
+			.lean();
+	}
+
+	/**
+	 * Group 목록 조회(기본값)
+	 */
+	async findGroupListDefault(userId: string) {
+		return this.groupModel
+			.find({
+				memberList: { $in: [toObjectId(userId)] },
 			})
 			.lean();
 	}

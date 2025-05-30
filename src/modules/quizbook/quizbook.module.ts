@@ -10,6 +10,8 @@ import { DatabaseModule } from 'src/database/database.module';
 import { LikeModule } from '../like/like.module';
 import { StudyModule } from '../study/study.module';
 import { AIModule } from '../ai/ai.module';
+import { GroupModule } from '../group/group.module';
+import { GroupQuizbookModule } from '../group/group-quizbook/group-quizbook.module';
 
 @Module({
 	imports: [
@@ -21,6 +23,8 @@ import { AIModule } from '../ai/ai.module';
 		forwardRef(() => LikeModule),
 		forwardRef(() => StudyModule),
 		forwardRef(() => AIModule),
+		forwardRef(() => GroupModule),
+		forwardRef(() => GroupQuizbookModule),
 		DatabaseModule,
 	],
 	controllers: [QuizbookController],

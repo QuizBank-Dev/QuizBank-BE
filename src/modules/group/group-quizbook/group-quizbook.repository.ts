@@ -4,6 +4,8 @@ import { GroupQuizbook } from './schema/group-quizbook.schema';
 import { DB_TYPE } from 'src/database/database.const';
 import { ClientSession, FilterQuery, Model, Types } from 'mongoose';
 import { toObjectId } from 'src/common/utils/database.util';
+import { PaginationRequestDto } from 'src/common/dto/pagination.dto';
+import { pagination } from 'src/common/utils/pagination.util';
 
 interface GroupQuizbookListQuery {
 	group: Types.ObjectId;
@@ -161,6 +163,31 @@ export class GroupQuizbookRepository {
 	async deleteById(groupQuizbookId: string, session?: ClientSession) {
 		return this.groupQuizbookModel.findByIdAndDelete(groupQuizbookId, {
 			session,
+		});
+	}
+
+	/**
+	 * Group 리스트 기반 모든 선정 Quizbook 조회
+	 */
+	async findGroupQuizbookListUsingGroupIds(
+		groupIdList: Types.ObjectId[],
+		{ cursor, limit }: PaginationRequestDto,
+	) {
+		return pagination({
+			model: this.groupQuizbookModel,
+			filter: { group: { $in: groupIdList } },
+			cursor,
+			limit,
+			sortOption: { endedAt: -1, _id: -1 },
+			populate: {
+				path: 'quizbook',
+				model: 'Quizbook',
+				populate: {
+					path: 'author',
+					model: 'User',
+					select: 'nickname profileImg',
+				},
+			},
 		});
 	}
 }
