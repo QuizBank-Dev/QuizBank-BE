@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcrypt';
-import { Response } from 'express';
+import { CookieOptions, Response } from 'express';
 import {
 	BadRequestException,
 	ConflictException,
@@ -27,8 +27,7 @@ import { ChangePasswordDto } from '../user/dto/change-password.dto';
 
 @Injectable()
 export class AuthService {
-	private readonly env: string;
-	private readonly hostname: string;
+	private readonly defaultCookieOptions: CookieOptions;
 
 	constructor(
 		private readonly configService: ConfigService,
@@ -39,12 +38,17 @@ export class AuthService {
 		private readonly followService: FollowService,
 		private readonly groupService: GroupService,
 	) {
-		this.env = configService.get(envKeys.ENV)!;
-		this.hostname = new URL(
-			this.env === 'prod'
+		const env = configService.get<'dev' | 'prod'>(envKeys.ENV)!;
+		const hostname = new URL(
+			env === 'prod'
 				? configService.get(envKeys.CLIENT.PROD)!
 				: configService.get(envKeys.CLIENT.LOCAL)!,
 		).hostname;
+		this.defaultCookieOptions = {
+			domain: hostname,
+			sameSite: env === 'prod' ? 'none' : 'lax',
+			secure: env === 'prod',
+		};
 	}
 
 	/**
@@ -240,15 +244,11 @@ export class AuthService {
 	) {
 		response.cookie(AUTH_COOKIE_KEY.ACCESS, accessToken, {
 			...AUTH_COOKIE_OPTIONS.ACCESS,
-			domain: this.hostname,
-			sameSite: this.env === 'prod' ? 'none' : 'lax',
-			secure: this.env === 'prod',
+			...this.defaultCookieOptions,
 		});
 		response.cookie(AUTH_COOKIE_KEY.REFRESH, refreshToken, {
 			...AUTH_COOKIE_OPTIONS.REFRESH,
-			domain: this.hostname,
-			sameSite: this.env === 'prod' ? 'none' : 'lax',
-			secure: this.env === 'prod',
+			...this.defaultCookieOptions,
 		});
 	}
 
@@ -266,16 +266,11 @@ export class AuthService {
 	) {
 		const { access_token, refresh_token } = cookies;
 
-		response.clearCookie(AUTH_COOKIE_KEY.ACCESS, {
-			domain: this.hostname,
-			sameSite: this.env === 'prod' ? 'none' : 'lax',
-			secure: this.env === 'prod',
-		});
-		response.clearCookie(AUTH_COOKIE_KEY.REFRESH, {
-			domain: this.hostname,
-			sameSite: this.env === 'prod' ? 'none' : 'lax',
-			secure: this.env === 'prod',
-		});
+		response.clearCookie(AUTH_COOKIE_KEY.ACCESS, this.defaultCookieOptions);
+		response.clearCookie(
+			AUTH_COOKIE_KEY.REFRESH,
+			this.defaultCookieOptions,
+		);
 
 		// 토큰 만료
 		if (access_token) {
