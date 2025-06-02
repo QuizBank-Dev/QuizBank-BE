@@ -12,6 +12,7 @@ import { StudyModule } from '../study/study.module';
 import { AIModule } from '../ai/ai.module';
 import { GroupModule } from '../group/group.module';
 import { GroupQuizbookModule } from '../group/group-quizbook/group-quizbook.module';
+import { SitemapModule } from '../sitemap/sitemap.module';
 
 @Module({
 	imports: [
@@ -25,6 +26,7 @@ import { GroupQuizbookModule } from '../group/group-quizbook/group-quizbook.modu
 		forwardRef(() => AIModule),
 		forwardRef(() => GroupModule),
 		forwardRef(() => GroupQuizbookModule),
+		forwardRef(() => SitemapModule),
 		DatabaseModule,
 	],
 	controllers: [QuizbookController],
