@@ -213,4 +213,11 @@ export class QuizbookService {
 			data: quizbookList,
 		};
 	}
+
+	// 모든 Quizbook의 Id 리스트 조회
+	async getQuizbookIdList() {
+		const quizbookList = await this.quizbookRepo.findQuizbookList();
+
+		return quizbookList.map((q) => (q._id as Types.ObjectId).toString());
+	}
 }
