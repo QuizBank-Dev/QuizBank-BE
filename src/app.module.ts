@@ -23,6 +23,7 @@ import { CategoryModule } from './modules/category/category.module';
 import { FollowModule } from './modules/follow/follow.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { AIModule } from './modules/ai/ai.module';
+import { SitemapModule } from './modules/sitemap/sitemap.module';
 
 @Module({
 	imports: [
@@ -46,6 +47,7 @@ import { AIModule } from './modules/ai/ai.module';
 		FollowModule,
 		ChatModule,
 		AIModule,
+		SitemapModule,
 	],
 	providers: [
 		{
