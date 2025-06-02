@@ -6,8 +6,8 @@ export class SitemapCache extends Document {
 	@Prop({ type: [String], required: true })
 	quizbookIdList: string[];
 
-	@Prop({ default: Date.now })
-	updatedAt: Date;
+	@Prop({ type: Boolean, default: false })
+	needsUpdate: boolean;
 }
 
 export const SitemapCacheSchema = SchemaFactory.createForClass(SitemapCache);

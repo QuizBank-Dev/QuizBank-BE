@@ -12,9 +12,7 @@ export class SitemapRepository {
 	) {}
 
 	async getCache() {
-		const data = await this.sitemapCacheModel.findOne().lean();
-
-		return data?.quizbookIdList ?? [];
+		return await this.sitemapCacheModel.findOne().lean();
 	}
 
 	async saveCache(quizbookIdList: string[]) {
@@ -22,9 +20,17 @@ export class SitemapRepository {
 			{},
 			{
 				quizbookIdList,
-				updatedAt: new Date(),
+				needsUpdate: false,
 			},
 			{ upsert: true, new: true },
+		);
+	}
+
+	async markNeedsUpdate() {
+		await this.sitemapCacheModel.updateOne(
+			{},
+			{ needsUpdate: true },
+			{ upsert: true },
 		);
 	}
 }

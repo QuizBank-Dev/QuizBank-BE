@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { QuizbookService } from '../quizbook/quizbook.service';
 import { SitemapRepository } from './sitemap.repository';
+import { QuizbookService } from '../quizbook/quizbook.service';
 
 @Injectable()
 export class SitemapService {
@@ -9,19 +9,18 @@ export class SitemapService {
 		private readonly sitemapRepo: SitemapRepository,
 	) {}
 
-	// 캐시 된 QuizbookList 조회
 	async getQuizbookIdListForSitemap() {
-		const curList = await this.quizbookService.getQuizbookIdList();
-		const cachedList = await this.sitemapRepo.getCache();
+		const cached = await this.sitemapRepo.getCache();
 
-		const isChanged =
-			curList.length !== cachedList.length ||
-			curList.some((id, i) => id !== cachedList[i]);
+		if (!cached || cached.needsUpdate) {
+			const quizbookIdList =
+				await this.quizbookService.getQuizbookIdList();
 
-		if (isChanged) {
-			await this.sitemapRepo.saveCache(curList);
+			await this.sitemapRepo.saveCache(quizbookIdList);
+
+			return quizbookIdList;
 		}
 
-		return curList;
+		return cached.quizbookIdList;
 	}
 }
