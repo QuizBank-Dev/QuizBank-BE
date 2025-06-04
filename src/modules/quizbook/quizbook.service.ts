@@ -15,6 +15,7 @@ import { AIService } from '../ai/ai.service';
 import { getXpByType } from '../study/utils/study.utils';
 import { GroupRepository } from '../group/group.repository';
 import { GroupQuizbookRepository } from '../group/group-quizbook/group-quizbook.repository';
+import { SitemapRepository } from '../sitemap/sitemap.repository';
 
 @Injectable()
 export class QuizbookService {
@@ -25,6 +26,7 @@ export class QuizbookService {
 		private readonly studyRepo: StudyRepository,
 		private readonly groupRepo: GroupRepository,
 		private readonly groupQuizbookRepo: GroupQuizbookRepository,
+		private readonly sitemapRepo: SitemapRepository,
 		private readonly aiService: AIService,
 		private readonly databaseService: DatabaseService,
 	) {}
@@ -64,6 +66,9 @@ export class QuizbookService {
 				},
 				session,
 			);
+
+			// 3. Sitemap 캐시 업데이트 필요 명시
+			await this.sitemapRepo.markNeedsUpdate();
 
 			return quizbook;
 		});
@@ -212,5 +217,12 @@ export class QuizbookService {
 			totalCount: result.totalCount,
 			data: quizbookList,
 		};
+	}
+
+	// 모든 Quizbook의 Id 리스트 조회
+	async getQuizbookIdList() {
+		const quizbookList = await this.quizbookRepo.findQuizbookList();
+
+		return quizbookList.map((q) => (q._id as Types.ObjectId).toString());
 	}
 }

@@ -179,4 +179,11 @@ export class QuizbookRepository {
 			)
 			.lean();
 	}
+
+	/**
+	 * 모든 Quizbook 리스트 조회(Default)
+	 */
+	async findQuizbookList() {
+		return this.quizbookModel.find().select('_id').lean();
+	}
 }
