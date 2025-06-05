@@ -3,6 +3,7 @@ import { CookieOptions, Response } from 'express';
 import {
 	BadRequestException,
 	ConflictException,
+	Inject,
 	Injectable,
 	NotFoundException,
 	UnauthorizedException,
@@ -24,12 +25,12 @@ import { FollowType } from '../follow/dto/follow-query.dto';
 import { Types } from 'mongoose';
 import { StudyLogService } from '../study-log/study-log.service';
 import { ChangePasswordDto } from '../user/dto/change-password.dto';
+import { COOKIE_OPTIONS } from './auth.providers';
 
 @Injectable()
 export class AuthService {
-	private readonly defaultCookieOptions: CookieOptions;
-
 	constructor(
+		@Inject(COOKIE_OPTIONS) private readonly cookieOptions: CookieOptions,
 		private readonly configService: ConfigService,
 		private readonly authTokenService: AuthTokenService,
 		private readonly userRepository: UserRepository,
@@ -37,19 +38,7 @@ export class AuthService {
 		private readonly userService: UserService,
 		private readonly followService: FollowService,
 		private readonly groupService: GroupService,
-	) {
-		const env = configService.get<'dev' | 'prod'>(envKeys.ENV)!;
-		const hostname = new URL(
-			env === 'prod'
-				? configService.get(envKeys.CLIENT.PROD)!
-				: configService.get(envKeys.CLIENT.LOCAL)!,
-		).hostname;
-		this.defaultCookieOptions = {
-			domain: hostname,
-			sameSite: env === 'prod' ? 'none' : 'lax',
-			secure: env === 'prod',
-		};
-	}
+	) {}
 
 	/**
 	 * 회원가입
@@ -244,11 +233,11 @@ export class AuthService {
 	) {
 		response.cookie(AUTH_COOKIE_KEY.ACCESS, accessToken, {
 			...AUTH_COOKIE_OPTIONS.ACCESS,
-			...this.defaultCookieOptions,
+			...this.cookieOptions,
 		});
 		response.cookie(AUTH_COOKIE_KEY.REFRESH, refreshToken, {
 			...AUTH_COOKIE_OPTIONS.REFRESH,
-			...this.defaultCookieOptions,
+			...this.cookieOptions,
 		});
 	}
 
@@ -266,11 +255,8 @@ export class AuthService {
 	) {
 		const { access_token, refresh_token } = cookies;
 
-		response.clearCookie(AUTH_COOKIE_KEY.ACCESS, this.defaultCookieOptions);
-		response.clearCookie(
-			AUTH_COOKIE_KEY.REFRESH,
-			this.defaultCookieOptions,
-		);
+		response.clearCookie(AUTH_COOKIE_KEY.ACCESS, this.cookieOptions);
+		response.clearCookie(AUTH_COOKIE_KEY.REFRESH, this.cookieOptions);
 
 		// 토큰 만료
 		if (access_token) {
