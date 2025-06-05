@@ -1,5 +1,6 @@
-import { NextFunction, Request, Response } from 'express';
+import { CookieOptions, NextFunction, Request, Response } from 'express';
 import {
+	Inject,
 	Injectable,
 	InternalServerErrorException,
 	NestMiddleware,
@@ -10,10 +11,14 @@ import { AuthTokenService } from '../auth-token/auth-token.service';
 import { TokenType } from '../auth-token/auth-token.types';
 import { AuthTokenPayloadDto } from '../auth-token/dto/auth-token-payload.dto';
 import { AUTH_COOKIE_KEY, AUTH_COOKIE_OPTIONS } from '../auth.const';
+import { COOKIE_OPTIONS } from '../auth.providers';
 
 @Injectable()
 export class RefreshTokenMiddleware implements NestMiddleware {
-	constructor(private tokenService: AuthTokenService) {}
+	constructor(
+		@Inject(COOKIE_OPTIONS) private readonly cookieOptions: CookieOptions,
+		private readonly tokenService: AuthTokenService,
+	) {}
 
 	async use(request: Request, response: Response, next: NextFunction) {
 		const accessToken = request.cookies[AUTH_COOKIE_KEY.ACCESS] as
@@ -46,7 +51,7 @@ export class RefreshTokenMiddleware implements NestMiddleware {
 				request.user = decoded;
 				return next();
 			}
-		} catch (error) {
+		} catch {
 			try {
 				// 2. RefreshToken 검증
 				const decoded =
@@ -63,11 +68,10 @@ export class RefreshTokenMiddleware implements NestMiddleware {
 							{ userId: decoded.userId },
 						);
 
-					response.cookie(
-						AUTH_COOKIE_KEY.ACCESS,
-						newToken,
-						AUTH_COOKIE_OPTIONS.ACCESS,
-					);
+					response.cookie(AUTH_COOKIE_KEY.ACCESS, newToken, {
+						...AUTH_COOKIE_OPTIONS.ACCESS,
+						...this.cookieOptions,
+					});
 
 					request.user = decoded;
 
