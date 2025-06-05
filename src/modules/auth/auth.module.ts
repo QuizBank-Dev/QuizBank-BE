@@ -10,6 +10,7 @@ import { FollowModule } from '../follow/follow.module';
 import { GroupModule } from '../group/group.module';
 import { StudyLogModule } from '../study-log/study-log.module';
 import { ResetPasswordModule } from './reset-password/reset-password.module';
+import { AuthProviders } from './auth.providers';
 
 @Module({
 	imports: [
@@ -22,6 +23,7 @@ import { ResetPasswordModule } from './reset-password/reset-password.module';
 		ResetPasswordModule,
 	],
 	controllers: [AuthController],
-	providers: [AuthService, LocalStrategy, GitHubStrategy],
+	providers: [AuthService, LocalStrategy, GitHubStrategy, ...AuthProviders],
+	exports: [...AuthProviders],
 })
 export class AuthModule {}
