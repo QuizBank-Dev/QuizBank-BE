@@ -84,8 +84,13 @@ export class QuizbookController {
 	getQuizbookListByAuthor(
 		@Query() dto: PaginationRequestDto,
 		@Param('authorId') authorId: string,
+		@UserId(true) userId?: string,
 	) {
-		return this.quizbookService.getQuizbookListByUser(dto, authorId);
+		return this.quizbookService.getQuizbookListByUser(
+			dto,
+			authorId,
+			userId,
+		);
 	}
 
 	// GET v1/quizbook/:quizbookId/meta-data

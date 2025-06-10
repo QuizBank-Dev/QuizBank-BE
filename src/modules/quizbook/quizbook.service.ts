@@ -95,16 +95,23 @@ export class QuizbookService {
 	}
 
 	// 특정 사용자가 작성한 모든 Quizbook 조회
-	async getQuizbookListByUser(dto: PaginationRequestDto, userId: string) {
+	async getQuizbookListByUser(
+		dto: PaginationRequestDto,
+		authorId: string,
+		userId?: string,
+	) {
 		const quizbookList =
 			await this.quizbookRepo.findQuizbookListByAuthorWithPagination(
-				userId,
+				authorId,
 				dto,
 			);
 
 		return {
 			...quizbookList,
-			data: await this.addUserFlagsToQuizbook(quizbookList.data, userId),
+			data: await this.addUserFlagsToQuizbook(
+				quizbookList.data,
+				userId ? userId : authorId,
+			),
 		};
 	}
 
